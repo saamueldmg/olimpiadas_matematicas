@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quiz</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Font Awesome para los iconos -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: #f3f4f6;
+      }
+      .container {
+        max-width: 800px;
+      }
+      .option-label {
+        transition: all 0.2s ease-in-out;
+        cursor: pointer;
+      }
+      .option-label:hover {
+        transform: scale(1.02);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+      input[type="radio"]:checked + .option-label {
+        background-color: #3b82f6; /* bg-blue-500 */
+        color: white;
+        border-color: #3b82f6;
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+      }
+    </style>
+  </head>
+  <body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+    <div class="container mx-auto p-8 bg-white rounded-xl shadow-lg">
+      <h1 class="text-4xl font-bold text-center text-gray-800 mb-6">
+        <i class="fas fa-question-circle text-blue-600 mr-2"></i> Pregunta {{
+        question_number }}
+      </h1>
+
+      <form
+        action="{{ url_for('submit_answer') }}"
+        method="post"
+        class="space-y-6"
+      >
+        <!-- Contenedor de la pregunta -->
+        <div
+          class="bg-gray-50 p-6 rounded-lg border border-gray-200 text-center"
+        >
+          {% if 'question_image' in question %}
+          <img
+            src="{{ url_for('static', filename='images/' + question.question_image) }}"
+            alt="Imagen de la pregunta"
+            class="max-w-full h-auto mx-auto rounded-lg shadow-md mb-4"
+          />
+          {% endif %}
+          <p class="text-lg font-semibold text-gray-700">
+            {{ question.get('question_text', '¿Cuál es la respuesta correcta?')
+            }}
+          </p>
+        </div>
+
+        <!-- Contenedor de las opciones -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {% for key, value in question.options.items() %}
+          <div class="relative">
+            <input
+              type="radio"
+              id="option-{{ key }}"
+              name="answer"
+              value="{{ key }}"
+              class="hidden"
+              required
+            />
+            <label
+              for="option-{{ key }}"
+              class="option-label block p-4 bg-white border border-gray-300 rounded-lg shadow-sm text-gray-800 text-lg font-medium text-center"
+            >
+              {{ value }}
+            </label>
+          </div>
+          {% endfor %}
+        </div>
+
+        <!-- Botones de acción -->
+        <div class="flex flex-col sm:flex-row justify-between gap-4 mt-6">
+          <button
+            type="submit"
+            class="w-full sm:w-1/2 bg-blue-600 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:bg-blue-700 transition-all duration-300 transform hover:scale-105"
+          >
+            <i class="fas fa-check-circle mr-2"></i> Enviar Respuesta
+          </button>
+          <a
+            href="{{ url_for('skip_question') }}"
+            class="w-full sm:w-1/2 text-center bg-yellow-500 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:bg-yellow-600 transition-all duration-300 transform hover:scale-105"
+          >
+            <i class="fas fa-forward mr-2"></i> Saltar Pregunta
+          </a>
+        </div>
+      </form>
+
+      <div class="mt-6 text-center">
+        <a
+          href="{{ url_for('dashboard') }}"
+          class="inline-block bg-gray-500 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:bg-gray-600 transition-all duration-300 transform hover:scale-105"
+        >
+          <i class="fas fa-arrow-left mr-2"></i> Volver al Dashboard
+        </a>
+      </div>
+    </div>
+  </body>
+</html>

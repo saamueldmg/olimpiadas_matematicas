@@ -1,0 +1,149 @@
+body {
+  font-family: "Arial", sans-serif;
+  background-color: #e9ecef;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  margin: 0;
+  color: #333;
+}
+
+.container {
+  background-color: #ffffff;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  width: 90%;
+  max-width: 600px;
+  border: 1px solid #dee2e6;
+}
+
+h1,
+h2,
+h3 {
+  color: #007bff;
+  margin-bottom: 20px;
+}
+
+.button {
+  display: inline-block;
+  background-color: #007bff;
+  color: white;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  text-decoration: none;
+  margin: 8px;
+  font-size: 1em;
+  transition: background-color 0.3s ease;
+}
+
+.button:hover {
+  background-color: #0056b3;
+}
+
+.logout-button {
+  background-color: #dc3545;
+}
+
+.logout-button:hover {
+  background-color: #c82333;
+}
+
+.option-button {
+  display: block;
+  width: 100%;
+  padding: 15px;
+  margin: 10px 0;
+  font-size: 1.2em;
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.option-button:hover {
+  background-color: #5a6268;
+}
+
+.team-button {
+  display: inline-block;
+  padding: 15px 30px;
+  margin: 10px;
+  font-size: 1.2em;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.team-rojo {
+  background-color: #dc3545;
+}
+
+.team-rojo:hover {
+  background-color: #c82333;
+}
+
+.team-verde {
+  background-color: #28a745;
+}
+
+.team-verde:hover {
+  background-color: #218838;
+}
+
+.correct {
+  color: #28a745;
+}
+
+.incorrect {
+  color: #dc3545;
+}
+
+.correct-answer-text {
+  font-weight: bold;
+  font-style: italic;
+  color: #333;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 25px;
+}
+
+th,
+td {
+  border: 1px solid #dee2e6;
+  padding: 12px;
+  text-align: left;
+  font-size: 1.1em;
+}
+
+th {
+  background-color: #e9ecef;
+  font-weight: bold;
+}
+
+.final-message {
+  font-size: 1.5em;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+input[type="text"],
+input[type="password"] {
+  width: calc(100% - 24px);
+  padding: 12px;
+  margin: 8px 0;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  box-sizing: border-box;
+}

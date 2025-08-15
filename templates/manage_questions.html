@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Administrar Preguntas</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Font Awesome para los iconos -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: #f3f4f6;
+      }
+      .container {
+        max-width: 900px;
+      }
+      .accordion-item {
+        border-bottom: 1px solid #e5e7eb;
+      }
+      .accordion-header {
+        background-color: #f9fafb;
+        padding: 1rem 1.5rem;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+      }
+      .accordion-header:hover {
+        background-color: #f3f4f6;
+      }
+      .accordion-content {
+        display: none;
+        padding: 1rem 1.5rem;
+        background-color: white;
+      }
+      .accordion-content.open {
+        display: block;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-100 flex items-start justify-center min-h-screen p-8">
+    <div class="container mx-auto p-8 bg-white rounded-xl shadow-lg">
+      <h1 class="text-4xl font-bold text-center text-gray-800 mb-8">
+        <i class="fas fa-list-alt text-yellow-500 mr-2"></i> Administrar
+        Preguntas
+      </h1>
+
+      <!-- Acordeón para Nivel I -->
+      <div class="accordion-item">
+        <div
+          class="accordion-header flex justify-between items-center text-xl font-bold text-gray-700"
+        >
+          <span>Nivel I ({{ nivel1 | length }} preguntas)</span>
+          <i class="fas fa-chevron-down text-gray-500"></i>
+        </div>
+        <div class="accordion-content space-y-6">
+          {% for question in nivel1 %}
+          <div class="border-b pb-4 mb-4">
+            <img
+              src="{{ url_for('static', filename='images/' + question.question_image) }}"
+              alt="Pregunta {{ loop.index }}"
+              class="max-w-xs mx-auto mb-4 rounded-lg shadow"
+            />
+            <ul class="list-disc list-inside space-y-1">
+              {% for key, value in question.options.items() %}
+              <li
+                class="{% if key == question.correct %}font-bold text-green-600{% endif %}"
+              >
+                <i
+                  class="{% if key == question.correct %}fas fa-check-circle{% else %}far fa-circle{% endif %} mr-2"
+                ></i>
+                {{ key | upper }}) {{ value }}
+              </li>
+              {% endfor %}
+            </ul>
+            <div class="mt-4 text-right">
+              <form
+                action="{{ url_for('delete_question', level='nivel1', index=loop.index0) }}"
+                method="post"
+                onsubmit="return confirm('¿Estás seguro de que quieres eliminar esta pregunta?');"
+              >
+                <button
+                  type="submit"
+                  class="bg-red-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-red-700 transition-colors"
+                >
+                  <i class="fas fa-trash-alt mr-2"></i> Eliminar
+                </button>
+              </form>
+            </div>
+          </div>
+          {% else %}
+          <p class="text-center text-gray-500">
+            No hay preguntas en este nivel.
+          </p>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Acordeón para Nivel II -->
+      <div class="accordion-item">
+        <div
+          class="accordion-header flex justify-between items-center text-xl font-bold text-gray-700"
+        >
+          <span>Nivel II ({{ nivel2 | length }} preguntas)</span>
+          <i class="fas fa-chevron-down text-gray-500"></i>
+        </div>
+        <div class="accordion-content space-y-6">
+          {% for question in nivel2 %}
+          <div class="border-b pb-4 mb-4">
+            <img
+              src="{{ url_for('static', filename='images/' + question.question_image) }}"
+              alt="Pregunta {{ loop.index }}"
+              class="max-w-xs mx-auto mb-4 rounded-lg shadow"
+            />
+            <ul class="list-disc list-inside space-y-1">
+              {% for key, value in question.options.items() %}
+              <li
+                class="{% if key == question.correct %}font-bold text-green-600{% endif %}"
+              >
+                <i
+                  class="{% if key == question.correct %}fas fa-check-circle{% else %}far fa-circle{% endif %} mr-2"
+                ></i>
+                {{ key | upper }}) {{ value }}
+              </li>
+              {% endfor %}
+            </ul>
+            <div class="mt-4 text-right">
+              <form
+                action="{{ url_for('delete_question', level='nivel2', index=loop.index0) }}"
+                method="post"
+                onsubmit="return confirm('¿Estás seguro de que quieres eliminar esta pregunta?');"
+              >
+                <button
+                  type="submit"
+                  class="bg-red-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-red-700 transition-colors"
+                >
+                  <i class="fas fa-trash-alt mr-2"></i> Eliminar
+                </button>
+              </form>
+            </div>
+          </div>
+          {% else %}
+          <p class="text-center text-gray-500">
+            No hay preguntas en este nivel.
+          </p>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Acordeón para Nivel III -->
+      <div class="accordion-item">
+        <div
+          class="accordion-header flex justify-between items-center text-xl font-bold text-gray-700"
+        >
+          <span>Nivel III ({{ nivel3 | length }} preguntas)</span>
+          <i class="fas fa-chevron-down text-gray-500"></i>
+        </div>
+        <div class="accordion-content space-y-6">
+          {% for question in nivel3 %}
+          <div class="border-b pb-4 mb-4">
+            <img
+              src="{{ url_for('static', filename='images/' + question.question_image) }}"
+              alt="Pregunta {{ loop.index }}"
+              class="max-w-xs mx-auto mb-4 rounded-lg shadow"
+            />
+            <ul class="list-disc list-inside space-y-1">
+              {% for key, value in question.options.items() %}
+              <li
+                class="{% if key == question.correct %}font-bold text-green-600{% endif %}"
+              >
+                <i
+                  class="{% if key == question.correct %}fas fa-check-circle{% else %}far fa-circle{% endif %} mr-2"
+                ></i>
+                {{ key | upper }}) {{ value }}
+              </li>
+              {% endfor %}
+            </ul>
+            <div class="mt-4 text-right">
+              <form
+                action="{{ url_for('delete_question', level='nivel3', index=loop.index0) }}"
+                method="post"
+                onsubmit="return confirm('¿Estás seguro de que quieres eliminar esta pregunta?');"
+              >
+                <button
+                  type="submit"
+                  class="bg-red-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-red-700 transition-colors"
+                >
+                  <i class="fas fa-trash-alt mr-2"></i> Eliminar
+                </button>
+              </form>
+            </div>
+          </div>
+          {% else %}
+          <p class="text-center text-gray-500">
+            No hay preguntas en este nivel.
+          </p>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="mt-8 text-center">
+        <a
+          href="{{ url_for('dashboard') }}"
+          class="w-full sm:w-auto inline-block bg-gray-500 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:bg-gray-600 transition-all duration-300 transform hover:scale-105"
+        >
+          <i class="fas fa-arrow-left mr-2"></i> Volver al Dashboard
+        </a>
+      </div>
+    </div>
+
+    <!-- Script para el acordeón -->
+    <script>
+      document.querySelectorAll(".accordion-header").forEach((header) => {
+        header.addEventListener("click", () => {
+          const content = header.nextElementSibling;
+          const icon = header.querySelector("i");
+          content.classList.toggle("open");
+          icon.classList.toggle("fa-chevron-down");
+          icon.classList.toggle("fa-chevron-up");
+        });
+      });
+    </script>
+  </body>
+</html>

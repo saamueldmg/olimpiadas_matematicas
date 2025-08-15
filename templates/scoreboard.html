@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Scoreboard</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Font Awesome para los iconos -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: #f3f4f6;
+      }
+      .container {
+        max-width: 800px;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+    <div class="container mx-auto p-8 bg-white rounded-xl shadow-lg">
+      <h1 class="text-4xl font-bold text-center text-gray-800 mb-6">
+        <i class="fas fa-chart-bar text-red-600 mr-2"></i> Ver Scoreboard
+      </h1>
+
+      <!-- Tabla de puntajes -->
+      <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 mt-6">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-100">
+            <tr>
+              <th
+                scope="col"
+                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              >
+                Nombre del Equipo
+              </th>
+              <th
+                scope="col"
+                class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
+              >
+                Puntaje
+              </th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            {% for team, score in scores.items() %}
+            <tr>
+              <td
+                class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"
+              >
+                {{ team }}
+              </td>
+              <td
+                class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right"
+              >
+                {{ score }}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mt-6">
+        <a
+          href="{{ url_for('dashboard') }}"
+          class="w-full text-center block bg-gray-500 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:bg-gray-600 transition-all duration-300 transform hover:scale-105"
+        >
+          <i class="fas fa-arrow-left mr-2"></i> Volver al Dashboard
+        </a>
+      </div>
+    </div>
+  </body>
+</html>

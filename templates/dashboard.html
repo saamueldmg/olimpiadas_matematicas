@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}"
+    />
+    <!-- Incluir Font Awesome para los iconos -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+        margin-top: 30px;
+      }
+      .dashboard-button {
+        background-color: #007bff;
+        color: white;
+        padding: 40px 20px;
+        border-radius: 12px;
+        text-decoration: none;
+        font-size: 1.2em;
+        font-weight: bold;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        transition: background-color 0.3s ease;
+      }
+      .dashboard-button:hover {
+        background-color: #0056b3;
+      }
+      /* Estilos de los iconos */
+      .dashboard-button i {
+        font-size: 2.5em; /* Tamaño del icono */
+        margin-bottom: 10px; /* Espacio entre el icono y el texto */
+      }
+      .add-question {
+        background-color: #17a2b8;
+      }
+      .add-question:hover {
+        background-color: #138496;
+      }
+      .manage-questions {
+        background-color: #ffc107;
+      }
+      .manage-questions:hover {
+        background-color: #e0a800;
+      }
+      .manage-teams {
+        background-color: #28a745;
+      }
+      .manage-teams:hover {
+        background-color: #218838;
+      }
+      .scoreboard {
+        background-color: #dc3545;
+      }
+      .scoreboard:hover {
+        background-color: #c82333;
+      }
+      .start-quiz {
+        background-color: #6610f2;
+      }
+      .start-quiz:hover {
+        background-color: #5507d6;
+      }
+      .logout {
+        background-color: #6c757d;
+      }
+      .logout:hover {
+        background-color: #5a6268;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Dashboard</h1>
+      <div class="dashboard-grid">
+        <!-- Botón Añadir pregunta -->
+        <a
+          href="{{ url_for('add_question') }}"
+          class="dashboard-button add-question"
+        >
+          <i class="fas fa-plus"></i>
+          Añadir pregunta
+        </a>
+        <!-- Botón Administrar preguntas - ¡CORREGIDO! -->
+        <a
+          href="{{ url_for('manage_questions') }}"
+          class="dashboard-button manage-questions"
+        >
+          <i class="fas fa-list-alt"></i>
+          Administrar preguntas
+        </a>
+        <!-- Botón Gestionar equipos -->
+        <a
+          href="{{ url_for('manage_teams') }}"
+          class="dashboard-button manage-teams"
+        >
+          <i class="fas fa-users"></i>
+          Gestionar equipos
+        </a>
+        <!-- Botón Ver Scoreboard -->
+        <a
+          href="{{ url_for('show_scoreboard') }}"
+          class="dashboard-button scoreboard"
+        >
+          <i class="fas fa-chart-bar"></i>
+          Ver Scoreboard
+        </a>
+        <!-- Botón Iniciar Quiz -->
+        <a
+          href="{{ url_for('select_level') }}"
+          class="dashboard-button start-quiz"
+        >
+          <i class="fas fa-play"></i>
+          Iniciar Quiz
+        </a>
+        <!-- Botón Cerrar sesión -->
+        <a href="{{ url_for('logout') }}" class="dashboard-button logout">
+          <i class="fas fa-sign-out-alt"></i>
+          Cerrar sesión
+        </a>
+      </div>
+    </div>
+  </body>
+</html>

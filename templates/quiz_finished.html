@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fin del Quiz</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <h1>¡Fin del Quiz!</h1>
+      <p class="final-message">{{ message }}</p>
+      <table>
+        <thead>
+          <tr>
+            <th>Equipo</th>
+            <th>Puntaje</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Rojo</td>
+            <td>{{ scores.Rojo }}</td>
+          </tr>
+          <tr>
+            <td>Verde</td>
+            <td>{{ scores.Verde }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <a href="{{ url_for('select_level') }}" class="button"
+        >Volver a Empezar</a
+      >
+    </div>
+  </body>
+</html>

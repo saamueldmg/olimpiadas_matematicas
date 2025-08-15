@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Asignar Punto</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}"
+    />
+  </head>
+  <body>
+    <div class="container">
+      {% if is_correct %}
+      <h2 class="correct">¡Respuesta Correcta!</h2>
+      {% else %}
+      <h2 class="incorrect">
+        Respuesta Incorrecta. La correcta era:
+        <span class="correct-answer-text">{{ correct_answer }}</span>
+      </h2>
+      {% endif %}
+
+      <h3 class="team-question">¿A qué equipo le asignas el punto?</h3>
+      <form action="{{ url_for('assign_point_to_team') }}" method="post">
+        <button
+          type="submit"
+          name="team"
+          value="Rojo"
+          class="team-button team-rojo"
+        >
+          Rojo
+        </button>
+        <button
+          type="submit"
+          name="team"
+          value="Verde"
+          class="team-button team-verde"
+        >
+          Verde
+        </button>
+      </form>
+    </div>
+  </body>
+</html>

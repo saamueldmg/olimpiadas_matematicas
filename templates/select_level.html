@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Seleccionar Nivel</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Font Awesome para los iconos -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: #f3f4f6;
+      }
+      .container {
+        max-width: 800px;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+    <div
+      class="container mx-auto p-8 bg-white rounded-xl shadow-lg text-center"
+    >
+      <h1 class="text-4xl font-bold text-center text-gray-800 mb-6">
+        <i class="fas fa-list-ol text-blue-600 mr-2"></i> Selecciona un Nivel
+      </h1>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+        <a
+          href="{{ url_for('start_quiz', level='nivel1') }}"
+          class="bg-blue-600 text-white font-bold py-4 px-6 rounded-lg shadow-lg hover:bg-blue-700 transition-all duration-300 transform hover:scale-105"
+        >
+          Nivel I (6° - 7°)
+        </a>
+        <a
+          href="{{ url_for('start_quiz', level='nivel2') }}"
+          class="bg-blue-600 text-white font-bold py-4 px-6 rounded-lg shadow-lg hover:bg-blue-700 transition-all duration-300 transform hover:scale-105"
+        >
+          Nivel II (8° - 9°)
+        </a>
+        <a
+          href="{{ url_for('start_quiz', level='nivel3') }}"
+          class="bg-blue-600 text-white font-bold py-4 px-6 rounded-lg shadow-lg hover:bg-blue-700 transition-all duration-300 transform hover:scale-105"
+        >
+          Nivel III (10° - 11°)
+        </a>
+      </div>
+
+      <div class="mt-6">
+        <a
+          href="{{ url_for('dashboard') }}"
+          class="w-full sm:w-auto inline-block bg-gray-500 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:bg-gray-600 transition-all duration-300 transform hover:scale-105"
+        >
+          <i class="fas fa-arrow-left mr-2"></i> Volver al Dashboard
+        </a>
+      </div>
+    </div>
+  </body>
+</html>
