@@ -102,12 +102,9 @@ def add_question():
 
     return render_template('add_question.html')
 
-# --- Nuevas rutas para Administrar Preguntas ---
-
 @app.route('/manage-questions')
 @login_required
 def manage_questions():
-    """Muestra la lista de preguntas para cada nivel."""
     return render_template('manage_questions.html', 
                            nivel1=QUIZ_NIVEL1, 
                            nivel2=QUIZ_NIVEL2, 
@@ -116,7 +113,6 @@ def manage_questions():
 @app.route('/delete-question/<level>/<int:index>', methods=['POST'])
 @login_required
 def delete_question(level, index):
-    """Elimina una pregunta y su archivo de imagen."""
     question_list = []
     if level == 'nivel1':
         question_list = QUIZ_NIVEL1
@@ -127,12 +123,10 @@ def delete_question(level, index):
 
     if 0 <= index < len(question_list):
         question_to_delete = question_list[index]
-        # Elimina el archivo de imagen del sistema
         image_path = os.path.join(app.config['UPLOAD_FOLDER'], question_to_delete['question_image'])
         if os.path.exists(image_path):
             os.remove(image_path)
         
-        # Elimina la pregunta de la lista
         del question_list[index]
     
     return redirect(url_for('manage_questions'))
@@ -153,6 +147,25 @@ def manage_teams():
 
     return render_template('manage_teams.html', teams=session['team_scores'])
 
+@app.route('/update-team-name', methods=['POST'])
+@login_required
+def update_team_name():
+    old_name = request.form.get('old_name')
+    new_name = request.form.get('new_name')
+    
+    if old_name in session['team_scores'] and new_name:
+        updated_teams = {}
+        for team, score in session['team_scores'].items():
+            if team == old_name:
+                updated_teams[new_name] = score
+            else:
+                updated_teams[team] = score
+        
+        session['team_scores'] = updated_teams
+        session.modified = True
+    
+    return redirect(url_for('manage_teams'))
+
 @app.route('/delete-team/<team_name>', methods=['POST'])
 @login_required
 def delete_team(team_name):
@@ -161,13 +174,13 @@ def delete_team(team_name):
         session.modified = True
     return redirect(url_for('manage_teams'))
 
+# --- Rutas del Quiz ---
+
 @app.route('/scoreboard')
 @login_required
 def show_scoreboard():
     scores = session.get('team_scores', {})
     return render_template('scoreboard.html', scores=scores)
-
-# --- Rutas del Quiz ---
 
 @app.route('/select-level')
 @login_required
@@ -187,7 +200,14 @@ def start_quiz(level):
     session['quiz_pool'] = quiz_pool
     session['current_question_index'] = 0
     session['team_scores'] = {team: 0 for team in session.get('team_scores', {})}
-    return redirect(url_for('quiz_question'))
+    # Redirige a la nueva ruta de animación
+    return redirect(url_for('countdown'))
+
+@app.route('/countdown')
+@login_required
+def countdown():
+    """Ruta para mostrar la animación de cuenta regresiva."""
+    return render_template('countdown.html')
 
 @app.route('/quiz-question')
 @login_required
