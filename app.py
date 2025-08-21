@@ -114,33 +114,52 @@ def add_question():
     return render_template('add_question.html')
 
 
+<< << << < HEAD
+
+
 @app.route('/manage-questions')
 @login_required
 def manage_questions():
     return render_template('manage_questions.html',
                            nivel1=QUIZ_NIVEL1,
                            nivel2=QUIZ_NIVEL2,
+== == ===
+@ app.route('/manage-questions')
+@ login_required
+def manage_questions():
+    return render_template('manage_questions.html',
+                           nivel1=QUIZ_NIVEL1,
+                           nivel2=QUIZ_NIVEL2,
+>>>>>> > ef469aac3a6f7a14c1c38fd7473b82b858c8952c
                            nivel3=QUIZ_NIVEL3)
 
 
-@app.route('/delete-question/<level>/<int:index>', methods=['POST'])
-@login_required
+@ app.route('/delete-question/<level>/<int:index>', methods=['POST'])
+@ login_required
 def delete_question(level, index):
-    question_list = []
+    question_list=[]
     if level == 'nivel1':
-        question_list = QUIZ_NIVEL1
+        question_list=QUIZ_NIVEL1
     elif level == 'nivel2':
-        question_list = QUIZ_NIVEL2
+        question_list=QUIZ_NIVEL2
     elif level == 'nivel3':
-        question_list = QUIZ_NIVEL3
+        question_list=QUIZ_NIVEL3
 
     if 0 <= index < len(question_list):
-        question_to_delete = question_list[index]
-        image_path = os.path.join(
+        question_to_delete=question_list[index]
+<< << << < HEAD
+        image_path=os.path.join(
             app.config['UPLOAD_FOLDER'], question_to_delete['question_image'])
         if os.path.exists(image_path):
             os.remove(image_path)
 
+== == ===
+        image_path=os.path.join(
+            app.config['UPLOAD_FOLDER'], question_to_delete['question_image'])
+        if os.path.exists(image_path):
+            os.remove(image_path)
+
+>> >>>> > ef469aac3a6f7a14c1c38fd7473b82b858c8952c
         del question_list[index]
 
     return redirect(url_for('manage_questions'))
@@ -148,112 +167,146 @@ def delete_question(level, index):
 # --- Rutas de Gestión de Equipos ---
 
 
-@app.route('/manage-teams', methods=['GET', 'POST'])
-@login_required
+@ app.route('/manage-teams', methods=['GET', 'POST'])
+@ login_required
 def manage_teams():
     if 'team_scores' not in session:
-        session['team_scores'] = {}
+        session['team_scores']={}
 
     if request.method == 'POST':
-        new_team_name = request.form.get('new_team_name')
+        new_team_name=request.form.get('new_team_name')
         if new_team_name and new_team_name not in session['team_scores']:
-            session['team_scores'][new_team_name] = 0
-            session.modified = True
+            session['team_scores'][new_team_name]=0
+            session.modified=True
 
     return render_template('manage_teams.html', teams=session['team_scores'])
 
+<< << << < HEAD
 
-@app.route('/update-team-name', methods=['POST'])
-@login_required
+== == ===
+>>>>>> > ef469aac3a6f7a14c1c38fd7473b82b858c8952c
+@ app.route('/update-team-name', methods=['POST'])
+@ login_required
 def update_team_name():
-    old_name = request.form.get('old_name')
-    new_name = request.form.get('new_name')
+    old_name=request.form.get('old_name')
+    new_name=request.form.get('new_name')
+<< << << < HEAD
 
+== == ===
+
+>>>>>> > ef469aac3a6f7a14c1c38fd7473b82b858c8952c
     if old_name in session['team_scores'] and new_name:
-        updated_teams = {}
+        updated_teams={}
         for team, score in session['team_scores'].items():
             if team == old_name:
-                updated_teams[new_name] = score
+                updated_teams[new_name]=score
             else:
-                updated_teams[team] = score
+                updated_teams[team]=score
+<< << << < HEAD
 
-        session['team_scores'] = updated_teams
-        session.modified = True
+        session['team_scores']=updated_teams
+        session.modified=True
 
     return redirect(url_for('manage_teams'))
 
 
-@app.route('/delete-team/<team_name>', methods=['POST'])
-@login_required
+== == ===
+
+        session['team_scores']=updated_teams
+        session.modified=True
+
+    return redirect(url_for('manage_teams'))
+
+>> >>>> > ef469aac3a6f7a14c1c38fd7473b82b858c8952c
+@ app.route('/delete-team/<team_name>', methods=['POST'])
+@ login_required
 def delete_team(team_name):
     if 'team_scores' in session and team_name in session['team_scores']:
         del session['team_scores'][team_name]
-        session.modified = True
+        session.modified=True
     return redirect(url_for('manage_teams'))
 
 # --- Rutas del Quiz ---
 
+<< << << < HEAD
 
-@app.route('/scoreboard')
-@login_required
+== == ===
+>>>>>> > ef469aac3a6f7a14c1c38fd7473b82b858c8952c
+@ app.route('/scoreboard')
+@ login_required
 def show_scoreboard():
-    scores = session.get('team_scores', {})
+    scores=session.get('team_scores', {})
     return render_template('scoreboard.html', scores=scores)
 
+<< << << < HEAD
 
-@app.route('/select-level')
-@login_required
+== == ===
+>>>>>> > ef469aac3a6f7a14c1c38fd7473b82b858c8952c
+@ app.route('/select-level')
+@ login_required
 def select_level():
     return render_template('select_level.html')
 
 
-@app.route('/start-quiz/<level>')
-@login_required
+@ app.route('/start-quiz/<level>')
+@ login_required
 def start_quiz(level):
-    session['quiz_level'] = level
-    quiz_pool = {
+    session['quiz_level']=level
+    quiz_pool={
         'nivel1': QUIZ_NIVEL1,
         'nivel2': QUIZ_NIVEL2,
         'nivel3': QUIZ_NIVEL3,
     }.get(level, [])
     random.shuffle(quiz_pool)
-    session['quiz_pool'] = quiz_pool
-    session['current_question_index'] = 0
+    session['quiz_pool']=quiz_pool
+    session['current_question_index']=0
+<< << << < HEAD
 
     # Se inicializan los puntajes de los equipos solo una vez
     if 'team_scores' not in session or not session['team_scores']:
-        session['team_scores'] = {'Rojo': 0, 'Verde': 0}
+        session['team_scores']={'Rojo': 0, 'Verde': 0}
 
     return redirect(url_for('countdown'))
 
 
-@app.route('/countdown')
-@login_required
+@ app.route('/countdown')
+@ login_required
 def countdown():
     return render_template('countdown.html')
 
+== == ===
+    session['team_scores']={team: 0 for team in session.get('team_scores', {})}
+    # Redirige a la nueva ruta de animación
+    return redirect(url_for('countdown'))
 
-@app.route('/quiz-question')
-@login_required
+@ app.route('/countdown')
+@ login_required
+def countdown():
+    """Ruta para mostrar la animación de cuenta regresiva."""
+    return render_template('countdown.html')
+>> >>>> > ef469aac3a6f7a14c1c38fd7473b82b858c8952c
+
+@ app.route('/quiz-question')
+@ login_required
 def quiz_question():
-    index = session.get('current_question_index')
-    quiz_pool = session.get('quiz_pool')
+    index=session.get('current_question_index')
+    quiz_pool=session.get('quiz_pool')
     if not quiz_pool or index >= len(quiz_pool):
         return redirect(url_for('quiz_finished'))
-    question = quiz_pool[index]
-    session['current_question'] = question
+    question=quiz_pool[index]
+    session['current_question']=question
     return render_template('quiz.html',
                            question=question,
                            question_number=index + 1)
 
 
-@app.route('/submit-answer', methods=['POST'])
-@login_required
+@ app.route('/submit-answer', methods=['POST'])
+@ login_required
 def submit_answer():
-    user_answer = request.form.get('answer')
-    question = session.get('current_question')
+    user_answer=request.form.get('answer')
+    question=session.get('current_question')
 
-    is_correct = user_answer == question['correct']
+    is_correct=user_answer == question['correct']
 
     if not is_correct:
         return render_template('assign_point.html',
@@ -265,13 +318,13 @@ def submit_answer():
                                old_question=False)
 
 
-@app.route('/assign-point-to-team', methods=['POST'])
-@login_required
+@ app.route('/assign-point-to-team', methods=['POST'])
+@ login_required
 def assign_point_to_team():
-    team = request.form.get('team')
+    team=request.form.get('team')
     # La variable old_question_flag no se está pasando, por lo que la obtenemos de la sesión.
     # Se debe enviar desde el formulario.
-    old_question_flag = request.form.get('old_question_flag')
+    old_question_flag=request.form.get('old_question_flag')
 
     if team in session['team_scores']:
         session['team_scores'][team] += 1
@@ -283,37 +336,37 @@ def assign_point_to_team():
     return redirect(url_for('quiz_question'))
 
 
-@app.route('/skip-question')
-@login_required
+@ app.route('/skip-question')
+@ login_required
 def skip_question():
     session['current_question_index'] += 1
     return redirect(url_for('quiz_question'))
 
 
-@app.route('/quiz-finished')
-@login_required
+@ app.route('/quiz-finished')
+@ login_required
 def quiz_finished():
-    scores = session.get('team_scores', {})
+    scores=session.get('team_scores', {})
     if len(scores) < 2:
-        winner = "No hay suficientes equipos"
-        message = "No se puede determinar un ganador."
+        winner="No hay suficientes equipos"
+        message="No se puede determinar un ganador."
     else:
         # Lógica para determinar el ganador
-        max_score = 0
-        winner_list = []
+        max_score=0
+        winner_list=[]
         for team, score in scores.items():
             if score > max_score:
-                max_score = score
-                winner_list = [team]
+                max_score=score
+                winner_list=[team]
             elif score == max_score:
                 winner_list.append(team)
 
         if len(winner_list) == 1:
-            winner = winner_list[0]
-            message = f"¡El equipo {winner} ha ganado!"
+            winner=winner_list[0]
+            message=f"¡El equipo {winner} ha ganado!"
         else:
-            winner = "Empate"
-            message = "¡Ha habido un empate!"
+            winner="Empate"
+            message="¡Ha habido un empate!"
 
     return render_template('quiz_finished.html', scores=scores, winner=winner, message=message)
 
