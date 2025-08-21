@@ -7,11 +7,13 @@ import random
 import os
 
 app = Flask(__name__)
+# ¡Importante! Cambia esto por una clave secreta real
 app.secret_key = 'una-clave-super-secreta'
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
+# Directorio donde se guardarán las imágenes
 UPLOAD_FOLDER = 'static/images'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
@@ -195,7 +197,9 @@ def delete_team(team_name):
 @app.route('/scoreboard')
 @login_required
 def show_scoreboard():
-    scores = session.get('team_scores', {})
+    scores = session.get('quiz_scores', {})
+    if not scores:
+        scores = session.get('team_scores', {})
     return render_template('scoreboard.html', scores=scores)
 
 
@@ -217,16 +221,18 @@ def start_quiz(level):
     random.shuffle(quiz_pool)
     session['quiz_pool'] = quiz_pool
     session['current_question_index'] = 0
-    session['team_scores'] = {
+
+    # Se inicializan los puntajes de los equipos a 0 en una nueva sesión,
+    # pero manteniendo los nombres de los equipos existentes.
+    session['quiz_scores'] = {
         team: 0 for team in session.get('team_scores', {})}
-    # Redirige a la nueva ruta de animación
+
     return redirect(url_for('countdown'))
 
 
 @app.route('/countdown')
 @login_required
 def countdown():
-    """Ruta para mostrar la animación de cuenta regresiva."""
     return render_template('countdown.html')
 
 
@@ -249,20 +255,36 @@ def quiz_question():
 def submit_answer():
     user_answer = request.form.get('answer')
     question = session.get('current_question')
+
     is_correct = user_answer == question['correct']
-    return render_template('assign_point.html',
-                           is_correct=is_correct,
-                           correct_answer=question['correct'],
-                           user_answer=user_answer)
+
+    if not is_correct:
+        return render_template('assign_point.html',
+                               is_correct=False,
+                               old_question=True)
+    else:
+        return render_template('assign_point.html',
+                               is_correct=True,
+                               old_question=False)
 
 
 @app.route('/assign-point-to-team', methods=['POST'])
 @login_required
 def assign_point_to_team():
     team = request.form.get('team')
-    if team in session['team_scores']:
-        session['team_scores'][team] += 1
-    session['current_question_index'] += 1
+    old_question_flag = request.form.get('old_question_flag')
+
+    if team in session['quiz_scores']:
+        session['quiz_scores'][team] += 1
+
+    # Comprobar si algún equipo ha llegado a 5 puntos
+    for score in session['quiz_scores'].values():
+        if score >= 5:
+            return redirect(url_for('quiz_finished'))
+
+    if old_question_flag == 'False':
+        session['current_question_index'] += 1
+
     return redirect(url_for('quiz_question'))
 
 
@@ -276,22 +298,28 @@ def skip_question():
 @app.route('/quiz-finished')
 @login_required
 def quiz_finished():
-    scores = session.get('team_scores', {})
+    scores = session.get('quiz_scores', {})
     if len(scores) < 2:
         winner = "No hay suficientes equipos"
         message = "No se puede determinar un ganador."
     else:
-        rojo_score = scores.get("Rojo", 0)
-        verde_score = scores.get("Verde", 0)
-        if rojo_score > verde_score:
-            winner = "Equipo Rojo"
-            message = f"¡El {winner} ha ganado!"
-        elif verde_score > rojo_score:
-            winner = "Equipo Verde"
-            message = f"¡El {winner} ha ganado!"
+        # Lógica para determinar el ganador
+        max_score = 0
+        winner_list = []
+        for team, score in scores.items():
+            if score > max_score:
+                max_score = score
+                winner_list = [team]
+            elif score == max_score:
+                winner_list.append(team)
+
+        if len(winner_list) == 1:
+            winner = winner_list[0]
+            message = f"¡El equipo {winner} ha ganado!"
         else:
             winner = "Empate"
             message = "¡Ha habido un empate!"
+
     return render_template('quiz_finished.html', scores=scores, winner=winner, message=message)
 
 
