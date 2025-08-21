@@ -53,6 +53,9 @@ def login():
 
 @app.route('/')
 def index():
+    if 'team_scores' not in session:
+        session['team_scores'] = {}
+
     if current_user.is_authenticated:
         return redirect(url_for('dashboard'))
     return redirect(url_for('login'))
@@ -206,12 +209,17 @@ def show_scoreboard():
 @app.route('/select-level')
 @login_required
 def select_level():
-    return render_template('select_level.html')
+    teams = list(session.get('team_scores', {}).keys())
+    return render_template('select_level.html', teams=teams)
 
 
-@app.route('/start-quiz/<level>')
+@app.route('/start-quiz', methods=['POST'])
 @login_required
-def start_quiz(level):
+def start_quiz():
+    level = request.form.get('level')
+    team1 = request.form.get('team1')
+    team2 = request.form.get('team2')
+
     session['quiz_level'] = level
     quiz_pool = {
         'nivel1': QUIZ_NIVEL1,
@@ -222,10 +230,7 @@ def start_quiz(level):
     session['quiz_pool'] = quiz_pool
     session['current_question_index'] = 0
 
-    # Se inicializan los puntajes de los equipos a 0 en una nueva sesión,
-    # pero manteniendo los nombres de los equipos existentes.
-    session['quiz_scores'] = {
-        team: 0 for team in session.get('team_scores', {})}
+    session['quiz_scores'] = {team1: 0, team2: 0}
 
     return redirect(url_for('countdown'))
 
@@ -261,11 +266,13 @@ def submit_answer():
     if not is_correct:
         return render_template('assign_point.html',
                                is_correct=False,
-                               old_question=True)
+                               old_question=True,
+                               teams=session.get('quiz_scores'))
     else:
         return render_template('assign_point.html',
                                is_correct=True,
-                               old_question=False)
+                               old_question=False,
+                               teams=session.get('quiz_scores'))
 
 
 @app.route('/assign-point-to-team', methods=['POST'])
@@ -277,7 +284,6 @@ def assign_point_to_team():
     if team in session['quiz_scores']:
         session['quiz_scores'][team] += 1
 
-    # Comprobar si algún equipo ha llegado a 5 puntos
     for score in session['quiz_scores'].values():
         if score >= 5:
             return redirect(url_for('quiz_finished'))
@@ -293,6 +299,16 @@ def assign_point_to_team():
 def skip_question():
     session['current_question_index'] += 1
     return redirect(url_for('quiz_question'))
+
+# Nueva ruta para reiniciar los puntos
+
+
+@app.route('/reset-points', methods=['POST'])
+@login_required
+def reset_points():
+    if 'quiz_scores' in session:
+        session['quiz_scores'] = {}
+    return redirect(url_for('show_scoreboard'))
 
 
 @app.route('/quiz-finished')
