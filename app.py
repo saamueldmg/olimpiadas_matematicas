@@ -7,13 +7,11 @@ import random
 import os
 
 app = Flask(__name__)
-# ¡Importante! Cambia esto por una clave secreta real
 app.secret_key = 'una-clave-super-secreta'
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
-# Directorio donde se guardarán las imágenes
 UPLOAD_FOLDER = 'static/images'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
@@ -34,8 +32,6 @@ def load_user(user_id):
     if user_id in users:
         return User(user_id)
     return None
-
-# --- Rutas de la Aplicación ---
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -72,8 +68,6 @@ def logout():
 @login_required
 def dashboard():
     return render_template('dashboard.html')
-
-# --- Rutas del Módulo de Preguntas ---
 
 
 @app.route('/add-question', methods=['GET', 'POST'])
@@ -148,8 +142,6 @@ def delete_question(level, index):
 
     return redirect(url_for('manage_questions'))
 
-# --- Rutas de Gestión de Equipos ---
-
 
 @app.route('/manage-teams', methods=['GET', 'POST'])
 @login_required
@@ -194,8 +186,6 @@ def delete_team(team_name):
         session.modified = True
     return redirect(url_for('manage_teams'))
 
-# --- Rutas del Quiz ---
-
 
 @app.route('/scoreboard')
 @login_required
@@ -206,21 +196,36 @@ def show_scoreboard():
     return render_template('scoreboard.html', scores=scores)
 
 
-@app.route('/select-level')
+@app.route('/reset-points', methods=['POST'])
+@login_required
+def reset_points():
+    if 'quiz_scores' in session:
+        session['quiz_scores'] = {team: 0 for team in session['quiz_scores']}
+    if 'team_scores' in session:
+        session['team_scores'] = {team: 0 for team in session['team_scores']}
+    return redirect(url_for('show_scoreboard'))
+
+
+@app.route('/select-level', methods=['GET', 'POST'])
 @login_required
 def select_level():
     teams = list(session.get('team_scores', {}).keys())
+    if request.method == 'POST':
+        level = request.form.get('level')
+        team1 = request.form.get('team1')
+        team2 = request.form.get('team2')
+
+        session['quiz_level'] = level
+        session['quiz_teams'] = [team1, team2]
+        return redirect(url_for('start_quiz'))
+
     return render_template('select_level.html', teams=teams)
 
 
-@app.route('/start-quiz', methods=['POST'])
+@app.route('/start-quiz')
 @login_required
 def start_quiz():
-    level = request.form.get('level')
-    team1 = request.form.get('team1')
-    team2 = request.form.get('team2')
-
-    session['quiz_level'] = level
+    level = session.get('quiz_level')
     quiz_pool = {
         'nivel1': QUIZ_NIVEL1,
         'nivel2': QUIZ_NIVEL2,
@@ -230,7 +235,8 @@ def start_quiz():
     session['quiz_pool'] = quiz_pool
     session['current_question_index'] = 0
 
-    session['quiz_scores'] = {team1: 0, team2: 0}
+    selected_teams = session.get('quiz_teams', [])
+    session['quiz_scores'] = {team: 0 for team in selected_teams}
 
     return redirect(url_for('countdown'))
 
@@ -263,16 +269,18 @@ def submit_answer():
 
     is_correct = user_answer == question['correct']
 
+    teams_in_quiz = session.get('quiz_scores')
+
     if not is_correct:
         return render_template('assign_point.html',
                                is_correct=False,
                                old_question=True,
-                               teams=session.get('quiz_scores'))
+                               teams=teams_in_quiz)
     else:
         return render_template('assign_point.html',
                                is_correct=True,
                                old_question=False,
-                               teams=session.get('quiz_scores'))
+                               teams=teams_in_quiz)
 
 
 @app.route('/assign-point-to-team', methods=['POST'])
@@ -300,16 +308,6 @@ def skip_question():
     session['current_question_index'] += 1
     return redirect(url_for('quiz_question'))
 
-# Nueva ruta para reiniciar los puntos
-
-
-@app.route('/reset-points', methods=['POST'])
-@login_required
-def reset_points():
-    if 'quiz_scores' in session:
-        session['quiz_scores'] = {}
-    return redirect(url_for('show_scoreboard'))
-
 
 @app.route('/quiz-finished')
 @login_required
@@ -319,7 +317,6 @@ def quiz_finished():
         winner = "No hay suficientes equipos"
         message = "No se puede determinar un ganador."
     else:
-        # Lógica para determinar el ganador
         max_score = 0
         winner_list = []
         for team, score in scores.items():

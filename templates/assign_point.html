@@ -49,22 +49,16 @@
           name="old_question_flag"
           value="{{ old_question }}"
         />
+        {% for team in teams %}
         <button
           type="submit"
           name="team"
-          value="Rojo"
-          class="bg-red-600 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:bg-red-700 transition-all duration-300 transform hover:scale-105"
+          value="{{ team }}"
+          class="bg-indigo-600 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:bg-indigo-700 transition-all duration-300 transform hover:scale-105"
         >
-          Rojo
+          {{ team }}
         </button>
-        <button
-          type="submit"
-          name="team"
-          value="Verde"
-          class="bg-green-600 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:bg-green-700 transition-all duration-300 transform hover:scale-105"
-        >
-          Verde
-        </button>
+        {% endfor %}
       </form>
       {% else %}
       <h1 class="text-4xl font-bold text-center text-red-600 mb-6">
