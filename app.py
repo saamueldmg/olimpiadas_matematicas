@@ -1,10 +1,12 @@
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
-from logic.quiz_data import QUIZ_NIVEL1, QUIZ_NIVEL2, QUIZ_NIVEL3
 import random
 import os
+import json
+import firebase_admin
+from firebase_admin import credentials, firestore
 
 app = Flask(__name__)
 app.secret_key = 'una-clave-super-secreta'
@@ -14,6 +16,17 @@ login_manager.login_view = 'login'
 
 UPLOAD_FOLDER = 'static/images'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+# Firebase Admin SDK is initialized in the following try-except block
+try:
+    if not firebase_admin._apps:
+        # A placeholder file name
+        cred = credentials.Certificate("serviceAccountKey.json")
+        firebase_admin.initialize_app(cred)
+except ValueError:
+    pass
+
+db = firestore.client()
 
 
 class User(UserMixin):
@@ -49,9 +62,6 @@ def login():
 
 @app.route('/')
 def index():
-    if 'team_scores' not in session:
-        session['team_scores'] = {}
-
     if current_user.is_authenticated:
         return redirect(url_for('dashboard'))
     return redirect(url_for('login'))
@@ -96,15 +106,10 @@ def add_question():
             new_question = {
                 'question_image': filename,
                 'options': options,
-                'correct': correct_answer
+                'correct': correct_answer,
+                'level': level
             }
-
-            if level == 'nivel1':
-                QUIZ_NIVEL1.append(new_question)
-            elif level == 'nivel2':
-                QUIZ_NIVEL2.append(new_question)
-            elif level == 'nivel3':
-                QUIZ_NIVEL3.append(new_question)
+            db.collection('questions').add(new_question)
 
             return redirect(url_for('add_question'))
 
@@ -114,102 +119,80 @@ def add_question():
 @app.route('/manage-questions')
 @login_required
 def manage_questions():
+    questions_ref = db.collection('questions').stream()
+    questions = {}
+    for doc in questions_ref:
+        question_data = doc.to_dict()
+        level = question_data.get('level')
+        if level not in questions:
+            questions[level] = []
+        questions[level].append({'id': doc.id, **question_data})
+
     return render_template('manage_questions.html',
-                           nivel1=QUIZ_NIVEL1,
-                           nivel2=QUIZ_NIVEL2,
-                           nivel3=QUIZ_NIVEL3)
+                           nivel1=questions.get('nivel1', []),
+                           nivel2=questions.get('nivel2', []),
+                           nivel3=questions.get('nivel3', []))
 
 
-@app.route('/delete-question/<level>/<int:index>', methods=['POST'])
+@app.route('/delete-question/<question_id>', methods=['POST'])
 @login_required
-def delete_question(level, index):
-    question_list = []
-    if level == 'nivel1':
-        question_list = QUIZ_NIVEL1
-    elif level == 'nivel2':
-        question_list = QUIZ_NIVEL2
-    elif level == 'nivel3':
-        question_list = QUIZ_NIVEL3
-
-    if 0 <= index < len(question_list):
-        question_to_delete = question_list[index]
+def delete_question(question_id):
+    question_ref = db.collection('questions').document(question_id)
+    question_to_delete = question_ref.get().to_dict()
+    if question_to_delete:
         image_path = os.path.join(
-            app.config['UPLOAD_FOLDER'], question_to_delete['question_image'])
+            app.config['UPLOAD_FOLDER'], question_to_delete.get('question_image'))
         if os.path.exists(image_path):
             os.remove(image_path)
-
-        del question_list[index]
-
+        question_ref.delete()
     return redirect(url_for('manage_questions'))
 
 
 @app.route('/manage-teams', methods=['GET', 'POST'])
 @login_required
 def manage_teams():
-    if 'team_scores' not in session:
-        session['team_scores'] = {}
-
-    if request.method == 'POST':
-        new_team_name = request.form.get('new_team_name')
-        if new_team_name and new_team_name not in session['team_scores']:
-            session['team_scores'][new_team_name] = 0
-            session.modified = True
-
-    return render_template('manage_teams.html', teams=session['team_scores'])
+    return render_template('manage_teams.html')
 
 
-@app.route('/update-team-name', methods=['POST'])
+@app.route('/update-team-name/<team_id>', methods=['POST'])
 @login_required
-def update_team_name():
-    old_name = request.form.get('old_name')
+def update_team_name(team_id):
     new_name = request.form.get('new_name')
-
-    if old_name in session['team_scores'] and new_name:
-        updated_teams = {}
-        for team, score in session['team_scores'].items():
-            if team == old_name:
-                updated_teams[new_name] = score
-            else:
-                updated_teams[team] = score
-
-        session['team_scores'] = updated_teams
-        session.modified = True
-
+    if new_name:
+        db.collection('teams').document(team_id).update({'name': new_name})
     return redirect(url_for('manage_teams'))
 
 
-@app.route('/delete-team/<team_name>', methods=['POST'])
+@app.route('/delete-team/<team_id>', methods=['POST'])
 @login_required
-def delete_team(team_name):
-    if 'team_scores' in session and team_name in session['team_scores']:
-        del session['team_scores'][team_name]
-        session.modified = True
+def delete_team(team_id):
+    db.collection('teams').document(team_id).delete()
     return redirect(url_for('manage_teams'))
 
 
 @app.route('/scoreboard')
 @login_required
 def show_scoreboard():
-    scores = session.get('quiz_scores', {})
-    if not scores:
-        scores = session.get('team_scores', {})
+    teams_ref = db.collection('teams').stream()
+    scores = {doc.to_dict()['name']: doc.to_dict().get('score', 0)
+              for doc in teams_ref}
     return render_template('scoreboard.html', scores=scores)
 
 
 @app.route('/reset-points', methods=['POST'])
 @login_required
 def reset_points():
-    if 'quiz_scores' in session:
-        session['quiz_scores'] = {team: 0 for team in session['quiz_scores']}
-    if 'team_scores' in session:
-        session['team_scores'] = {team: 0 for team in session['team_scores']}
+    teams_ref = db.collection('teams').stream()
+    for doc in teams_ref:
+        db.collection('teams').document(doc.id).update({'score': 0})
     return redirect(url_for('show_scoreboard'))
 
 
 @app.route('/select-level', methods=['GET', 'POST'])
 @login_required
 def select_level():
-    teams = list(session.get('team_scores', {}).keys())
+    teams_ref = db.collection('teams').stream()
+    teams = [doc.to_dict()['name'] for doc in teams_ref]
     if request.method == 'POST':
         level = request.form.get('level')
         team1 = request.form.get('team1')
@@ -226,11 +209,9 @@ def select_level():
 @login_required
 def start_quiz():
     level = session.get('quiz_level')
-    quiz_pool = {
-        'nivel1': QUIZ_NIVEL1,
-        'nivel2': QUIZ_NIVEL2,
-        'nivel3': QUIZ_NIVEL3,
-    }.get(level, [])
+    quiz_pool = [doc.to_dict() for doc in db.collection(
+        'questions').where('level', '==', level).stream()]
+
     random.shuffle(quiz_pool)
     session['quiz_pool'] = quiz_pool
     session['current_question_index'] = 0
@@ -268,8 +249,7 @@ def submit_answer():
     question = session.get('current_question')
 
     is_correct = user_answer == question['correct']
-
-    teams_in_quiz = session.get('quiz_scores')
+    teams_in_quiz = session.get('quiz_scores', {})
 
     if not is_correct:
         return render_template('assign_point.html',
@@ -292,8 +272,15 @@ def assign_point_to_team():
     if team in session['quiz_scores']:
         session['quiz_scores'][team] += 1
 
+        # Lógica para actualizar el puntaje en Firestore
+        teams_ref = db.collection('teams')
+        docs = teams_ref.where('name', '==', team).stream()
+        for doc in docs:
+            teams_ref.document(doc.id).update(
+                {'score': firestore.Increment(1)})
+
     for score in session['quiz_scores'].values():
-        if score >= 5:
+        if score >= 3:
             return redirect(url_for('quiz_finished'))
 
     if old_question_flag == 'False':
