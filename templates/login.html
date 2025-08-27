@@ -4,29 +4,87 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Fuente para la firma -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Font Awesome para los iconos -->
     <link
       rel="stylesheet"
-      href="{{ url_for('static', filename='css/style.css') }}"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: #f3f4f6;
+      }
+      .container {
+        max-width: 200px;
+      }
+      .signature-text {
+        font-family: "Dancing Script", cursive;
+        font-size: 1.25rem;
+      }
+    </style>
   </head>
-  <body>
-    <div class="container">
-      <h1>Iniciar Sesión</h1>
-      <form action="{{ url_for('login') }}" method="post">
-        <label for="username">Usuario:</label>
-        <input type="text" id="username" name="username" required /><br /><br />
-        <label for="password">Contraseña:</label>
+  <body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+    <div
+      class="container mx-auto p-8 bg-white rounded-xl shadow-lg text-center"
+    >
+      <!-- Logo del proyecto -->
+      <div class="mb-6">
+        <img
+          src="{{ url_for('static', filename='images/logo.jpg') }}"
+          alt="Logo del Proyecto"
+          class="mx-auto h-48 w-auto rounded-full shadow-md"
+        />
+      </div>
+
+      <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">
+        Iniciar Sesión
+      </h1>
+
+      <form action="{{ url_for('login') }}" method="post" class="space-y-4">
+        <input
+          type="text"
+          name="username"
+          placeholder="Usuario"
+          required
+          class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        />
         <input
           type="password"
-          id="password"
           name="password"
+          placeholder="Contraseña"
           required
-        /><br /><br />
-        <button type="submit" class="button">Entrar</button>
+          class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        />
+
+        <button
+          type="submit"
+          class="w-full bg-indigo-600 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:bg-indigo-700 transition-all duration-300"
+        >
+          Entrar
+        </button>
       </form>
+
       {% if error %}
-      <p style="color: red">{{ error }}</p>
+      <p class="text-red-500 mt-4">{{ error }}</p>
       {% endif %}
+
+      <!-- Firma de desarrollador -->
+      <p class="mt-8 text-sm text-gray-500 font-serif">
+        Desarrollado por BoscoTechLab
+      </p>
     </div>
   </body>
 </html>

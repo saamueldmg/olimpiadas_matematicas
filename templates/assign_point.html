@@ -4,41 +4,77 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Asignar Punto</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Font Awesome para los iconos -->
     <link
       rel="stylesheet"
-      href="{{ url_for('static', filename='css/style.css') }}"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: #f3f4f6;
+      }
+      .container {
+        max-width: 800px;
+      }
+    </style>
   </head>
-  <body>
-    <div class="container">
+  <body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+    <div
+      class="container mx-auto p-8 bg-white rounded-xl shadow-lg text-center"
+    >
       {% if is_correct %}
-      <h2 class="correct">¡Respuesta Correcta!</h2>
-      {% else %}
-      <h2 class="incorrect">
-        Respuesta Incorrecta. La correcta era:
-        <span class="correct-answer-text">{{ correct_answer }}</span>
-      </h2>
-      {% endif %}
+      <h1 class="text-4xl font-bold text-center text-green-600 mb-6">
+        <i class="fas fa-check-circle mr-2"></i> ¡Respuesta Correcta!
+      </h1>
+      <p class="text-lg font-semibold text-gray-700 mb-6">
+        ¿A qué equipo le asignas el punto?
+      </p>
 
-      <h3 class="team-question">¿A qué equipo le asignas el punto?</h3>
-      <form action="{{ url_for('assign_point_to_team') }}" method="post">
+      <form
+        action="{{ url_for('assign_point_to_team') }}"
+        method="post"
+        class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4"
+      >
+        <input
+          type="hidden"
+          name="old_question_flag"
+          value="{{ old_question }}"
+        />
+        {% for team in teams %}
         <button
           type="submit"
           name="team"
-          value="Rojo"
-          class="team-button team-rojo"
+          value="{{ team }}"
+          class="bg-indigo-600 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:bg-indigo-700 transition-all duration-300 transform hover:scale-105"
         >
-          Rojo
+          {{ team }}
         </button>
-        <button
-          type="submit"
-          name="team"
-          value="Verde"
-          class="team-button team-verde"
-        >
-          Verde
-        </button>
+        {% endfor %}
       </form>
+      {% else %}
+      <h1 class="text-4xl font-bold text-center text-red-600 mb-6">
+        <i class="fas fa-times-circle mr-2"></i> Respuesta Incorrecta.
+      </h1>
+      <p class="text-lg font-semibold text-gray-700 mb-6">
+        Vuelve a la pregunta para que el otro equipo pueda responder.
+      </p>
+
+      <a
+        href="{{ url_for('quiz_question') }}"
+        class="inline-block bg-gray-500 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:bg-gray-600 transition-all duration-300 transform hover:scale-105"
+      >
+        <i class="fas fa-arrow-left mr-2"></i> Volver a la pregunta
+      </a>
+      {% endif %}
     </div>
   </body>
 </html>

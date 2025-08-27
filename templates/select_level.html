@@ -23,38 +23,86 @@
         background-color: #f3f4f6;
       }
       .container {
-        max-width: 800px;
+        max-width: 1200px; /* Incrementado para un módulo más grande */
       }
     </style>
   </head>
-  <body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+  <body class="bg-gray-100 flex items-center justify-center min-h-[80vh] p-4">
     <div
       class="container mx-auto p-8 bg-white rounded-xl shadow-lg text-center"
     >
       <h1 class="text-4xl font-bold text-center text-gray-800 mb-6">
-        <i class="fas fa-list-ol text-blue-600 mr-2"></i> Selecciona un Nivel
+        <i class="fas fa-list-ol text-blue-600 mr-2"></i> Selecciona Nivel y
+        Equipos
       </h1>
 
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-        <a
-          href="{{ url_for('start_quiz', level='nivel1') }}"
-          class="bg-blue-600 text-white font-bold py-4 px-6 rounded-lg shadow-lg hover:bg-blue-700 transition-all duration-300 transform hover:scale-105"
-        >
-          Nivel I (6° - 7°)
-        </a>
-        <a
-          href="{{ url_for('start_quiz', level='nivel2') }}"
-          class="bg-blue-600 text-white font-bold py-4 px-6 rounded-lg shadow-lg hover:bg-blue-700 transition-all duration-300 transform hover:scale-105"
-        >
-          Nivel II (8° - 9°)
-        </a>
-        <a
-          href="{{ url_for('start_quiz', level='nivel3') }}"
-          class="bg-blue-600 text-white font-bold py-4 px-6 rounded-lg shadow-lg hover:bg-blue-700 transition-all duration-300 transform hover:scale-105"
-        >
-          Nivel III (10° - 11°)
-        </a>
-      </div>
+      <form action="{{ url_for('select_level') }}" method="post">
+        <div class="space-y-4">
+          <!-- Selectores de equipo -->
+          <div
+            class="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-4"
+          >
+            <div class="w-full">
+              <label for="team1" class="block text-gray-700 font-semibold mb-2"
+                >Equipo 1:</label
+              >
+              <select
+                name="team1"
+                id="team1"
+                required
+                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                {% for team in teams %}
+                <option value="{{ team }}">{{ team }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="w-full">
+              <label for="team2" class="block text-gray-700 font-semibold mb-2"
+                >Equipo 2:</label
+              >
+              <select
+                name="team2"
+                id="team2"
+                required
+                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                {% for team in teams %}
+                <option value="{{ team }}">{{ team }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+
+          <!-- Selectores de nivel -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+            <button
+              type="submit"
+              name="level"
+              value="nivel1"
+              class="bg-blue-600 text-white font-bold py-4 px-6 rounded-lg shadow-lg hover:bg-blue-700 transition-all duration-300 transform hover:scale-105"
+            >
+              Nivel I (6° - 7°)
+            </button>
+            <button
+              type="submit"
+              name="level"
+              value="nivel2"
+              class="bg-blue-600 text-white font-bold py-4 px-6 rounded-lg shadow-lg hover:bg-blue-700 transition-all duration-300 transform hover:scale-105"
+            >
+              Nivel II (8° - 9°)
+            </button>
+            <button
+              type="submit"
+              name="level"
+              value="nivel3"
+              class="bg-blue-600 text-white font-bold py-4 px-6 rounded-lg shadow-lg hover:bg-blue-700 transition-all duration-300 transform hover:scale-105"
+            >
+              Nivel III (10° - 11°)
+            </button>
+          </div>
+        </div>
+      </form>
 
       <div class="mt-6">
         <a

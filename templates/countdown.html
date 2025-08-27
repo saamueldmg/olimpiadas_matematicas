@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>¡Comenzando el Quiz!</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Font Awesome para los iconos -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+        background: linear-gradient(-45deg, #1d4ed8, #2563eb, #14b8a6);
+        background-size: 400% 400%;
+        animation: gradientBG 15s ease infinite;
+        overflow: hidden;
+        position: relative;
+      }
+      @keyframes gradientBG {
+        0% {
+          background-position: 0% 50%;
+        }
+        50% {
+          background-position: 100% 50%;
+        }
+        100% {
+          background-position: 0% 50%;
+        }
+      }
+      .particle {
+        position: absolute;
+        border-radius: 50%;
+        background-color: rgba(255, 255, 255, 0.1);
+        animation: move-particle 20s infinite ease-in-out;
+      }
+      .particle:nth-child(1) {
+        width: 40px;
+        height: 40px;
+        top: 10%;
+        left: 15%;
+        animation-delay: 0s;
+      }
+      .particle:nth-child(2) {
+        width: 60px;
+        height: 60px;
+        top: 30%;
+        left: 70%;
+        animation-delay: 4s;
+      }
+      .particle:nth-child(3) {
+        width: 50px;
+        height: 50px;
+        top: 80%;
+        left: 35%;
+        animation-delay: 8s;
+      }
+      .particle:nth-child(4) {
+        width: 30px;
+        height: 30px;
+        top: 60%;
+        left: 85%;
+        animation-delay: 12s;
+      }
+      .particle:nth-child(5) {
+        width: 70px;
+        height: 70px;
+        top: 20%;
+        left: 40%;
+        animation-delay: 16s;
+      }
+      @keyframes move-particle {
+        0% {
+          transform: translate(0, 0) scale(1);
+          opacity: 0;
+        }
+        25% {
+          transform: translate(20px, 100px) scale(1.1);
+          opacity: 0.5;
+        }
+        50% {
+          transform: translate(-30px, 200px) scale(1.2);
+          opacity: 0.8;
+        }
+        75% {
+          transform: translate(10px, 300px) scale(1.1);
+          opacity: 0.5;
+        }
+        100% {
+          transform: translate(0, 400px) scale(1);
+          opacity: 0;
+        }
+      }
+      .countdown-circle {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(0);
+        border-radius: 50%;
+        width: 200px;
+        height: 200px;
+        transition: all 0.5s ease-in-out;
+      }
+      #progress-bar {
+        width: 0%;
+        transition: width 4.5s ease-in-out;
+      }
+    </style>
+  </head>
+  <body
+    class="bg-gray-100 flex items-center justify-center min-h-screen p-4 relative"
+  >
+    <!-- Contenedor de partículas flotantes -->
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+
+    <div class="text-center z-10 relative">
+      <div id="countdown-circle" class="countdown-circle"></div>
+      <h1
+        id="countdown-text"
+        class="relative text-6xl sm:text-7xl md:text-8xl font-extrabold text-white transition-all duration-500 transform z-20"
+      >
+        ¿Están listos?
+      </h1>
+    </div>
+
+    <!-- Barra de progreso -->
+    <div
+      id="progress-container"
+      class="fixed bottom-0 left-0 w-full h-2 bg-gray-700 bg-opacity-50"
+    >
+      <div id="progress-bar" class="h-full bg-blue-500"></div>
+    </div>
+
+    <script>
+      const countdownTextElement = document.getElementById("countdown-text");
+      const countdownCircle = document.getElementById("countdown-circle");
+      const progressBar = document.getElementById("progress-bar");
+      const messages = ["Vamos a iniciar...", "3", "2", "1"];
+      const colors = [
+        "bg-blue-600",
+        "bg-teal-500",
+        "bg-yellow-400",
+        "bg-rose-500",
+        "bg-purple-600",
+        "bg-blue-600",
+      ];
+      const redirectUrl = "/quiz-question";
+      let messageIndex = 0;
+
+      function updateMessage() {
+        countdownTextElement.innerText = messages[messageIndex];
+
+        // Remueve la clase de color anterior para evitar conflictos
+        countdownTextElement.classList.forEach((cls) => {
+          if (cls.startsWith("text-")) {
+            countdownTextElement.classList.remove(cls);
+          }
+        });
+        countdownCircle.className = `countdown-circle ${colors[messageIndex]}`;
+
+        // Aplica la nueva clase de color al texto
+        countdownTextElement.classList.add(
+          colors[messageIndex].replace("bg-", "text-")
+        );
+
+        if (messageIndex < messages.length - 1) {
+          if (messageIndex === 2) {
+            // Start progress bar animation with a 4.5s duration
+            progressBar.style.width = "100%";
+          }
+
+          // Si es un número, hacemos que el círculo se "expanda"
+          if (messageIndex >= 2 && messageIndex <= 4) {
+            countdownCircle.style.transform = "translate(-50%, -50%) scale(1)";
+            setTimeout(() => {
+              countdownCircle.style.transform =
+                "translate(-50%, -50%) scale(0)";
+              messageIndex++;
+              setTimeout(updateMessage, 500);
+            }, 500);
+          } else {
+            messageIndex++;
+            setTimeout(updateMessage, 1500);
+          }
+        } else {
+          // Mensaje final, redirige al quiz
+          setTimeout(() => {
+            countdownTextElement.classList.add("scale-150", "opacity-0");
+            countdownCircle.classList.add("scale-0", "opacity-0");
+            setTimeout(() => {
+              window.location.href = redirectUrl;
+            }, 500);
+          }, 1500);
+        }
+      }
+
+      setTimeout(updateMessage, 1500);
+    </script>
+  </body>
+</html>
