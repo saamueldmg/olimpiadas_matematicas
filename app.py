@@ -7,6 +7,7 @@ import os
 import json
 import firebase_admin
 from firebase_admin import credentials, firestore
+from google.cloud.firestore_v1 import Increment
 
 app = Flask(__name__)
 app.secret_key = 'una-clave-super-secreta'
@@ -27,6 +28,8 @@ except ValueError:
     pass
 
 db = firestore.client()
+teams_collection = db.collection('teams')
+questions_collection = db.collection('questions')
 
 
 class User(UserMixin):
@@ -109,7 +112,7 @@ def add_question():
                 'correct': correct_answer,
                 'level': level
             }
-            db.collection('questions').add(new_question)
+            questions_collection.add(new_question)
 
             return redirect(url_for('add_question'))
 
@@ -119,7 +122,7 @@ def add_question():
 @app.route('/manage-questions')
 @login_required
 def manage_questions():
-    questions_ref = db.collection('questions').stream()
+    questions_ref = questions_collection.stream()
     questions = {}
     for doc in questions_ref:
         question_data = doc.to_dict()
@@ -137,7 +140,7 @@ def manage_questions():
 @app.route('/delete-question/<question_id>', methods=['POST'])
 @login_required
 def delete_question(question_id):
-    question_ref = db.collection('questions').document(question_id)
+    question_ref = questions_collection.document(question_id)
     question_to_delete = question_ref.get().to_dict()
     if question_to_delete:
         image_path = os.path.join(
@@ -159,40 +162,43 @@ def manage_teams():
 def update_team_name(team_id):
     new_name = request.form.get('new_name')
     if new_name:
-        db.collection('teams').document(team_id).update({'name': new_name})
+        teams_collection.document(team_id).update({'name': new_name})
     return redirect(url_for('manage_teams'))
 
 
 @app.route('/delete-team/<team_id>', methods=['POST'])
 @login_required
 def delete_team(team_id):
-    db.collection('teams').document(team_id).delete()
+    teams_collection.document(team_id).delete()
     return redirect(url_for('manage_teams'))
 
 
 @app.route('/scoreboard')
 @login_required
 def show_scoreboard():
-    teams_ref = db.collection('teams').stream()
-    scores = {doc.to_dict()['name']: doc.to_dict().get('score', 0)
-              for doc in teams_ref}
+    scores = {}
+    if 'quiz_scores' in session and session['quiz_scores']:
+        scores = session.get('quiz_scores', {})
+    else:
+        teams_ref = teams_collection.stream()
+        scores = {doc.to_dict()['name']: doc.to_dict().get(
+            'score', 0) for doc in teams_ref}
     return render_template('scoreboard.html', scores=scores)
 
 
 @app.route('/reset-points', methods=['POST'])
 @login_required
 def reset_points():
-    teams_ref = db.collection('teams').stream()
+    teams_ref = teams_collection.stream()
     for doc in teams_ref:
-        db.collection('teams').document(doc.id).update({'score': 0})
+        teams_collection.document(doc.id).update({'score': 0})
     return redirect(url_for('show_scoreboard'))
 
 
 @app.route('/select-level', methods=['GET', 'POST'])
 @login_required
 def select_level():
-    teams_ref = db.collection('teams').stream()
-    teams = [doc.to_dict()['name'] for doc in teams_ref]
+    teams = [doc.to_dict()['name'] for doc in teams_collection.stream()]
     if request.method == 'POST':
         level = request.form.get('level')
         team1 = request.form.get('team1')
@@ -209,8 +215,8 @@ def select_level():
 @login_required
 def start_quiz():
     level = session.get('quiz_level')
-    quiz_pool = [doc.to_dict() for doc in db.collection(
-        'questions').where('level', '==', level).stream()]
+    quiz_pool = [doc.to_dict() for doc in questions_collection.where(
+        'level', '==', level).stream()]
 
     random.shuffle(quiz_pool)
     session['quiz_pool'] = quiz_pool
@@ -272,12 +278,10 @@ def assign_point_to_team():
     if team in session['quiz_scores']:
         session['quiz_scores'][team] += 1
 
-        # Lógica para actualizar el puntaje en Firestore
         teams_ref = db.collection('teams')
         docs = teams_ref.where('name', '==', team).stream()
         for doc in docs:
-            teams_ref.document(doc.id).update(
-                {'score': firestore.Increment(1)})
+            teams_ref.document(doc.id).update({'score': Increment(1)})
 
     for score in session['quiz_scores'].values():
         if score >= 3:
