@@ -1,115 +1,194 @@
-from flask import Flask, render_template, request, redirect, url_for, session,
-jsonify from flask_login import LoginManager, UserMixin, login_user,
-login_required, logout_user, current_user from werkzeug.security import
-generate_password_hash, check_password_hash from werkzeug.utils import
-secure_filename import random import os import json import firebase_admin from
-firebase_admin import credentials, firestore app = Flask(__name__)
-app.secret_key = 'una-clave-super-secreta' login_manager = LoginManager()
-login_manager.init_app(app) login_manager.login_view = 'login' UPLOAD_FOLDER =
-'static/images' app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER # Firebase Admin SDK
-is initialized in the following try-except block try: if not
-firebase_admin._apps: # A placeholder file name cred =
-credentials.Certificate("serviceAccountKey.json")
-firebase_admin.initialize_app(cred) except ValueError: pass db =
-firestore.client() class User(UserMixin): def __init__(self, id): self.id = id
-def get_id(self): return str(self.id) users = {"admin": {"password":
-generate_password_hash("password")}} @login_manager.user_loader def
-load_user(user_id): if user_id in users: return User(user_id) return None
-@app.route('/login', methods=['GET', 'POST']) def login(): if request.method ==
-'POST': username = request.form['username'] password = request.form['password']
-user = users.get(username) if user and check_password_hash(user['password'],
-password): login_user(User(username)) return redirect(url_for('dashboard'))
-return render_template('login.html', error="Usuario o contraseña incorrectos")
-return render_template('login.html') @app.route('/') def index(): if
-current_user.is_authenticated: return redirect(url_for('dashboard')) return
-redirect(url_for('login')) @app.route('/logout') @login_required def logout():
-logout_user() return redirect(url_for('login')) @app.route('/dashboard')
-@login_required def dashboard(): return render_template('dashboard.html')
-@app.route('/add-question', methods=['GET', 'POST']) @login_required def
-add_question(): if request.method == 'POST': level = request.form.get('level')
-correct_answer = request.form.get('correct_answer') options = { 'a':
-request.form.get('option_a'), 'b': request.form.get('option_b'), 'c':
-request.form.get('option_c'), 'd': request.form.get('option_d') } if
-'question_image' not in request.files: return "No se encontró el archivo de
-imagen" file = request.files['question_image'] if file.filename == '': return
-"No se seleccionó ningún archivo" if file: filename =
-secure_filename(file.filename) filepath =
-os.path.join(app.config['UPLOAD_FOLDER'], filename) file.save(filepath)
-new_question = { 'question_image': filename, 'options': options, 'correct':
-correct_answer, 'level': level } db.collection('questions').add(new_question)
-return redirect(url_for('add_question')) return
-render_template('add_question.html') @app.route('/manage-questions')
-@login_required def manage_questions(): questions_ref =
-db.collection('questions').stream() questions = {} for doc in questions_ref:
-question_data = doc.to_dict() level = question_data.get('level') if level not in
-questions: questions[level] = [] questions[level].append({'id': doc.id,
-**question_data}) return render_template('manage_questions.html',
-nivel1=questions.get('nivel1', []), nivel2=questions.get('nivel2', []),
-nivel3=questions.get('nivel3', [])) @app.route('/delete-question/<question_id
-  >', methods=['POST']) @login_required def delete_question(question_id):
-  question_ref = db.collection('questions').document(question_id)
-  question_to_delete = question_ref.get().to_dict() if question_to_delete:
-  image_path = os.path.join(app.config['UPLOAD_FOLDER'],
-  question_to_delete.get('question_image')) if os.path.exists(image_path):
-  os.remove(image_path) question_ref.delete() return
-  redirect(url_for('manage_questions')) @app.route('/manage-teams',
-  methods=['GET', 'POST']) @login_required def manage_teams(): return
-  render_template('manage_teams.html') @app.route('/update-team-name/<team_id
-    >', methods=['POST']) @login_required def update_team_name(team_id):
-    new_name = request.form.get('new_name') if new_name:
-    db.collection('teams').document(team_id).update({'name': new_name}) return
-    redirect(url_for('manage_teams')) @app.route('/delete-team/<team_id
-      >', methods=['POST']) @login_required def delete_team(team_id):
-      db.collection('teams').document(team_id).delete() return
-      redirect(url_for('manage_teams')) @app.route('/scoreboard')
-      @login_required def show_scoreboard(): teams_ref =
-      db.collection('teams').stream() scores = {doc.to_dict()['name']:
-      doc.to_dict().get('score', 0) for doc in teams_ref} return
-      render_template('scoreboard.html', scores=scores)
-      @app.route('/reset-points', methods=['POST']) @login_required def
-      reset_points(): teams_ref = db.collection('teams').stream() for doc in
-      teams_ref: db.collection('teams').document(doc.id).update({'score': 0})
-      return redirect(url_for('show_scoreboard')) @app.route('/select-level',
-      methods=['GET', 'POST']) @login_required def select_level(): teams_ref =
-      db.collection('teams').stream() teams = [doc.to_dict()['name'] for doc in
-      teams_ref] if request.method == 'POST': level = request.form.get('level')
-      team1 = request.form.get('team1') team2 = request.form.get('team2')
-      session['quiz_level'] = level session['quiz_teams'] = [team1, team2]
-      return redirect(url_for('start_quiz')) return
-      render_template('select_level.html', teams=teams)
-      @app.route('/start-quiz') @login_required def start_quiz(): level =
-      session.get('quiz_level') quiz_pool = [doc.to_dict() for doc in
-      db.collection('questions').where('level', '==', level).stream()]
-      random.shuffle(quiz_pool) session['quiz_pool'] = quiz_pool
-      session['current_question_index'] = 0 selected_teams =
-      session.get('quiz_teams', []) session['quiz_scores'] = {team: 0 for team
-      in selected_teams} return redirect(url_for('countdown'))
-      @app.route('/countdown') @login_required def countdown(): return
-      render_template('countdown.html') @app.route('/quiz-question')
-      @login_required def quiz_question(): index =
-      session.get('current_question_index') quiz_pool = session.get('quiz_pool')
-      if not quiz_pool or index >= len(quiz_pool): return
-      redirect(url_for('quiz_finished')) question = quiz_pool[index]
-      session['current_question'] = question return render_template('quiz.html',
-      question=question, question_number=index + 1) @app.route('/submit-answer',
-      methods=['POST']) @login_required def submit_answer(): user_answer =
-      request.form.get('answer') question = session.get('current_question')
-      is_correct = user_answer == question['correct'] teams_in_quiz =
-      session.get('quiz_scores', {}) if not is_correct: return
-      render_template('assign_point.html', is_correct=False, old_question=True,
-      teams=teams_in_quiz) else: return render_template('assign_point.html',
-      is_correct=True, old_question=False, teams=teams_in_quiz)
-      @app.route('/assign-point-to-team', methods=['POST']) @login_required def
-      assign_point_to_team(): team = request.form.get('team') old_question_flag
-      = request.form.get('old_question_flag') if team in session['quiz_scores']:
-      session['quiz_scores'][team] += 1 for score in
-      session['quiz_scores'].values(): if score >= 3: return
-      redirect(url_for('quiz_finished')) if old_question_flag == 'False':
-      session['current_question_index'] += 1 return
-      redirect(url_for('quiz_question')) @app.route('/skip-question')
-      @login_required def skip_question(): session['current_question_index'] +=
-      1 return redirect(url_for('quiz_question'))
-      @app.route('/quiz-finished'</team_id
-    ></team_id
-  ></question_id
->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administrar Preguntas</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome para los iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, query, where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Global variables for Firebase
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = JSON.parse(__firebase_config);
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : '';
+        
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        let questionsCollection;
+
+        async function initializeFirebase() {
+            try {
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                } else {
+                    await signInAnonymously(auth);
+                }
+                const userId = auth.currentUser.uid;
+                questionsCollection = collection(db, 'artifacts', appId, 'public', 'data', 'questions');
+                console.log("Firebase initialized and authenticated successfully.");
+                listenForQuestions();
+            } catch (error) {
+                console.error("Error during Firebase initialization or authentication:", error);
+            }
+        }
+        
+        function listenForQuestions() {
+            onSnapshot(questionsCollection, (snapshot) => {
+                const questionsByLevel = { nivel1: [], nivel2: [], nivel3: [] };
+                snapshot.forEach(doc => {
+                    const question = { id: doc.id, ...doc.data() };
+                    const level = question.level;
+                    if (questionsByLevel[level]) {
+                        questionsByLevel[level].push(question);
+                    }
+                });
+                renderQuestions(questionsByLevel);
+            });
+        }
+        
+        window.renderQuestions = function(questionsByLevel) {
+            ['nivel1', 'nivel2', 'nivel3'].forEach(level => {
+                const contentDiv = document.getElementById(`accordion-content-${level}`);
+                contentDiv.innerHTML = ''; // Clear previous content
+                const questions = questionsByLevel[level];
+                if (questions.length === 0) {
+                    contentDiv.innerHTML = `<p class="text-center text-gray-500">No hay preguntas en este nivel.</p>`;
+                } else {
+                    questions.forEach((question, index) => {
+                        const questionHtml = `
+                            <div class="border-b pb-4 mb-4">
+                                <img src="/static/images/${question.question_image}" alt="Pregunta ${index + 1}" class="max-w-xs mx-auto mb-4 rounded-lg shadow">
+                                <ul class="list-disc list-inside space-y-1">
+                                    ${Object.entries(question.options).map(([key, value]) => `
+                                        <li class="${key === question.correct ? 'font-bold text-green-600' : ''}">
+                                            <i class="${key === question.correct ? 'fas fa-check-circle' : 'far fa-circle'} mr-2"></i> ${key.toUpperCase()}) ${value}
+                                        </li>
+                                    `).join('')}
+                                </ul>
+                                <div class="mt-4 text-right">
+                                    <form onsubmit="event.preventDefault(); deleteQuestionFromFirestore('${question.id}')">
+                                        <button type="submit" class="bg-red-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-red-700 transition-colors">
+                                            <i class="fas fa-trash-alt mr-2"></i> Eliminar
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        `;
+                        contentDiv.innerHTML += questionHtml;
+                    });
+                }
+            });
+        }
+        
+        window.deleteQuestionFromFirestore = async function(questionId) {
+            if (confirm('¿Estás seguro de que quieres eliminar esta pregunta?')) {
+                try {
+                    await deleteDoc(doc(questionsCollection, questionId));
+                    console.log("Question deleted successfully!");
+                } catch (e) {
+                    console.error("Error deleting document: ", e);
+                }
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', initializeFirebase);
+        
+        // Acordeón logic
+        document.querySelectorAll('.accordion-header').forEach(header => {
+            header.addEventListener('click', () => {
+                const content = header.nextElementSibling;
+                const icon = header.querySelector('i');
+                content.classList.toggle('open');
+                icon.classList.toggle('fa-chevron-down');
+                icon.classList.toggle('fa-chevron-up');
+            });
+        });
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+        .container {
+            max-width: 900px;
+        }
+        .accordion-item {
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .accordion-header {
+            background-color: #f9fafb;
+            padding: 1rem 1.5rem;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        .accordion-header:hover {
+            background-color: #f3f4f6;
+        }
+        .accordion-content {
+            display: none;
+            padding: 1rem 1.5rem;
+            background-color: white;
+        }
+        .accordion-content.open {
+            display: block;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-start justify-center min-h-screen p-8">
+    <div class="container mx-auto p-8 bg-white rounded-xl shadow-lg">
+        <h1 class="text-4xl font-bold text-center text-gray-800 mb-8">
+            <i class="fas fa-list-alt text-yellow-500 mr-2"></i> Administrar Preguntas
+        </h1>
+        
+        <!-- Acordeón para Nivel I -->
+        <div class="accordion-item">
+            <div class="accordion-header flex justify-between items-center text-xl font-bold text-gray-700">
+                <span>Nivel I</span>
+                <i class="fas fa-chevron-down text-gray-500"></i>
+            </div>
+            <div id="accordion-content-nivel1" class="accordion-content space-y-6">
+                <!-- Content will be rendered by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Acordeón para Nivel II -->
+        <div class="accordion-item">
+            <div class="accordion-header flex justify-between items-center text-xl font-bold text-gray-700">
+                <span>Nivel II</span>
+                <i class="fas fa-chevron-down text-gray-500"></i>
+            </div>
+            <div id="accordion-content-nivel2" class="accordion-content space-y-6">
+                <!-- Content will be rendered by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Acordeón para Nivel III -->
+        <div class="accordion-item">
+            <div class="accordion-header flex justify-between items-center text-xl font-bold text-gray-700">
+                <span>Nivel III</span>
+                <i class="fas fa-chevron-down text-gray-500"></i>
+            </div>
+            <div id="accordion-content-nivel3" class="accordion-content space-y-6">
+                <!-- Content will be rendered by JavaScript -->
+            </div>
+        </div>
+        
+        <div class="mt-8 text-center">
+            <a href="{{ url_for('dashboard') }}" class="w-full sm:w-auto inline-block bg-gray-500 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:bg-gray-600 transition-all duration-300 transform hover:scale-105">
+                <i class="fas fa-arrow-left mr-2"></i> Volver al Dashboard
+            </a>
+        </div>
+    </div>
+</body>
+</html>
