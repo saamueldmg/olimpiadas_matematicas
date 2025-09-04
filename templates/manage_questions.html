@@ -4,145 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Administrar Preguntas</title>
-    <!-- Tailwind CSS -->
+    <!-- Tailwind CSS y Fuentes -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Font Awesome para los iconos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Firebase SDK -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, query, where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        // Global variables for Firebase
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = JSON.parse(__firebase_config);
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : '';
-        
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const auth = getAuth(app);
-        let questionsCollection;
-
-        async function initializeFirebase() {
-            try {
-                if (initialAuthToken) {
-                    await signInWithCustomToken(auth, initialAuthToken);
-                } else {
-                    await signInAnonymously(auth);
-                }
-                const userId = auth.currentUser.uid;
-                questionsCollection = collection(db, 'artifacts', appId, 'public', 'data', 'questions');
-                console.log("Firebase initialized and authenticated successfully.");
-                listenForQuestions();
-            } catch (error) {
-                console.error("Error during Firebase initialization or authentication:", error);
-            }
-        }
-        
-        function listenForQuestions() {
-            onSnapshot(questionsCollection, (snapshot) => {
-                const questionsByLevel = { nivel1: [], nivel2: [], nivel3: [] };
-                snapshot.forEach(doc => {
-                    const question = { id: doc.id, ...doc.data() };
-                    const level = question.level;
-                    if (questionsByLevel[level]) {
-                        questionsByLevel[level].push(question);
-                    }
-                });
-                renderQuestions(questionsByLevel);
-            });
-        }
-        
-        window.renderQuestions = function(questionsByLevel) {
-            ['nivel1', 'nivel2', 'nivel3'].forEach(level => {
-                const contentDiv = document.getElementById(`accordion-content-${level}`);
-                contentDiv.innerHTML = ''; // Clear previous content
-                const questions = questionsByLevel[level];
-                if (questions.length === 0) {
-                    contentDiv.innerHTML = `<p class="text-center text-gray-500">No hay preguntas en este nivel.</p>`;
-                } else {
-                    questions.forEach((question, index) => {
-                        const questionHtml = `
-                            <div class="border-b pb-4 mb-4">
-                                <img src="/static/images/${question.question_image}" alt="Pregunta ${index + 1}" class="max-w-xs mx-auto mb-4 rounded-lg shadow">
-                                <ul class="list-disc list-inside space-y-1">
-                                    ${Object.entries(question.options).map(([key, value]) => `
-                                        <li class="${key === question.correct ? 'font-bold text-green-600' : ''}">
-                                            <i class="${key === question.correct ? 'fas fa-check-circle' : 'far fa-circle'} mr-2"></i> ${key.toUpperCase()}) ${value}
-                                        </li>
-                                    `).join('')}
-                                </ul>
-                                <div class="mt-4 text-right">
-                                    <form onsubmit="event.preventDefault(); deleteQuestionFromFirestore('${question.id}')">
-                                        <button type="submit" class="bg-red-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-red-700 transition-colors">
-                                            <i class="fas fa-trash-alt mr-2"></i> Eliminar
-                                        </button>
-                                    </form>
-                                </div>
-                            </div>
-                        `;
-                        contentDiv.innerHTML += questionHtml;
-                    });
-                }
-            });
-        }
-        
-        window.deleteQuestionFromFirestore = async function(questionId) {
-            if (confirm('¿Estás seguro de que quieres eliminar esta pregunta?')) {
-                try {
-                    await deleteDoc(doc(questionsCollection, questionId));
-                    console.log("Question deleted successfully!");
-                } catch (e) {
-                    console.error("Error deleting document: ", e);
-                }
-            }
-        }
-        
-        document.addEventListener('DOMContentLoaded', initializeFirebase);
-        
-        // Acordeón logic
-        document.querySelectorAll('.accordion-header').forEach(header => {
-            header.addEventListener('click', () => {
-                const content = header.nextElementSibling;
-                const icon = header.querySelector('i');
-                content.classList.toggle('open');
-                icon.classList.toggle('fa-chevron-down');
-                icon.classList.toggle('fa-chevron-up');
-            });
-        });
-    </script>
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f3f4f6;
-        }
-        .container {
-            max-width: 900px;
-        }
-        .accordion-item {
-            border-bottom: 1px solid #e5e7eb;
-        }
-        .accordion-header {
-            background-color: #f9fafb;
-            padding: 1rem 1.5rem;
-            cursor: pointer;
-            transition: background-color 0.2s ease;
-        }
-        .accordion-header:hover {
-            background-color: #f3f4f6;
-        }
-        .accordion-content {
-            display: none;
-            padding: 1rem 1.5rem;
-            background-color: white;
-        }
-        .accordion-content.open {
-            display: block;
-        }
+        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
+        .container { max-width: 900px; }
+        .accordion-header { cursor: pointer; transition: background-color 0.2s ease; }
+        .accordion-header:hover { background-color: #f3f4f6; }
+        .accordion-content { display: none; }
+        .accordion-content.open { display: block; }
     </style>
 </head>
 <body class="bg-gray-100 flex items-start justify-center min-h-screen p-8">
@@ -151,44 +26,83 @@
             <i class="fas fa-list-alt text-yellow-500 mr-2"></i> Administrar Preguntas
         </h1>
         
-        <!-- Acordeón para Nivel I -->
-        <div class="accordion-item">
-            <div class="accordion-header flex justify-between items-center text-xl font-bold text-gray-700">
-                <span>Nivel I</span>
+        <!-- Usamos un diccionario para no repetir el código del acordeón -->
+        {% set levels = {'Nivel I': nivel1, 'Nivel II': nivel2, 'Nivel III': nivel3} %}
+        
+        {% for level_name, questions in levels.items() %}
+        <div class="accordion-item border-b">
+            <div class="accordion-header flex justify-between items-center text-xl font-bold text-gray-700 p-4 bg-gray-50">
+                <!-- CAMBIO: Añadido el contador de preguntas -->
+                <span>
+                    {{ level_name }}
+                    <span class="text-sm font-normal text-gray-500 ml-2">
+                        ({{ questions | length }} {% if questions | length == 1 %}pregunta{% else %}preguntas{% endif %})
+                    </span>
+                </span>
                 <i class="fas fa-chevron-down text-gray-500"></i>
             </div>
-            <div id="accordion-content-nivel1" class="accordion-content space-y-6">
-                <!-- Content will be rendered by JavaScript -->
+            <div class="accordion-content p-4 space-y-6 bg-white">
+                <!-- Verificamos si hay preguntas en la lista que nos pasó Flask -->
+                {% if questions %}
+                    {% for question in questions %}
+                    <div class="border-b pb-4 mb-4">
+                        <img src="{{ url_for('static', filename='images/' + question.question_image) }}" alt="Imagen de la pregunta" class="max-w-xs mx-auto mb-4 rounded-lg shadow">
+                        <ul class="list-none space-y-2">
+                            <!-- Iteramos sobre las opciones de la pregunta -->
+                            {% for key, value in question.options.items() %}
+                            <li class="{% if key == question.correct %}font-bold text-green-600{% endif %}">
+                                <i class="{% if key == question.correct %}fas fa-check-circle{% else %}far fa-circle{% endif %} mr-2"></i>
+                                <strong>{{ key.upper() }})</strong> {{ value }}
+                            </li>
+                            {% endfor %}
+                        </ul>
+                        <div class="mt-4 text-right">
+                            <!-- Formulario que envía la acción de borrar a app.py -->
+                            <form action="{{ url_for('delete_question', question_id=question.id) }}" method="POST">
+                                <button type="submit" class="bg-red-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-red-700 transition">
+                                    <i class="fas fa-trash-alt mr-2"></i> Eliminar
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-center text-gray-500">No hay preguntas en este nivel.</p>
+                {% endif %}
             </div>
         </div>
-
-        <!-- Acordeón para Nivel II -->
-        <div class="accordion-item">
-            <div class="accordion-header flex justify-between items-center text-xl font-bold text-gray-700">
-                <span>Nivel II</span>
-                <i class="fas fa-chevron-down text-gray-500"></i>
-            </div>
-            <div id="accordion-content-nivel2" class="accordion-content space-y-6">
-                <!-- Content will be rendered by JavaScript -->
-            </div>
-        </div>
-
-        <!-- Acordeón para Nivel III -->
-        <div class="accordion-item">
-            <div class="accordion-header flex justify-between items-center text-xl font-bold text-gray-700">
-                <span>Nivel III</span>
-                <i class="fas fa-chevron-down text-gray-500"></i>
-            </div>
-            <div id="accordion-content-nivel3" class="accordion-content space-y-6">
-                <!-- Content will be rendered by JavaScript -->
-            </div>
-        </div>
+        {% endfor %}
         
         <div class="mt-8 text-center">
-            <a href="{{ url_for('dashboard') }}" class="w-full sm:w-auto inline-block bg-gray-500 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:bg-gray-600 transition-all duration-300 transform hover:scale-105">
+            <a href="{{ url_for('dashboard') }}" class="w-full sm:w-auto inline-block bg-gray-500 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:bg-gray-600 transition">
                 <i class="fas fa-arrow-left mr-2"></i> Volver al Dashboard
             </a>
         </div>
     </div>
+
+    <!-- JavaScript para la funcionalidad del acordeón -->
+    <script>
+        document.querySelectorAll('.accordion-header').forEach(header => {
+            header.addEventListener('click', () => {
+                const content = header.nextElementSibling;
+                const icon = header.querySelector('i');
+                
+                // Cierra otros acordeones abiertos
+                document.querySelectorAll('.accordion-content.open').forEach(openContent => {
+                    if (openContent !== content) {
+                        openContent.classList.remove('open');
+                        openContent.previousElementSibling.querySelector('i').classList.remove('fa-chevron-up');
+                        openContent.previousElementSibling.querySelector('i').classList.add('fa-chevron-down');
+                    }
+                });
+
+                // Abre o cierra el actual
+                content.classList.toggle('open');
+                icon.classList.toggle('fa-chevron-down');
+                icon.classList.toggle('fa-chevron-up');
+            });
+        });
+    </script>
 </body>
 </html>
+

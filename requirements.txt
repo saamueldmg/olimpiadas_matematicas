@@ -1,0 +1,4 @@
+Flask
+Flask-Login
+firebase-admin
+google-cloud-firestore
