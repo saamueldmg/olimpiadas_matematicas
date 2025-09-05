@@ -3,8 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Asignar Punto</title>
-    <!-- Tailwind CSS -->
+    <title>Evaluar Respuesta</title>
+    <!-- Tailwind CSS y Fuentes -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -12,7 +12,7 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
-    <!-- Font Awesome para los iconos -->
+    <!-- Font Awesome para Iconos -->
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
@@ -22,59 +22,101 @@
         font-family: "Inter", sans-serif;
         background-color: #f3f4f6;
       }
-      .container {
-        max-width: 800px;
+      .rubric-label {
+        transition: all 0.2s ease-in-out;
+        cursor: pointer;
+      }
+      input[type="radio"]:checked + .rubric-label {
+        background-color: #3b82f6; /* bg-blue-600 */
+        color: white;
+        border-color: #3b82f6;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
       }
     </style>
   </head>
   <body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
     <div
-      class="container mx-auto p-8 bg-white rounded-xl shadow-lg text-center"
+      class="container mx-auto p-8 bg-white rounded-xl shadow-lg w-full max-w-4xl"
     >
-      {% if is_correct %}
-      <h1 class="text-4xl font-bold text-center text-green-600 mb-6">
-        <i class="fas fa-check-circle mr-2"></i> ¡Respuesta Correcta!
+      <h1 class="text-4xl font-bold text-center text-gray-800 mb-4">
+        ¡Argumente su respuesta!
       </h1>
-      <p class="text-lg font-semibold text-gray-700 mb-6">
-        ¿A qué equipo le asignas el punto?
-      </p>
 
-      <form
-        action="{{ url_for('assign_point_to_team') }}"
-        method="post"
-        class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4"
-      >
-        <input
-          type="hidden"
-          name="old_question_flag"
-          value="{{ old_question }}"
-        />
-        {% for team in teams %}
-        <button
-          type="submit"
-          name="team"
-          value="{{ team }}"
-          class="bg-indigo-600 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:bg-indigo-700 transition-all duration-300 transform hover:scale-105"
-        >
-          {{ team }}
-        </button>
-        {% endfor %}
+      <form action="{{ url_for('assign_point_to_team') }}" method="post">
+        <!-- Rúbrica de Puntuación -->
+        <div class="bg-gray-50 p-6 rounded-lg border mb-6">
+          <h2 class="text-xl font-bold text-gray-800 mb-4 text-center">
+            Asignar Puntuación
+          </h2>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-md mx-auto">
+            <!-- 1 Punto -->
+            <div class="relative">
+              <input
+                type="radio"
+                id="points-1"
+                name="points"
+                value="1"
+                class="hidden"
+                required
+              />
+              <label
+                for="points-1"
+                class="rubric-label block p-4 bg-white border-2 border-gray-300 rounded-lg shadow-sm text-center"
+              >
+                <span class="block text-2xl font-bold text-yellow-600"
+                  >1 pt</span
+                >
+                <span class="block text-sm text-gray-600 mt-1"
+                  >Correcta / Sin Argumento</span
+                >
+              </label>
+            </div>
+            <!-- 2 Puntos -->
+            <div class="relative">
+              <input
+                type="radio"
+                id="points-2"
+                name="points"
+                value="2"
+                class="hidden"
+              />
+              <label
+                for="points-2"
+                class="rubric-label block p-4 bg-white border-2 border-gray-300 rounded-lg shadow-sm text-center"
+              >
+                <span class="block text-2xl font-bold text-green-600"
+                  >2 pt</span
+                >
+                <span class="block text-sm text-gray-600 mt-1"
+                  >Correcta / Con Argumento</span
+                >
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Selección de Equipo -->
+        <div class="bg-gray-50 p-6 rounded-lg border mb-8">
+          <h2 class="text-xl font-bold text-gray-800 mb-4 text-center">
+            Asignar Puntos a:
+          </h2>
+          <div
+            class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4"
+          >
+            {% for team in teams %}
+            <button
+              type="submit"
+              name="team"
+              value="{{ team }}"
+              class="w-full bg-indigo-600 text-white font-bold py-4 px-8 rounded-lg shadow-lg hover:bg-indigo-700 transition-all duration-300 transform hover:scale-105"
+            >
+              <i class="fas fa-users mr-2"></i> {{ team }}
+            </button>
+            {% endfor %}
+          </div>
+        </div>
       </form>
-      {% else %}
-      <h1 class="text-4xl font-bold text-center text-red-600 mb-6">
-        <i class="fas fa-times-circle mr-2"></i> Respuesta Incorrecta.
-      </h1>
-      <p class="text-lg font-semibold text-gray-700 mb-6">
-        Vuelve a la pregunta para que el otro equipo pueda responder.
-      </p>
-
-      <a
-        href="{{ url_for('quiz_question') }}"
-        class="inline-block bg-gray-500 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:bg-gray-600 transition-all duration-300 transform hover:scale-105"
-      >
-        <i class="fas fa-arrow-left mr-2"></i> Volver a la pregunta
-      </a>
-      {% endif %}
     </div>
   </body>
 </html>

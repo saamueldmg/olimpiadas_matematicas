@@ -3,13 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Quiz</title>
-    <!-- Tailwind CSS -->
+    <title>Olimpiadas Matemáticas</title>
+    <!-- Tailwind CSS y Fuentes -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap"
       rel="stylesheet"
     />
     <!-- Font Awesome para los iconos -->
@@ -22,14 +22,12 @@
         font-family: "Inter", sans-serif;
         background-color: #f3f4f6;
       }
-      .container {
-        max-width: 800px;
-      }
+      /* Estilos para las opciones de respuesta */
       .option-label {
         transition: all 0.2s ease-in-out;
         cursor: pointer;
       }
-      .option-label:hover {
+      .option-label:hover:not([disabled]) {
         transform: scale(1.02);
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
       }
@@ -39,90 +37,142 @@
         border-color: #3b82f6;
         box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
       }
-      #timer-bar {
-        width: 100%;
-        transition: width linear;
+      /* Estilos para deshabilitar el formulario */
+      fieldset:disabled .option-label {
+        background-color: #f3f4f6;
+        cursor: not-allowed;
+        opacity: 0.6;
+      }
+      /* Se aplica al botón directamente ahora */
+      button:disabled {
+        background-color: #9ca3af;
+        cursor: not-allowed;
       }
     </style>
   </head>
   <body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
-    <div class="container mx-auto p-8 bg-white rounded-xl shadow-lg">
-      <!-- Cronómetro -->
-      <div class="w-full bg-gray-200 rounded-full h-4 mb-4">
-        <div id="timer-bar" class="bg-red-500 h-4 rounded-full"></div>
+    <!-- Modal para "Tiempo Agotado" -->
+    <div
+      id="time-up-modal"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden"
+    >
+      <div
+        class="bg-white rounded-xl shadow-lg p-8 text-center max-w-sm mx-auto"
+      >
+        <i class="fas fa-clock text-5xl text-red-500 mb-4"></i>
+        <h2 class="text-2xl font-bold text-gray-800 mb-2">¡Tiempo Agotado!</h2>
+        <p class="text-gray-600 mb-6">
+          El tiempo para esta pregunta ha terminado.
+        </p>
+        <a
+          href="{{ url_for('skip_question') }}"
+          class="w-full bg-blue-600 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:bg-blue-700 transition"
+        >
+          Continuar
+        </a>
       </div>
+    </div>
 
-      <h1 class="text-4xl font-bold text-center text-gray-800 mb-6">
-        <i class="fas fa-question-circle text-blue-600 mr-2"></i> Pregunta {{
-        question_number }}
-      </h1>
+    <div
+      class="container mx-auto p-8 bg-white rounded-xl shadow-lg w-full max-w-5xl"
+    >
+      <!-- Encabezado con Título y Cronómetro -->
+      <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold text-gray-800">
+          <i class="fas fa-question-circle text-blue-600 mr-2"></i> Pregunta {{
+          question_number }}
+        </h1>
+        <div
+          class="flex items-center space-x-3 bg-gray-800 text-white rounded-full px-4 py-2"
+        >
+          <i class="fas fa-clock"></i>
+          <span id="timer" class="text-2xl font-mono font-bold tracking-wider"
+            >03:00</span
+          >
+          <button
+            id="start-pause-btn"
+            class="text-2xl text-green-400 hover:text-green-300 transition"
+          >
+            <i class="fas fa-play"></i>
+          </button>
+          <button
+            id="reset-btn"
+            class="text-2xl text-yellow-400 hover:text-yellow-300 transition"
+          >
+            <i class="fas fa-sync-alt"></i>
+          </button>
+        </div>
+      </div>
 
       <form
         id="quiz-form"
         action="{{ url_for('submit_answer') }}"
         method="post"
-        class="space-y-6"
       >
-        <!-- Contenedor de la pregunta -->
-        <div
-          class="bg-gray-50 p-6 rounded-lg border border-gray-200 text-center"
-        >
-          {% if 'question_image' in question %}
-          <img
-            src="{{ url_for('static', filename='images/' + question.question_image) }}"
-            alt="Imagen de la pregunta"
-            class="max-w-full h-auto mx-auto rounded-lg shadow-md mb-4"
-          />
-          {% endif %}
-          <p class="text-lg font-semibold text-gray-700">
-            {{ question.get('question_text', '¿Cuál es la respuesta correcta?')
-            }}
-          </p>
-        </div>
-
-        <!-- Contenedor de las opciones -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {% for key, value in question.options.items() %}
-          <div class="relative">
-            <input
-              type="radio"
-              id="option-{{ key }}"
-              name="answer"
-              value="{{ key }}"
-              class="hidden"
-              required
-            />
-            <label
-              for="option-{{ key }}"
-              class="option-label block p-4 bg-white border border-gray-300 rounded-lg shadow-sm text-gray-800 text-lg font-medium text-center"
+        <fieldset id="quiz-fieldset" disabled>
+          <!-- Contenedor de la pregunta con tamaño fijo para la imagen -->
+          <div
+            class="bg-gray-50 p-6 rounded-lg border border-gray-200 text-center"
+          >
+            <!-- CONTENEDOR DE IMAGEN AMPLIADO -->
+            <div
+              class="w-full h-96 bg-white border border-gray-200 rounded-lg flex items-center justify-center overflow-hidden mx-auto mb-4"
             >
-              {{ value }}
-            </label>
-          </div>
-          {% endfor %}
-        </div>
+              {% if 'question_image' in question %}
+              <img
+                src="{{ url_for('static', filename='images/' + question.question_image) }}"
+                alt="Imagen de la pregunta"
+                class="max-w-full max-h-full object-contain"
+              />
+              {% endif %}
+            </div>
 
-        <!-- Botones de acción -->
-        <div class="flex flex-col sm:flex-row justify-between gap-4 mt-6">
-          <button
-            type="submit"
-            class="w-full sm:w-1/2 bg-blue-600 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:bg-blue-700 transition-all duration-300 transform hover:scale-105"
-          >
-            <i class="fas fa-check-circle mr-2"></i> Enviar Respuesta
-          </button>
-          <a
-            href="{{ url_for('skip_question') }}"
-            class="w-full sm:w-1/2 text-center bg-yellow-500 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:bg-yellow-600 transition-all duration-300 transform hover:scale-105"
-          >
-            <i class="fas fa-forward mr-2"></i> Saltar Pregunta
-          </a>
-        </div>
+            <p class="text-lg font-semibold text-gray-700 mt-4">
+              {{ question.get('question_text', '¿Cuál es la respuesta
+              correcta?') }}
+            </p>
+          </div>
+
+          <!-- Contenedor de las opciones -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+            {% for key, value in question.options.items() %}
+            <div class="relative">
+              <input
+                type="radio"
+                id="option-{{ key }}"
+                name="answer"
+                value="{{ key }}"
+                class="hidden"
+                required
+              />
+              <label
+                for="option-{{ key }}"
+                class="option-label block p-4 bg-white border border-gray-300 rounded-lg shadow-sm text-gray-800 text-lg font-medium text-center"
+              >
+                {{ value }}
+              </label>
+            </div>
+            {% endfor %}
+          </div>
+        </fieldset>
       </form>
 
-      <div class="mt-6 text-center">
+      <!-- NUEVO CONTENEDOR PARA LOS BOTONES INFERIORES -->
+      <div
+        class="mt-8 flex flex-col sm:flex-row-reverse justify-between items-center gap-4"
+      >
+        <button
+          type="submit"
+          form="quiz-form"
+          id="submit-btn"
+          class="w-full sm:w-auto bg-blue-600 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:bg-blue-700 transition"
+          disabled
+        >
+          <i class="fas fa-check-circle mr-2"></i> Enviar Respuesta
+        </button>
         <a
           href="{{ url_for('dashboard') }}"
-          class="inline-block bg-gray-500 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:bg-gray-600 transition-all duration-300 transform hover:scale-105"
+          class="w-full sm:w-auto inline-block bg-gray-500 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:bg-gray-600 transition"
         >
           <i class="fas fa-arrow-left mr-2"></i> Volver al Dashboard
         </a>
@@ -130,31 +180,76 @@
     </div>
 
     <script>
-      document.addEventListener("DOMContentLoaded", (event) => {
-        const timerBar = document.getElementById("timer-bar");
-        const quizForm = document.getElementById("quiz-form");
-        const totalTime = 3 * 60; // 3 minutos en segundos
+      document.addEventListener("DOMContentLoaded", () => {
+        const timerDisplay = document.getElementById("timer");
+        const startPauseBtn = document.getElementById("start-pause-btn");
+        const resetBtn = document.getElementById("reset-btn");
+        const quizFieldset = document.getElementById("quiz-fieldset");
+        const submitBtn = document.getElementById("submit-btn"); // Botón de Enviar
+        const modal = document.getElementById("time-up-modal");
+
+        const totalTime = 3 * 60; // 3 minutos
         let timeRemaining = totalTime;
+        let timerInterval = null;
+        let isPaused = true;
 
-        timerBar.style.transitionDuration = `${totalTime}s`;
-        timerBar.style.width = "0%";
+        function formatTime(seconds) {
+          const minutes = Math.floor(seconds / 60);
+          const secs = seconds % 60;
+          return `${String(minutes).padStart(2, "0")}:${String(secs).padStart(
+            2,
+            "0"
+          )}`;
+        }
 
-        setTimeout(() => {
-          timerBar.style.width = "100%";
-        }, 100);
-
-        const timerInterval = setInterval(() => {
-          timeRemaining--;
-          if (timeRemaining <= 0) {
+        function updateTimer() {
+          timerDisplay.textContent = formatTime(timeRemaining);
+          if (timeRemaining > 0) {
+            timeRemaining--;
+          } else {
             clearInterval(timerInterval);
-            alert("¡Se acabó el tiempo! No se asigna punto.");
-            window.location.href = "{{ url_for('quiz_question') }}"; // Volver a la misma pregunta
+            timerInterval = null;
+            modal.classList.remove("hidden");
           }
-        }, 1000);
+        }
 
-        quizForm.addEventListener("submit", () => {
-          clearInterval(timerInterval); // Detener el cronómetro al enviar
+        function startTimer() {
+          if (!timerInterval) {
+            timerInterval = setInterval(updateTimer, 1000);
+          }
+          isPaused = false;
+          startPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+          quizFieldset.disabled = false;
+          submitBtn.disabled = false; // Habilitar botón de enviar
+        }
+
+        function pauseTimer() {
+          clearInterval(timerInterval);
+          timerInterval = null;
+          isPaused = true;
+          startPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+        }
+
+        startPauseBtn.addEventListener("click", (e) => {
+          e.preventDefault();
+          if (isPaused) {
+            startTimer();
+          } else {
+            pauseTimer();
+          }
         });
+
+        resetBtn.addEventListener("click", (e) => {
+          e.preventDefault();
+          pauseTimer();
+          timeRemaining = totalTime;
+          timerDisplay.textContent = formatTime(totalTime);
+          quizFieldset.disabled = true;
+          submitBtn.disabled = true; // Deshabilitar botón de enviar
+        });
+
+        // Inicializar el cronómetro
+        timerDisplay.textContent = formatTime(totalTime);
       });
     </script>
   </body>

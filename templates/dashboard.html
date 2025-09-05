@@ -3,134 +3,147 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Dashboard</title>
+    <title>Dashboard - Olimpiadas Matemáticas</title>
+    <!-- Tailwind CSS y Fuentes -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap"
       rel="stylesheet"
-      href="{{ url_for('static', filename='css/style.css') }}"
     />
-    <!-- Incluir Font Awesome para los iconos -->
+    <!-- Font Awesome para los iconos -->
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
     <style>
-      .dashboard-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 20px;
-        margin-top: 30px;
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: #f3f4f6; /* Un gris más claro */
       }
-      .dashboard-button {
-        background-color: #007bff;
-        color: white;
-        padding: 40px 20px;
-        border-radius: 12px;
-        text-decoration: none;
-        font-size: 1.2em;
-        font-weight: bold;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        text-align: center;
-        transition: background-color 0.3s ease;
+      .action-card {
+        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
       }
-      .dashboard-button:hover {
-        background-color: #0056b3;
-      }
-      /* Estilos de los iconos */
-      .dashboard-button i {
-        font-size: 2.5em; /* Tamaño del icono */
-        margin-bottom: 10px; /* Espacio entre el icono y el texto */
-      }
-      .add-question {
-        background-color: #17a2b8;
-      }
-      .add-question:hover {
-        background-color: #138496;
-      }
-      .manage-questions {
-        background-color: #ffc107;
-      }
-      .manage-questions:hover {
-        background-color: #e0a800;
-      }
-      .manage-teams {
-        background-color: #28a745;
-      }
-      .manage-teams:hover {
-        background-color: #218838;
-      }
-      .scoreboard {
-        background-color: #dc3545;
-      }
-      .scoreboard:hover {
-        background-color: #c82333;
-      }
-      .start-quiz {
-        background-color: #6610f2;
-      }
-      .start-quiz:hover {
-        background-color: #5507d6;
-      }
-      .logout {
-        background-color: #6c757d;
-      }
-      .logout:hover {
-        background-color: #5a6268;
+      .action-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
       }
     </style>
   </head>
-  <body>
-    <div class="container">
-      <h1>Dashboard</h1>
-      <div class="dashboard-grid">
-        <!-- Botón Añadir pregunta -->
+  <body class="bg-gray-100 min-h-screen p-4 sm:p-6 md:p-8">
+    <div class="container mx-auto max-w-6xl">
+      <!-- Encabezado -->
+      <header
+        class="flex flex-col sm:flex-row justify-between items-center mb-8"
+      >
+        <div class="flex items-center space-x-4">
+          <img
+            src="{{ url_for('static', filename='images/Logo.jpg') }}"
+            alt="Logo"
+            class="h-16 w-auto rounded-md"
+          />
+          <div>
+            <h1 class="text-3xl font-bold text-gray-800">Panel de Control</h1>
+            <p class="text-gray-500">Olimpiadas Matemáticas BoscoTech Lab</p>
+          </div>
+        </div>
+        <a
+          href="{{ url_for('logout') }}"
+          class="mt-4 sm:mt-0 flex items-center space-x-2 text-gray-600 hover:text-red-500 transition-colors"
+        >
+          <i class="fas fa-sign-out-alt"></i>
+          <span>Cerrar sesión</span>
+        </a>
+      </header>
+
+      <!-- Contenido Principal -->
+      <main class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Columna Principal (Iniciar Quiz) -->
+        <div class="lg:col-span-2">
+          <a
+            href="{{ url_for('select_level') }}"
+            class="action-card flex flex-col items-center justify-center text-center bg-blue-600 text-white p-8 sm:p-12 rounded-2xl shadow-lg h-full"
+          >
+            <i class="fas fa-play-circle text-6xl mb-4"></i>
+            <h2 class="text-3xl font-bold mb-2">
+              ¡Comienza un nuevo Concurso!
+            </h2>
+            <p class="text-blue-200 max-w-md">
+              Forma los equipos, selecciona la dificultad y da inicio al reto
+              matemático.
+            </p>
+          </a>
+        </div>
+
+        <!-- Columna Secundaria (Otras Acciones) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-6">
+          <!-- Gestionar Equipos -->
+          <a
+            href="{{ url_for('manage_teams') }}"
+            class="action-card flex items-center bg-white p-6 rounded-2xl shadow-md"
+          >
+            <div class="bg-green-100 text-green-600 p-4 rounded-full">
+              <i class="fas fa-users text-2xl"></i>
+            </div>
+            <div class="ml-4">
+              <h3 class="text-xl font-bold text-gray-800">Gestionar Equipos</h3>
+              <p class="text-gray-500">Crea, edita y elimina los equipos.</p>
+            </div>
+          </a>
+
+          <!-- Ver Puntuaciones -->
+          <a
+            href="{{ url_for('show_scoreboard') }}"
+            class="action-card flex items-center bg-white p-6 rounded-2xl shadow-md"
+          >
+            <div class="bg-yellow-100 text-yellow-600 p-4 rounded-full">
+              <i class="fas fa-trophy text-2xl"></i>
+            </div>
+            <div class="ml-4">
+              <h3 class="text-xl font-bold text-gray-800">Ver Puntuaciones</h3>
+              <p class="text-gray-500">
+                Revisa la tabla de puntuaciones y descubre quién lidera el
+                desafío
+              </p>
+            </div>
+          </a>
+        </div>
+
+        <!-- Fila Inferior (Gestión de Preguntas) -->
         <a
           href="{{ url_for('add_question') }}"
-          class="dashboard-button add-question"
+          class="action-card flex items-center bg-white p-6 rounded-2xl shadow-md"
         >
-          <i class="fas fa-plus"></i>
-          Añadir pregunta
+          <div class="bg-indigo-100 text-indigo-600 p-4 rounded-full">
+            <i class="fas fa-plus text-2xl"></i>
+          </div>
+          <div class="ml-4">
+            <h3 class="text-xl font-bold text-gray-800">Añadir Pregunta</h3>
+            <p class="text-gray-500">
+              Agrega nuevas preguntas para mantener el reto siempre emocionante.
+            </p>
+          </div>
         </a>
-        <!-- Botón Administrar preguntas - ¡CORREGIDO! -->
+
         <a
           href="{{ url_for('manage_questions') }}"
-          class="dashboard-button manage-questions"
+          class="action-card flex items-center bg-white p-6 rounded-2xl shadow-md lg:col-span-2"
         >
-          <i class="fas fa-list-alt"></i>
-          Administrar preguntas
+          <div class="bg-red-100 text-red-600 p-4 rounded-full">
+            <i class="fas fa-list-alt text-2xl"></i>
+          </div>
+          <div class="ml-4">
+            <h3 class="text-xl font-bold text-gray-800">
+              Administrar Preguntas
+            </h3>
+            <p class="text-gray-500">
+              Gestiona todas las preguntas: revisa, organiza o elimina según el
+              nivel.
+            </p>
+          </div>
         </a>
-        <!-- Botón Gestionar equipos -->
-        <a
-          href="{{ url_for('manage_teams') }}"
-          class="dashboard-button manage-teams"
-        >
-          <i class="fas fa-users"></i>
-          Gestionar equipos
-        </a>
-        <!-- Botón Ver Scoreboard -->
-        <a
-          href="{{ url_for('show_scoreboard') }}"
-          class="dashboard-button scoreboard"
-        >
-          <i class="fas fa-chart-bar"></i>
-          Ver Scoreboard
-        </a>
-        <!-- Botón Iniciar Quiz -->
-        <a
-          href="{{ url_for('select_level') }}"
-          class="dashboard-button start-quiz"
-        >
-          <i class="fas fa-play"></i>
-          Iniciar Quiz
-        </a>
-        <!-- Botón Cerrar sesión -->
-        <a href="{{ url_for('logout') }}" class="dashboard-button logout">
-          <i class="fas fa-sign-out-alt"></i>
-          Cerrar sesión
-        </a>
-      </div>
+      </main>
     </div>
   </body>
 </html>

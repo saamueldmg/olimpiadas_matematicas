@@ -2,14 +2,14 @@
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Scoreboard</title>
-    <!-- Tailwind CSS -->
+    <meta name="viewport" content="width=device-width, initial-scale-1.0" />
+    <title>Tabla de Puntuaciones - Olimpiadas Matemáticas</title>
+    <!-- Tailwind CSS y Fuentes -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap"
       rel="stylesheet"
     />
     <!-- Font Awesome para los iconos -->
@@ -22,73 +22,111 @@
         font-family: "Inter", sans-serif;
         background-color: #f3f4f6;
       }
-      .container {
-        max-width: 800px;
-      }
     </style>
   </head>
-  <body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
-    <div class="container mx-auto p-8 bg-white rounded-xl shadow-lg">
-      <div class="flex justify-between items-center mb-8">
-        <h1 class="text-4xl font-bold text-center text-gray-800">
-          <i class="fas fa-chart-bar text-red-600 mr-2"></i> Ver Scoreboard
-        </h1>
-        <form action="{{ url_for('reset_points') }}" method="post">
-          <button
-            type="submit"
-            class="bg-gray-200 text-gray-700 py-2 px-4 rounded-lg shadow hover:bg-gray-300 transition-colors"
-          >
-            <i class="fas fa-sync-alt mr-2"></i> Reiniciar Puntos
-          </button>
-        </form>
-      </div>
-
-      <!-- Tabla de puntajes -->
-      <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 mt-6">
-        <table class="min-w-full divide-y divide-gray-200">
-          <thead class="bg-gray-100">
-            <tr>
-              <th
-                scope="col"
-                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-              >
-                Nombre del Equipo
-              </th>
-              <th
-                scope="col"
-                class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
-              >
-                Puntaje
-              </th>
-            </tr>
-          </thead>
-          <tbody class="bg-white divide-y divide-gray-200">
-            {% for team, score in scores.items() %}
-            <tr>
-              <td
-                class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"
-              >
-                {{ team }}
-              </td>
-              <td
-                class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right"
-              >
-                {{ score }}
-              </td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-
-      <div class="mt-6">
+  <body class="bg-gray-100 min-h-screen p-4 sm:p-6 md:p-8">
+    <div class="container mx-auto max-w-4xl">
+      <!-- Encabezado -->
+      <header
+        class="flex flex-col sm:flex-row justify-between items-center mb-8"
+      >
+        <div class="flex items-center space-x-4">
+          <img
+            src="{{ url_for('static', filename='images/Logo.jpg') }}"
+            alt="Logo BoscoTechLab"
+            class="w-16 h-16 rounded-2xl shadow-md"
+          />
+          <div>
+            <h1 class="text-3xl font-bold text-gray-800">
+              Tabla de Puntuaciones
+            </h1>
+            <p class="text-gray-500">
+              Clasificación de las Olimpiadas Matemáticas.
+            </p>
+          </div>
+        </div>
         <a
           href="{{ url_for('dashboard') }}"
-          class="w-full sm:w-auto inline-block bg-gray-500 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:bg-gray-600 transition-all duration-300 transform hover:scale-105"
+          class="mt-4 sm:mt-0 flex items-center space-x-2 text-gray-600 hover:text-blue-600 transition-colors font-medium"
         >
-          <i class="fas fa-arrow-left mr-2"></i> Volver al Dashboard
+          <i class="fas fa-arrow-left"></i>
+          <span>Volver al Dashboard</span>
         </a>
-      </div>
+      </header>
+
+      <!-- Contenido Principal -->
+      <main class="bg-white p-8 rounded-2xl shadow-lg">
+        <div class="space-y-4">
+          <!-- Cabecera de la tabla -->
+          <div
+            class="hidden md:grid grid-cols-12 gap-4 px-4 text-sm font-bold text-gray-500 uppercase tracking-wider"
+          >
+            <div class="col-span-1 text-center">#</div>
+            <div class="col-span-8">Equipo</div>
+            <div class="col-span-3 text-right">Puntaje Total</div>
+          </div>
+
+          <!-- Lista de equipos -->
+          {% for team_data in scores %}
+          <div
+            class="grid grid-cols-12 gap-4 items-center p-4 rounded-xl transition-all duration-300 {% if loop.index == 1 %} bg-yellow-100 border-2 border-yellow-400 shadow-lg {% elif loop.index == 2 %} bg-gray-100 border border-gray-200 {% elif loop.index == 3 %} bg-orange-50 border border-orange-200 {% else %} border {% endif %}"
+          >
+            <!-- Rango y Medalla -->
+            <div class="col-span-2 md:col-span-1 text-center text-xl font-bold">
+              {% if loop.index == 1 %}
+              <i class="fas fa-trophy text-yellow-500" title="1er Lugar"></i>
+              {% elif loop.index == 2 %}
+              <i class="fas fa-medal text-gray-500" title="2do Lugar"></i>
+              {% elif loop.index == 3 %}
+              <i class="fas fa-award text-orange-500" title="3er Lugar"></i>
+              {% else %}
+              <span class="text-gray-500">{{ loop.index }}</span>
+              {% endif %}
+            </div>
+
+            <!-- Nombre del Equipo -->
+            <div
+              class="col-span-6 md:col-span-8 text-xl font-medium text-gray-800"
+            >
+              {{ team_data.name }}
+            </div>
+
+            <!-- Puntaje -->
+            <div
+              class="col-span-4 md:col-span-3 text-3xl font-black text-gray-900 text-right font-mono"
+            >
+              {{ team_data.score }}
+            </div>
+          </div>
+          {% else %}
+          <div class="text-center py-8 text-gray-500">
+            <i class="fas fa-chart-bar text-4xl mb-4"></i>
+            <p>No hay puntuaciones para mostrar todavía.</p>
+          </div>
+          {% endfor %}
+        </div>
+
+        <!-- Botones de Acción -->
+        <div
+          class="mt-8 border-t pt-6 flex flex-col sm:flex-row-reverse justify-between items-center gap-4"
+        >
+          <form action="{{ url_for('reset_points') }}" method="POST">
+            <button
+              type="submit"
+              class="w-full sm:w-auto flex items-center justify-center space-x-2 bg-red-600 text-white font-bold py-3 px-6 rounded-lg shadow-md hover:bg-red-700 transition transform hover:scale-105"
+            >
+              <i class="fas fa-sync-alt"></i>
+              <span>Reiniciar Puntos</span>
+            </button>
+          </form>
+          <a
+            href="{{ url_for('dashboard') }}"
+            class="w-full sm:w-auto text-center bg-gray-200 text-gray-700 font-bold py-3 px-6 rounded-lg hover:bg-gray-300 transition"
+          >
+            Volver
+          </a>
+        </div>
+      </main>
     </div>
   </body>
 </html>

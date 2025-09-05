@@ -3,8 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Fin del Quiz</title>
-    <!-- Tailwind CSS -->
+    <title>Fin del Concurso</title>
+    <!-- Tailwind CSS y Fuentes -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -12,7 +12,7 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
-    <!-- Font Awesome para los iconos -->
+    <!-- Font Awesome para Iconos -->
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
@@ -21,24 +21,54 @@
       body {
         font-family: "Inter", sans-serif;
         background-color: #f3f4f6;
+        overflow: hidden; /* Evita el scroll por el confeti */
       }
-      .container {
-        max-width: 800px;
+      .confetti {
+        position: absolute;
+        width: 10px;
+        height: 10px;
+        background-color: #facc15; /* yellow-400 */
+        opacity: 0.7;
+        animation: fall 5s linear infinite;
+      }
+      .confetti:nth-child(2n) {
+        background-color: #3b82f6; /* blue-500 */
+      }
+      .confetti:nth-child(3n) {
+        background-color: #10b981; /* emerald-500 */
+      }
+      @keyframes fall {
+        to {
+          transform: translateY(100vh) rotate(360deg);
+          opacity: 0;
+        }
       }
     </style>
   </head>
   <body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+    <!-- Contenedor de Confeti -->
+    <div id="confetti-container"></div>
+
     <div
-      class="container mx-auto p-8 bg-white rounded-xl shadow-lg text-center"
+      class="container mx-auto p-8 bg-white rounded-xl shadow-lg text-center w-full max-w-2xl z-10"
     >
-      <h1 class="text-4xl font-bold text-center text-gray-800 mb-6">
-        ¡Fin del Quiz!
+      <!-- Logo de BoscoTechLab -->
+      <div class="flex justify-center items-center">
+        <img
+          src="{{ url_for('static', filename='images/Logo.jpg') }}"
+          alt="Logo de BoscoTechLab"
+          class="h-24 w-auto"
+        />
+      </div>
+
+      <h1 class="text-5xl font-extrabold text-center text-gray-800 my-4">
+        ¡Fin de la ronda!
       </h1>
 
-      <p class="text-lg font-semibold text-gray-700 mb-6">{{ message }}</p>
+      <p class="text-xl font-semibold text-gray-700 mb-8">{{ message }}</p>
 
       <!-- Tabla de puntajes -->
-      <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 mt-6">
+      <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
         <table class="min-w-full divide-y divide-gray-200">
           <thead class="bg-gray-100">
             <tr>
@@ -52,20 +82,21 @@
                 scope="col"
                 class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
               >
-                Puntaje
+                Puntaje Final
               </th>
             </tr>
           </thead>
           <tbody class="bg-white divide-y divide-gray-200">
             {% for team, score in scores.items() %}
-            <tr>
+            <!-- Si el equipo es el ganador, se le añade un fondo dorado -->
+            <tr class="{{ 'bg-yellow-100' if team == winner }}">
               <td
-                class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"
+                class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 text-left"
               >
                 {{ team }}
               </td>
               <td
-                class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right"
+                class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 text-right font-bold"
               >
                 {{ score }}
               </td>
@@ -75,14 +106,30 @@
         </table>
       </div>
 
-      <div class="mt-6">
+      <div class="mt-8">
         <a
           href="{{ url_for('dashboard') }}"
-          class="w-full sm:w-auto inline-block bg-gray-500 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:bg-gray-600 transition-all duration-300 transform hover:scale-105"
+          class="w-full sm:w-auto inline-block bg-gray-500 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:bg-gray-600 transition-all"
         >
           <i class="fas fa-arrow-left mr-2"></i> Volver al Dashboard
         </a>
       </div>
     </div>
+
+    <script>
+      // Solo muestra el confeti si hay un ganador y no es un empate
+      const winner = "{{ winner }}";
+      if (winner && winner !== "Empate") {
+        const container = document.getElementById("confetti-container");
+        for (let i = 0; i < 50; i++) {
+          const confetti = document.createElement("div");
+          confetti.classList.add("confetti");
+          confetti.style.left = Math.random() * 100 + "vw";
+          confetti.style.animationDuration = Math.random() * 3 + 2 + "s";
+          confetti.style.animationDelay = Math.random() * 5 + "s";
+          container.appendChild(confetti);
+        }
+      }
+    </script>
   </body>
 </html>

@@ -3,13 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Seleccionar Nivel</title>
-    <!-- Tailwind CSS -->
+    <title>Iniciar Concurso - Olimpiadas Matemáticas</title>
+    <!-- Tailwind CSS y Fuentes -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap"
       rel="stylesheet"
     />
     <!-- Font Awesome para los iconos -->
@@ -22,96 +22,180 @@
         font-family: "Inter", sans-serif;
         background-color: #f3f4f6;
       }
-      .container {
-        max-width: 1200px; /* Incrementado para un módulo más grande */
+      .level-button {
+        transition: all 0.2s ease-in-out;
+      }
+      .level-button:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
       }
     </style>
   </head>
-  <body class="bg-gray-100 flex items-center justify-center min-h-[80vh] p-4">
-    <div
-      class="container mx-auto p-8 bg-white rounded-xl shadow-lg text-center"
-    >
-      <h1 class="text-4xl font-bold text-center text-gray-800 mb-6">
-        <i class="fas fa-list-ol text-blue-600 mr-2"></i> Selecciona Nivel y
-        Equipos
-      </h1>
-
-      <form action="{{ url_for('select_level') }}" method="post">
-        <div class="space-y-4">
-          <!-- Selectores de equipo -->
-          <div
-            class="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-4"
-          >
-            <div class="w-full">
-              <label for="team1" class="block text-gray-700 font-semibold mb-2"
-                >Equipo 1:</label
-              >
-              <select
-                name="team1"
-                id="team1"
-                required
-                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                {% for team in teams %}
-                <option value="{{ team }}">{{ team }}</option>
-                {% endfor %}
-              </select>
-            </div>
-            <div class="w-full">
-              <label for="team2" class="block text-gray-700 font-semibold mb-2"
-                >Equipo 2:</label
-              >
-              <select
-                name="team2"
-                id="team2"
-                required
-                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                {% for team in teams %}
-                <option value="{{ team }}">{{ team }}</option>
-                {% endfor %}
-              </select>
-            </div>
+  <body class="bg-gray-100 min-h-screen p-4 sm:p-6 md:p-8">
+    <div class="container mx-auto max-w-5xl">
+      <!-- Encabezado -->
+      <header
+        class="flex flex-col sm:flex-row justify-between items-center mb-8"
+      >
+        <div class="flex items-center space-x-4">
+          <div class="bg-purple-100 text-purple-600 p-4 rounded-2xl">
+            <i class="fas fa-play-circle text-3xl"></i>
           </div>
-
-          <!-- Selectores de nivel -->
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-            <button
-              type="submit"
-              name="level"
-              value="nivel1"
-              class="bg-blue-600 text-white font-bold py-4 px-6 rounded-lg shadow-lg hover:bg-blue-700 transition-all duration-300 transform hover:scale-105"
-            >
-              Nivel I (6° - 7°)
-            </button>
-            <button
-              type="submit"
-              name="level"
-              value="nivel2"
-              class="bg-blue-600 text-white font-bold py-4 px-6 rounded-lg shadow-lg hover:bg-blue-700 transition-all duration-300 transform hover:scale-105"
-            >
-              Nivel II (8° - 9°)
-            </button>
-            <button
-              type="submit"
-              name="level"
-              value="nivel3"
-              class="bg-blue-600 text-white font-bold py-4 px-6 rounded-lg shadow-lg hover:bg-blue-700 transition-all duration-300 transform hover:scale-105"
-            >
-              Nivel III (10° - 11°)
-            </button>
+          <div>
+            <h1 class="text-3xl font-bold text-gray-800">Iniciar Concurso</h1>
+            <p class="text-gray-500">
+              Prepara la competencia seleccionando los equipos y el nivel.
+            </p>
           </div>
         </div>
-      </form>
-
-      <div class="mt-6">
         <a
           href="{{ url_for('dashboard') }}"
-          class="w-full sm:w-auto inline-block bg-gray-500 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:bg-gray-600 transition-all duration-300 transform hover:scale-105"
+          class="mt-4 sm:mt-0 flex items-center space-x-2 text-gray-600 hover:text-blue-600 transition-colors font-medium"
         >
-          <i class="fas fa-arrow-left mr-2"></i> Volver al Dashboard
+          <i class="fas fa-arrow-left"></i>
+          <span>Volver al Dashboard</span>
         </a>
-      </div>
+      </header>
+
+      <!-- Contenido Principal -->
+      <main class="bg-white p-8 rounded-2xl shadow-lg">
+        {% if error %}
+        <div
+          class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-lg mb-6"
+          role="alert"
+        >
+          <p class="font-bold">¡Atención!</p>
+          <p>
+            {{ error }}
+            <a
+              href="{{ url_for('manage_teams') }}"
+              class="font-bold underline hover:text-red-800"
+              >Gestionar equipos</a
+            >.
+          </p>
+        </div>
+        {% else %}
+        <form
+          action="{{ url_for('select_level') }}"
+          method="post"
+          class="space-y-8"
+        >
+          <!-- Sección 1: Selección de Equipos -->
+          <section>
+            <h2 class="text-2xl font-bold text-gray-700 mb-4">
+              1. Selecciona los Contendientes
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div>
+                <label
+                  for="team1"
+                  class="block text-lg font-medium text-gray-600 mb-2"
+                  >Equipo 1</label
+                >
+                <select
+                  name="team1"
+                  id="team1"
+                  required
+                  class="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-lg"
+                >
+                  {% for team in teams %}
+                  <option value="{{ team }}">{{ team }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div>
+                <label
+                  for="team2"
+                  class="block text-lg font-medium text-gray-600 mb-2"
+                  >Equipo 2</label
+                >
+                <select
+                  name="team2"
+                  id="team2"
+                  required
+                  class="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-lg"
+                >
+                  {% for team in teams %}
+                  <option value="{{ team }}">{{ team }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+          </section>
+
+          <!-- Sección 2: Selección de Nivel -->
+          <section>
+            <h2 class="text-2xl font-bold text-gray-700 mb-4">
+              2. Elige el Nivel del Desafío
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <button
+                type="submit"
+                name="level"
+                value="nivel1"
+                class="level-button bg-gradient-to-r from-blue-500 to-blue-600 text-white font-bold py-6 px-6 rounded-xl shadow-lg"
+              >
+                <span class="text-2xl">Nivel I</span>
+                <span class="block text-sm opacity-80">(6° - 7°)</span>
+              </button>
+              <button
+                type="submit"
+                name="level"
+                value="nivel2"
+                class="level-button bg-gradient-to-r from-purple-500 to-purple-600 text-white font-bold py-6 px-6 rounded-xl shadow-lg"
+              >
+                <span class="text-2xl">Nivel II</span>
+                <span class="block text-sm opacity-80">(8° - 9°)</span>
+              </button>
+              <button
+                type="submit"
+                name="level"
+                value="nivel3"
+                class="level-button bg-gradient-to-r from-red-500 to-red-600 text-white font-bold py-6 px-6 rounded-xl shadow-lg"
+              >
+                <span class="text-2xl">Nivel III</span>
+                <span class="block text-sm opacity-80">(10° - 11°)</span>
+              </button>
+            </div>
+          </section>
+        </form>
+        {% endif %}
+      </main>
     </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const team1Select = document.getElementById("team1");
+        const team2Select = document.getElementById("team2");
+
+        // Solo ejecutar el script si los selectores existen (es decir, si no hay error)
+        if (!team1Select || !team2Select) return;
+
+        function syncSelectors(changedSelect, targetSelect) {
+          const selectedValue = changedSelect.value;
+          const targetValue = targetSelect.value;
+
+          if (selectedValue === targetValue) {
+            // Si son iguales, busca la primera opción diferente y la selecciona
+            for (let i = 0; i < targetSelect.options.length; i++) {
+              if (targetSelect.options[i].value !== selectedValue) {
+                targetSelect.selectedIndex = i;
+                break;
+              }
+            }
+          }
+        }
+
+        // Sincronización inicial para asegurar que no empiecen iguales
+        syncSelectors(team1Select, team2Select);
+
+        team1Select.addEventListener("change", () =>
+          syncSelectors(team1Select, team2Select)
+        );
+        team2Select.addEventListener("change", () =>
+          syncSelectors(team2Select, team1Select)
+        );
+      });
+    </script>
   </body>
 </html>
