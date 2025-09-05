@@ -8,13 +8,17 @@ import json
 import firebase_admin
 from firebase_admin import credentials, firestore
 from google.cloud.firestore_v1 import Increment
-from flask import Flask, render_template, request, redirect, url_for, session
 from whitenoise import WhiteNoise
 
 # --- CONFIGURACIÓN DE LA APLICACIÓN ---
 app = Flask(__name__)
-# <--- 2. AÑADE ESTA LÍNEA
-app.wsgi_app = WhiteNoise(app.wsgi_app, root='static/')
+
+# --- CORRECCIÓN DE WHITENOISE ---
+# Esta configuración es más robusta para producción.
+# Le dice a WhiteNoise que los archivos en la URL que empiezan con "/static/"
+# deben buscarse dentro de la carpeta local "static/".
+app.wsgi_app = WhiteNoise(app.wsgi_app, root="static/", prefix="static/")
+
 app.secret_key = 'una-clave-super-secreta-y-dificil'
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -26,10 +30,8 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 # --- INICIALIZACIÓN DE FIREBASE (MODIFICADA PARA PRODUCCIÓN) ---
 try:
     if not firebase_admin._apps:
-        # Opción 1: Busca el archivo de credenciales (ideal para desarrollo local)
         if os.path.exists("serviceAccountKey.json"):
             cred = credentials.Certificate("serviceAccountKey.json")
-        # Opción 2: Si no lo encuentra, busca las credenciales en una variable de entorno (para el servidor de Render)
         else:
             firebase_credentials_str = os.environ.get('FIREBASE_CREDENTIALS')
             if firebase_credentials_str:
@@ -38,7 +40,7 @@ try:
                 cred = credentials.Certificate(firebase_credentials_json)
             else:
                 raise Exception(
-                    "No se encontraron las credenciales de Firebase en el archivo o en las variables de entorno.")
+                    "No se encontraron las credenciales de Firebase.")
 
         firebase_admin.initialize_app(cred)
 except Exception as e:
@@ -55,7 +57,9 @@ class User(UserMixin):
         self.id = id
 
 
-users = {"admin": {"password": generate_password_hash("password")}}
+# --- ¡PERSONALIZA TU USUARIO Y CONTRASEÑA AQUÍ! ---
+users = {
+    "bosco@tech%": {"password": generate_password_hash("bosco@tech%")}}
 
 
 @login_manager.user_loader
@@ -66,12 +70,17 @@ def load_user(user_id):
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
+        username = request.form.get('username')
+        password = request.form.get('password')
+
+        if not username or not password:
+            return render_template('login.html', error="Por favor, ingresa usuario y contraseña.")
+
         user = users.get(username)
         if user and check_password_hash(user['password'], password):
             login_user(User(username))
             return redirect(url_for('dashboard'))
+
         return render_template('login.html', error="Usuario o contraseña incorrectos")
     return render_template('login.html')
 
@@ -266,7 +275,6 @@ def start_quiz():
 @app.route('/countdown')
 @login_required
 def countdown():
-    # Obtiene los nombres de los equipos de la sesión para pasarlos a la plantilla
     teams = session.get('quiz_teams', ['Equipo 1', 'Equipo 2'])
     return render_template('countdown.html', teams=teams)
 
@@ -327,8 +335,6 @@ def assign_point_to_team():
         'current_question_index', 0) + 1
     session.modified = True
     return redirect(url_for('quiz_question'))
-
-# --- RUTA PARA SALTAR PREGUNTA (USADA POR EL CRONÓMETRO) ---
 
 
 @app.route('/skip-question')
