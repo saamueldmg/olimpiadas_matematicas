@@ -4,13 +4,17 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 import random
 import os
-import json  # Importante: Asegúrate de que 'json' esté importado
+import json
 import firebase_admin
 from firebase_admin import credentials, firestore
 from google.cloud.firestore_v1 import Increment
+from flask import Flask, render_template, request, redirect, url_for, session
+from whitenoise import WhiteNoise
 
 # --- CONFIGURACIÓN DE LA APLICACIÓN ---
 app = Flask(__name__)
+# <--- 2. AÑADE ESTA LÍNEA
+app.wsgi_app = WhiteNoise(app.wsgi_app, root='static/')
 app.secret_key = 'una-clave-super-secreta-y-dificil'
 login_manager = LoginManager()
 login_manager.init_app(app)
