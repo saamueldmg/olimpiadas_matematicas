@@ -20,28 +20,28 @@
     <style>
       body {
         font-family: "Inter", sans-serif;
-        background-color: #f3f4f6; /* Un gris más claro */
+        background-color: #f3f4f6;
       }
       .action-card {
-        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        transition: all 0.3s ease;
       }
       .action-card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1),
+          0 10px 10px -5px rgba(0, 0, 0, 0.04);
       }
     </style>
   </head>
   <body class="bg-gray-100 min-h-screen p-4 sm:p-6 md:p-8">
     <div class="container mx-auto max-w-6xl">
       <!-- Encabezado -->
-      <header
-        class="flex flex-col sm:flex-row justify-between items-center mb-8"
-      >
+      <header class="flex justify-between items-center mb-8">
         <div class="flex items-center space-x-4">
+          <!-- RUTA CORREGIDA -->
           <img
-            src="{{ url_for('static', filename='images/Logo.jpg') }}"
-            alt="Logo"
-            class="h-16 w-auto rounded-md"
+            src="{{ url_for('static', filename='images/logo.jpg') }}"
+            alt="Logo BoscoTechLab"
+            class="w-16 h-16 auto-rounded-md"
           />
           <div>
             <h1 class="text-3xl font-bold text-gray-800">Panel de Control</h1>
@@ -50,99 +50,90 @@
         </div>
         <a
           href="{{ url_for('logout') }}"
-          class="mt-4 sm:mt-0 flex items-center space-x-2 text-gray-600 hover:text-red-500 transition-colors"
+          class="flex items-center space-x-2 text-gray-600 hover:text-red-500 transition-colors font-medium"
         >
           <i class="fas fa-sign-out-alt"></i>
           <span>Cerrar sesión</span>
         </a>
       </header>
 
-      <!-- Contenido Principal -->
-      <main class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- Columna Principal (Iniciar Quiz) -->
-        <div class="lg:col-span-2">
-          <a
-            href="{{ url_for('select_level') }}"
-            class="action-card flex flex-col items-center justify-center text-center bg-blue-600 text-white p-8 sm:p-12 rounded-2xl shadow-lg h-full"
-          >
-            <i class="fas fa-play-circle text-6xl mb-4"></i>
-            <h2 class="text-3xl font-bold mb-2">
-              ¡Comienza un nuevo Concurso!
-            </h2>
-            <p class="text-blue-200 max-w-md">
+      <!-- Contenido del Dashboard -->
+      <main class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <!-- Tarjeta Principal: Iniciar Concurso -->
+        <a
+          href="{{ url_for('select_level') }}"
+          class="action-card md:col-span-2 lg:col-span-2 bg-blue-600 text-white p-8 rounded-2xl shadow-lg flex flex-col justify-between hover:bg-blue-700"
+        >
+          <div>
+            <div
+              class="bg-white bg-opacity-20 w-16 h-16 rounded-full flex items-center justify-center mb-4"
+            >
+              <i class="fas fa-play text-3xl"></i>
+            </div>
+            <h2 class="text-3xl font-bold">¡Comienza un nuevo Concurso!</h2>
+            <p class="mt-2 opacity-80">
               Forma los equipos, selecciona la dificultad y da inicio al reto
               matemático.
             </p>
-          </a>
-        </div>
-
-        <!-- Columna Secundaria (Otras Acciones) -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-6">
-          <!-- Gestionar Equipos -->
-          <a
-            href="{{ url_for('manage_teams') }}"
-            class="action-card flex items-center bg-white p-6 rounded-2xl shadow-md"
-          >
-            <div class="bg-green-100 text-green-600 p-4 rounded-full">
-              <i class="fas fa-users text-2xl"></i>
-            </div>
-            <div class="ml-4">
-              <h3 class="text-xl font-bold text-gray-800">Gestionar Equipos</h3>
-              <p class="text-gray-500">Crea, edita y elimina los equipos.</p>
-            </div>
-          </a>
-
-          <!-- Ver Puntuaciones -->
-          <a
-            href="{{ url_for('show_scoreboard') }}"
-            class="action-card flex items-center bg-white p-6 rounded-2xl shadow-md"
-          >
-            <div class="bg-yellow-100 text-yellow-600 p-4 rounded-full">
-              <i class="fas fa-trophy text-2xl"></i>
-            </div>
-            <div class="ml-4">
-              <h3 class="text-xl font-bold text-gray-800">Ver Puntuaciones</h3>
-              <p class="text-gray-500">
-                Revisa la tabla de puntuaciones y descubre quién lidera el
-                desafío
-              </p>
-            </div>
-          </a>
-        </div>
-
-        <!-- Fila Inferior (Gestión de Preguntas) -->
-        <a
-          href="{{ url_for('add_question') }}"
-          class="action-card flex items-center bg-white p-6 rounded-2xl shadow-md"
-        >
-          <div class="bg-indigo-100 text-indigo-600 p-4 rounded-full">
-            <i class="fas fa-plus text-2xl"></i>
           </div>
-          <div class="ml-4">
-            <h3 class="text-xl font-bold text-gray-800">Añadir Pregunta</h3>
-            <p class="text-gray-500">
-              Agrega nuevas preguntas para mantener el reto siempre emocionante.
-            </p>
+          <div class="mt-6 text-right font-bold text-lg">
+            Iniciar ahora &rarr;
           </div>
         </a>
 
-        <a
-          href="{{ url_for('manage_questions') }}"
-          class="action-card flex items-center bg-white p-6 rounded-2xl shadow-md lg:col-span-2"
-        >
-          <div class="bg-red-100 text-red-600 p-4 rounded-full">
-            <i class="fas fa-list-alt text-2xl"></i>
-          </div>
-          <div class="ml-4">
+        <!-- Tarjetas Laterales -->
+        <div class="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <a
+            href="{{ url_for('manage_teams') }}"
+            class="action-card bg-white p-6 rounded-2xl shadow-lg hover:border-green-500 border-2 border-transparent"
+          >
+            <div
+              class="bg-green-100 text-green-600 w-12 h-12 rounded-full flex items-center justify-center mb-4"
+            >
+              <i class="fas fa-users text-xl"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-800">Gestionar Equipos</h3>
+            <p class="text-gray-500 mt-1">Crea, edita y elimina los equipos.</p>
+          </a>
+          <a
+            href="{{ url_for('show_scoreboard') }}"
+            class="action-card bg-white p-6 rounded-2xl shadow-lg hover:border-yellow-500 border-2 border-transparent"
+          >
+            <div
+              class="bg-yellow-100 text-yellow-600 w-12 h-12 rounded-full flex items-center justify-center mb-4"
+            >
+              <i class="fas fa-trophy text-xl"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-800">Ver Puntuaciones</h3>
+            <p class="text-gray-500 mt-1">Revisa la tabla de posiciones.</p>
+          </a>
+          <a
+            href="{{ url_for('add_question') }}"
+            class="action-card bg-white p-6 rounded-2xl shadow-lg hover:border-blue-500 border-2 border-transparent"
+          >
+            <div
+              class="bg-blue-100 text-blue-600 w-12 h-12 rounded-full flex items-center justify-center mb-4"
+            >
+              <i class="fas fa-plus text-xl"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-800">Añadir Pregunta</h3>
+            <p class="text-gray-500 mt-1">Agrega nuevas preguntas al reto.</p>
+          </a>
+          <a
+            href="{{ url_for('manage_questions') }}"
+            class="action-card bg-white p-6 rounded-2xl shadow-lg hover:border-red-500 border-2 border-transparent"
+          >
+            <div
+              class="bg-red-100 text-red-600 w-12 h-12 rounded-full flex items-center justify-center mb-4"
+            >
+              <i class="fas fa-list-alt text-xl"></i>
+            </div>
             <h3 class="text-xl font-bold text-gray-800">
               Administrar Preguntas
             </h3>
-            <p class="text-gray-500">
-              Gestiona todas las preguntas: revisa, organiza o elimina según el
-              nivel.
-            </p>
-          </div>
-        </a>
+            <p class="text-gray-500 mt-1">Gestiona las preguntas existentes.</p>
+          </a>
+        </div>
       </main>
     </div>
   </body>
