@@ -13,11 +13,12 @@ from whitenoise import WhiteNoise
 # --- CONFIGURACIÓN DE LA APLICACIÓN ---
 app = Flask(__name__)
 
-# --- CORRECCIÓN DE WHITENOISE ---
-# Esta configuración es más robusta para producción.
-# Le dice a WhiteNoise que los archivos en la URL que empiezan con "/static/"
-# deben buscarse dentro de la carpeta local "static/".
-app.wsgi_app = WhiteNoise(app.wsgi_app, root="static/", prefix="static/")
+# --- CORRECCIÓN DEFINITIVA DE WHITENOISE ---
+# Esta configuración usa una ruta "absoluta" que siempre funcionará,
+# sin importar cómo Render organice las carpetas internamente.
+STATIC_ROOT = os.path.join(os.path.dirname(
+    os.path.abspath(__file__)), 'static')
+app.wsgi_app = WhiteNoise(app.wsgi_app, root=STATIC_ROOT, prefix="static/")
 
 app.secret_key = 'una-clave-super-secreta-y-dificil'
 login_manager = LoginManager()
@@ -59,7 +60,7 @@ class User(UserMixin):
 
 # --- ¡PERSONALIZA TU USUARIO Y CONTRASEÑA AQUÍ! ---
 users = {
-    "bosco@tech%": {"password": generate_password_hash("bosco@tech%")}}
+    "admin": {"password": generate_password_hash("bosco@tech%")}}
 
 
 @login_manager.user_loader
