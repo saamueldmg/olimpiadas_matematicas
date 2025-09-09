@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Olimpiadas Matemáticas</title>
+    <title>Olimpiadas Matemáticas - Concurso</title>
     <!-- Tailwind CSS y Fuentes -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -22,42 +22,47 @@
         font-family: "Inter", sans-serif;
         background-color: #f3f4f6;
       }
-      /* Estilos para las opciones de respuesta */
       .option-label {
         transition: all 0.2s ease-in-out;
         cursor: pointer;
       }
-      .option-label:hover:not([disabled]) {
+      .option-label:hover:not(.disabled) {
         transform: scale(1.02);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 4px_12px rgba(0, 0, 0, 0.1);
+        border-color: #3b82f6; /* blue-500 */
       }
       input[type="radio"]:checked + .option-label {
-        background-color: #3b82f6; /* bg-blue-500 */
+        background-color: #3b82f6; /* blue-500 */
         color: white;
         border-color: #3b82f6;
         box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
       }
-      /* Estilos para deshabilitar el formulario */
       fieldset:disabled .option-label {
-        background-color: #f3f4f6;
+        background-color: #f9fafb; /* bg-gray-50 */
         cursor: not-allowed;
-        opacity: 0.6;
+        opacity: 0.7;
       }
-      /* Se aplica al botón directamente ahora */
+      fieldset:disabled .option-label:hover {
+        transform: none;
+        box-shadow: none;
+        border-color: #e5e7eb; /* border-gray-200 */
+      }
       button:disabled {
-        background-color: #9ca3af;
+        background-color: #9ca3af; /* bg-gray-400 */
         cursor: not-allowed;
       }
     </style>
   </head>
-  <body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+  <body
+    class="bg-gray-100 min-h-screen p-4 sm:p-6 md:p-8 flex items-center justify-center"
+  >
     <!-- Modal para "Tiempo Agotado" -->
     <div
       id="time-up-modal"
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden"
+      class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 hidden"
     >
       <div
-        class="bg-white rounded-xl shadow-lg p-8 text-center max-w-sm mx-auto"
+        class="bg-white rounded-2xl shadow-lg p-8 text-center max-w-sm mx-auto transform transition-all scale-95 opacity-0 animate-fade-in-up"
       >
         <i class="fas fa-clock text-5xl text-red-500 mb-4"></i>
         <h2 class="text-2xl font-bold text-gray-800 mb-2">¡Tiempo Agotado!</h2>
@@ -71,112 +76,150 @@
           Continuar
         </a>
       </div>
+      <style>
+        @keyframes fade-in-up {
+          0% {
+            opacity: 0;
+            transform: translateY(20px) scale(0.95);
+          }
+          100% {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+          }
+        }
+        .animate-fade-in-up {
+          animation: fade-in-up 0.3s ease-out forwards;
+        }
+      </style>
     </div>
 
-    <div
-      class="container mx-auto p-8 bg-white rounded-xl shadow-lg w-full max-w-5xl"
-    >
-      <!-- Encabezado con Título y Cronómetro -->
-      <div class="flex justify-between items-center mb-6">
-        <h1 class="text-3xl font-bold text-gray-800">
-          <i class="fas fa-question-circle text-blue-600 mr-2"></i> Pregunta {{
-          question_number }}
-        </h1>
+    <div class="container mx-auto max-w-3xl">
+      <!-- TAMAÑO AJUSTADO -->
+      <!-- Encabezado -->
+      <header
+        class="flex flex-col sm:flex-row justify-between items-center mb-6"
+      >
+        <div class="flex items-center space-x-4">
+          <div class="bg-blue-100 text-blue-600 p-3 rounded-xl">
+            <!-- Padding reducido -->
+            <i class="fas fa-question-circle text-2xl"></i>
+            <!-- Icono reducido -->
+          </div>
+          <div>
+            <h1 class="text-2xl font-bold text-gray-800">
+              Pregunta {{ question_number }}
+            </h1>
+            <!-- Texto reducido -->
+            <p class="text-gray-500">Selecciona la respuesta correcta.</p>
+          </div>
+        </div>
         <div
-          class="flex items-center space-x-3 bg-gray-800 text-white rounded-full px-4 py-2"
+          class="flex items-center space-x-3 bg-gray-800 text-white rounded-full px-4 py-2 mt-4 sm:mt-0"
         >
           <i class="fas fa-clock"></i>
-          <span id="timer" class="text-2xl font-mono font-bold tracking-wider"
+          <span id="timer" class="text-xl font-mono font-bold tracking-wider"
             >03:00</span
           >
+          <!-- Texto reducido -->
           <button
             id="start-pause-btn"
-            class="text-2xl text-green-400 hover:text-green-300 transition"
+            class="text-xl text-green-400 hover:text-green-300 transition"
           >
+            <!-- Icono reducido -->
             <i class="fas fa-play"></i>
           </button>
           <button
             id="reset-btn"
-            class="text-2xl text-yellow-400 hover:text-yellow-300 transition"
+            class="text-xl text-yellow-400 hover:text-yellow-300 transition"
           >
+            <!-- Icono reducido -->
             <i class="fas fa-sync-alt"></i>
           </button>
         </div>
-      </div>
+      </header>
 
-      <form
-        id="quiz-form"
-        action="{{ url_for('submit_answer') }}"
-        method="post"
-      >
-        <fieldset id="quiz-fieldset" disabled>
-          <!-- Contenedor de la pregunta con tamaño fijo para la imagen -->
-          <div
-            class="bg-gray-50 p-6 rounded-lg border border-gray-200 text-center"
-          >
-            <!-- CONTENEDOR DE IMAGEN AMPLIADO -->
-            <div
-              class="w-full h-96 bg-white border border-gray-200 rounded-lg flex items-center justify-center overflow-hidden mx-auto mb-4"
-            >
-              {% if 'question_image' in question %}
-              <img
-                src="{{ url_for('static', filename='images/' + question.question_image) }}"
-                alt="Imagen de la pregunta"
-                class="max-w-full max-h-full object-contain"
-              />
-              {% endif %}
-            </div>
-
-            <p class="text-lg font-semibold text-gray-700 mt-4">
-              {{ question.get('question_text', '¿Cuál es la respuesta
-              correcta?') }}
-            </p>
-          </div>
-
-          <!-- Contenedor de las opciones -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-            {% for key, value in question.options.items() %}
-            <div class="relative">
-              <input
-                type="radio"
-                id="option-{{ key }}"
-                name="answer"
-                value="{{ key }}"
-                class="hidden"
-                required
-              />
-              <label
-                for="option-{{ key }}"
-                class="option-label block p-4 bg-white border border-gray-300 rounded-lg shadow-sm text-gray-800 text-lg font-medium text-center"
+      <!-- Contenido Principal del Quiz -->
+      <main class="bg-white p-6 rounded-2xl shadow-lg">
+        <!-- Padding reducido -->
+        <form
+          id="quiz-form"
+          action="{{ url_for('submit_answer') }}"
+          method="post"
+        >
+          <fieldset id="quiz-fieldset" disabled>
+            <!-- Contenedor de la pregunta -->
+            <section class="text-center mb-6">
+              <!-- Margen reducido -->
+              <div
+                class="w-full h-72 bg-gray-50 border-2 border-dashed border-gray-200 rounded-xl flex items-center justify-center overflow-hidden mx-auto mb-4"
               >
-                {{ value }}
-              </label>
-            </div>
-            {% endfor %}
-          </div>
-        </fieldset>
-      </form>
+                <!-- ALTURA AJUSTADA -->
+                {% if 'question_image' in question %}
+                <img
+                  src="{{ url_for('static', filename='images/' + question.question_image) }}"
+                  alt="Imagen de la pregunta"
+                  class="max-w-full max-h-full object-contain"
+                />
+                {% endif %}
+              </div>
+              <p class="text-lg font-medium text-gray-700 mt-4">
+                <!-- Texto reducido -->
+                {{ question.get('question_text', '¿Cuál es la respuesta
+                correcta?') }}
+              </p>
+            </section>
 
-      <!-- NUEVO CONTENEDOR PARA LOS BOTONES INFERIORES -->
-      <div
-        class="mt-8 flex flex-col sm:flex-row-reverse justify-between items-center gap-4"
-      >
-        <button
-          type="submit"
-          form="quiz-form"
-          id="submit-btn"
-          class="w-full sm:w-auto bg-blue-600 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:bg-blue-700 transition"
-          disabled
+            <!-- Contenedor de las opciones -->
+            <section class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <!-- Gap reducido -->
+              {% for key, value in question.options.items() %}
+              <div class="relative">
+                <input
+                  type="radio"
+                  id="option-{{ key }}"
+                  name="answer"
+                  value="{{ key }}"
+                  class="hidden"
+                  required
+                />
+                <label
+                  for="option-{{ key }}"
+                  class="option-label block p-4 bg-white border-2 border-gray-200 rounded-lg shadow-sm text-gray-800 text-base font-medium text-center"
+                >
+                  <!-- Padding y texto reducidos -->
+                  <span class="font-bold mr-2">{{ key.upper() }})</span> {{
+                  value }}
+                </label>
+              </div>
+              {% endfor %}
+            </section>
+          </fieldset>
+        </form>
+
+        <!-- Botones de Acción -->
+        <footer
+          class="mt-6 pt-6 border-t flex flex-col sm:flex-row-reverse justify-between items-center gap-4"
         >
-          <i class="fas fa-check-circle mr-2"></i> Enviar Respuesta
-        </button>
-        <a
-          href="{{ url_for('dashboard') }}"
-          class="w-full sm:w-auto inline-block bg-gray-500 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:bg-gray-600 transition"
-        >
-          <i class="fas fa-arrow-left mr-2"></i> Volver al Dashboard
-        </a>
-      </div>
+          <!-- Margen reducido -->
+          <button
+            type="submit"
+            form="quiz-form"
+            id="submit-btn"
+            class="w-full sm:w-auto bg-blue-600 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:bg-blue-700 transition"
+            disabled
+          >
+            <!-- Padding reducido -->
+            <i class="fas fa-check-circle mr-2"></i> Enviar Respuesta
+          </button>
+          <a
+            href="{{ url_for('dashboard') }}"
+            class="w-full sm:w-auto text-center bg-gray-200 text-gray-700 font-bold py-3 px-6 rounded-lg hover:bg-gray-300 transition"
+          >
+            <!-- Padding reducido -->
+            Volver al Dashboard
+          </a>
+        </footer>
+      </main>
     </div>
 
     <script>
@@ -185,7 +228,7 @@
         const startPauseBtn = document.getElementById("start-pause-btn");
         const resetBtn = document.getElementById("reset-btn");
         const quizFieldset = document.getElementById("quiz-fieldset");
-        const submitBtn = document.getElementById("submit-btn"); // Botón de Enviar
+        const submitBtn = document.getElementById("submit-btn");
         const modal = document.getElementById("time-up-modal");
 
         const totalTime = 3 * 60; // 3 minutos
@@ -220,7 +263,7 @@
           isPaused = false;
           startPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
           quizFieldset.disabled = false;
-          submitBtn.disabled = false; // Habilitar botón de enviar
+          submitBtn.disabled = false;
         }
 
         function pauseTimer() {
@@ -245,10 +288,9 @@
           timeRemaining = totalTime;
           timerDisplay.textContent = formatTime(totalTime);
           quizFieldset.disabled = true;
-          submitBtn.disabled = true; // Deshabilitar botón de enviar
+          submitBtn.disabled = true;
         });
 
-        // Inicializar el cronómetro
         timerDisplay.textContent = formatTime(totalTime);
       });
     </script>
