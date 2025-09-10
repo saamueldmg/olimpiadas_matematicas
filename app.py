@@ -6,25 +6,20 @@ import random
 import os
 import json
 import firebase_admin
-from firebase_admin import credentials, firestore, storage  # Importamos storage
+from firebase_admin import credentials, firestore, storage
 from google.cloud.firestore_v1 import Increment
 from whitenoise import WhiteNoise
 
 # --- CONFIGURACIÓN DE LA APLICACIÓN ---
 app = Flask(__name__)
-
-# --- CONFIGURACIÓN DE WHITENOISE (VERSIÓN DEFINITIVA) ---
-# Usamos una ruta absoluta para asegurar que siempre encuentre la carpeta 'static'
 STATIC_ROOT = os.path.join(os.path.dirname(
     os.path.abspath(__file__)), 'static')
 app.wsgi_app = WhiteNoise(app.wsgi_app, root=STATIC_ROOT, prefix="static/")
-
 app.secret_key = 'una-clave-super-secreta-y-dificil'
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
-# Esta carpeta ya no se usa para almacenar imágenes permanentemente, pero Flask la necesita.
 UPLOAD_FOLDER = 'static/images'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
@@ -32,9 +27,10 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 # --- INICIALIZACIÓN DE FIREBASE (CON CLOUD STORAGE) ---
 try:
     if not firebase_admin._apps:
-        # Busca tu ID de proyecto en la configuración de Firebase
-        # y reemplaza 'olympic-math.appspot.com'
+        # --- ¡MUY IMPORTANTE! REEMPLAZA ESTO ---
+        # Pega aquí el nombre exacto de tu bucket de Firebase Storage.
         STORAGE_BUCKET = 'olympic-math.appspot.com'
+        # -----------------------------------------
 
         if os.path.exists("serviceAccountKey.json"):
             cred = credentials.Certificate("serviceAccountKey.json")
@@ -65,7 +61,6 @@ class User(UserMixin):
         self.id = id
 
 
-# --- ¡PERSONALIZA TU USUARIO Y CONTRASEÑA AQUÍ! ---
 users = {
     "admin": {"password": generate_password_hash("bosco@tech%")}}
 
@@ -121,16 +116,15 @@ def add_question():
 
         filename = secure_filename(file.filename)
 
-        # Subir a Cloud Storage
         bucket = storage.bucket()
         blob = bucket.blob(f"question_images/{filename}")
-        blob.upload_from_file(file)
+        blob.upload_from_file(file, content_type=file.content_type)
         blob.make_public()
         public_url = blob.public_url
 
         new_question = {
             'level': request.form.get('level'),
-            'question_image': public_url,  # Guardamos la URL pública
+            'question_image': public_url,
             'options': {
                 'a': request.form.get('option_a'),
                 'b': request.form.get('option_b'),
@@ -165,11 +159,9 @@ def delete_question(question_id):
     if question_doc.exists:
         image_url = question_doc.to_dict().get('question_image')
 
-        # Borrar de Cloud Storage
         if image_url:
             try:
                 bucket_name = storage.bucket().name
-                # Extraemos la ruta del archivo desde la URL
                 file_path_in_bucket = image_url.split(
                     f"/{bucket_name}/")[1].split('?')[0]
                 blob = storage.bucket().blob(file_path_in_bucket)
@@ -183,7 +175,7 @@ def delete_question(question_id):
     return redirect(url_for('manage_questions'))
 
 
-# --- GESTIÓN DE EQUIPOS ---
+# --- El resto del código no necesita cambios ---
 @app.route('/manage-teams')
 @login_required
 def manage_teams():
@@ -217,7 +209,6 @@ def update_team_name(team_id):
     return redirect(url_for('manage_teams'))
 
 
-# --- TABLA DE PUNTUACIONES ---
 @app.route('/scoreboard')
 @login_required
 def show_scoreboard():
@@ -237,7 +228,6 @@ def reset_points():
     return redirect(url_for('show_scoreboard'))
 
 
-# --- LÓGICA DEL CONCURSO (QUIZ) ---
 @app.route('/select-level', methods=['GET', 'POST'])
 @login_required
 def select_level():
@@ -367,6 +357,5 @@ def quiz_finished():
     return render_template('quiz_finished.html', scores=scores, winner=winner, message=message)
 
 
-# --- INICIO DE LA APLICACIÓN ---
 if __name__ == '__main__':
     app.run(debug=True)
