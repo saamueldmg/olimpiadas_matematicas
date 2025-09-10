@@ -27,10 +27,9 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 # --- INICIALIZACIÓN DE FIREBASE (CON CLOUD STORAGE) ---
 try:
     if not firebase_admin._apps:
-        # --- ¡MUY IMPORTANTE! REEMPLAZA ESTO ---
-        # Pega aquí el nombre exacto de tu bucket de Firebase Storage.
-        STORAGE_BUCKET = 'olympic-math.appspot.com'
-        # -----------------------------------------
+        # --- ¡NOMBRE DEL BUCKET CORRECTO! ---
+        STORAGE_BUCKET = 'olympic-math.firebasestorage.app'
+        # ------------------------------------
 
         if os.path.exists("serviceAccountKey.json"):
             cred = credentials.Certificate("serviceAccountKey.json")
@@ -62,7 +61,7 @@ class User(UserMixin):
 
 
 users = {
-    "admin": {"password": generate_password_hash("bosco@tech%")}}
+    "bosco@tech%": {"password": generate_password_hash("TuNuevaContraseñaAqui")}}
 
 
 @login_manager.user_loader
