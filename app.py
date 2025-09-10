@@ -6,16 +6,15 @@ import random
 import os
 import json
 import firebase_admin
-from firebase_admin import credentials, firestore
+from firebase_admin import credentials, firestore, storage  # Importamos storage
 from google.cloud.firestore_v1 import Increment
 from whitenoise import WhiteNoise
 
 # --- CONFIGURACIÓN DE LA APLICACIÓN ---
 app = Flask(__name__)
 
-# --- CORRECCIÓN DEFINITIVA DE WHITENOISE ---
-# Esta configuración usa una ruta "absoluta" que siempre funcionará,
-# sin importar cómo Render organice las carpetas internamente.
+# --- CONFIGURACIÓN DE WHITENOISE (VERSIÓN DEFINITIVA) ---
+# Usamos una ruta absoluta para asegurar que siempre encuentre la carpeta 'static'
 STATIC_ROOT = os.path.join(os.path.dirname(
     os.path.abspath(__file__)), 'static')
 app.wsgi_app = WhiteNoise(app.wsgi_app, root=STATIC_ROOT, prefix="static/")
@@ -25,25 +24,33 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
+# Esta carpeta ya no se usa para almacenar imágenes permanentemente, pero Flask la necesita.
 UPLOAD_FOLDER = 'static/images'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-# --- INICIALIZACIÓN DE FIREBASE (MODIFICADA PARA PRODUCCIÓN) ---
+
+# --- INICIALIZACIÓN DE FIREBASE (CON CLOUD STORAGE) ---
 try:
     if not firebase_admin._apps:
+        # Busca tu ID de proyecto en la configuración de Firebase
+        # y reemplaza 'olympic-math.appspot.com'
+        STORAGE_BUCKET = 'olympic-math.appspot.com'
+
         if os.path.exists("serviceAccountKey.json"):
             cred = credentials.Certificate("serviceAccountKey.json")
+            firebase_admin.initialize_app(
+                cred, {'storageBucket': STORAGE_BUCKET})
         else:
             firebase_credentials_str = os.environ.get('FIREBASE_CREDENTIALS')
             if firebase_credentials_str:
                 firebase_credentials_json = json.loads(
                     firebase_credentials_str)
                 cred = credentials.Certificate(firebase_credentials_json)
+                firebase_admin.initialize_app(
+                    cred, {'storageBucket': STORAGE_BUCKET})
             else:
                 raise Exception(
                     "No se encontraron las credenciales de Firebase.")
-
-        firebase_admin.initialize_app(cred)
 except Exception as e:
     print(f"Error crítico al inicializar Firebase: {e}")
 
@@ -60,7 +67,7 @@ class User(UserMixin):
 
 # --- ¡PERSONALIZA TU USUARIO Y CONTRASEÑA AQUÍ! ---
 users = {
-    "admin": {"password": generate_password_hash("bosco@tech%")}}
+    "bosco@tech%": {"password": generate_password_hash("TuNuevaContraseñaAqui")}}
 
 
 @login_manager.user_loader
@@ -73,15 +80,12 @@ def login():
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
-
         if not username or not password:
             return render_template('login.html', error="Por favor, ingresa usuario y contraseña.")
-
         user = users.get(username)
         if user and check_password_hash(user['password'], password):
             login_user(User(username))
             return redirect(url_for('dashboard'))
-
         return render_template('login.html', error="Usuario o contraseña incorrectos")
     return render_template('login.html')
 
@@ -106,7 +110,7 @@ def dashboard():
     return render_template('dashboard.html')
 
 
-# --- GESTIÓN DE PREGUNTAS ---
+# --- GESTIÓN DE PREGUNTAS (CON CLOUD STORAGE) ---
 @app.route('/add-question', methods=['GET', 'POST'])
 @login_required
 def add_question():
@@ -116,12 +120,17 @@ def add_question():
             return "No se seleccionó ningún archivo de imagen", 400
 
         filename = secure_filename(file.filename)
-        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        file.save(filepath)
+
+        # Subir a Cloud Storage
+        bucket = storage.bucket()
+        blob = bucket.blob(f"question_images/{filename}")
+        blob.upload_from_file(file)
+        blob.make_public()
+        public_url = blob.public_url
 
         new_question = {
             'level': request.form.get('level'),
-            'question_image': filename,
+            'question_image': public_url,  # Guardamos la URL pública
             'options': {
                 'a': request.form.get('option_a'),
                 'b': request.form.get('option_b'),
@@ -154,12 +163,22 @@ def delete_question(question_id):
     question_ref = questions_collection.document(question_id)
     question_doc = question_ref.get()
     if question_doc.exists:
-        image_filename = question_doc.to_dict().get('question_image')
-        if image_filename:
-            image_path = os.path.join(
-                app.config['UPLOAD_FOLDER'], image_filename)
-            if os.path.exists(image_path):
-                os.remove(image_path)
+        image_url = question_doc.to_dict().get('question_image')
+
+        # Borrar de Cloud Storage
+        if image_url:
+            try:
+                bucket_name = storage.bucket().name
+                # Extraemos la ruta del archivo desde la URL
+                file_path_in_bucket = image_url.split(
+                    f"/{bucket_name}/")[1].split('?')[0]
+                blob = storage.bucket().blob(file_path_in_bucket)
+                if blob.exists():
+                    blob.delete()
+            except Exception as e:
+                print(
+                    f"No se pudo borrar la imagen de Storage (puede que ya no exista): {e}")
+
         question_ref.delete()
     return redirect(url_for('manage_questions'))
 
@@ -226,24 +245,18 @@ def select_level():
     session.pop('current_question_index', None)
     session.pop('quiz_scores', None)
     session.pop('current_question', None)
-
     teams_docs = list(teams_collection.stream())
     teams_list = [doc.to_dict()['name'] for doc in teams_docs]
-
     if len(teams_list) < 2:
         return render_template('select_level.html', error="Necesitas crear al menos 2 equipos para poder jugar.")
-
     if request.method == 'POST':
         team1 = request.form.get('team1')
         team2 = request.form.get('team2')
-
         if team1 == team2:
             return render_template('select_level.html', teams=teams_list, error="¡Error! No puedes seleccionar el mismo equipo dos veces.")
-
         session['quiz_level'] = request.form.get('level')
         session['quiz_teams'] = [team1, team2]
         return redirect(url_for('start_quiz'))
-
     return render_template('select_level.html', teams=teams_list)
 
 
@@ -253,20 +266,16 @@ def start_quiz():
     level = session.get('quiz_level')
     if not level:
         return redirect(url_for('select_level'))
-
     quiz_pool_docs = questions_collection.where('level', '==', level).stream()
     quiz_pool = [doc.to_dict() for doc in quiz_pool_docs]
-
     if len(quiz_pool) < 10:
         teams_docs = list(teams_collection.stream())
         teams_list = [doc.to_dict()['name'] for doc in teams_docs]
         return render_template('select_level.html',
                                teams=teams_list,
                                error=f"No hay suficientes preguntas para el {level}. Se necesitan al menos 10.")
-
     random.shuffle(quiz_pool)
     session['quiz_pool'] = quiz_pool[:10]
-
     session['current_question_index'] = 0
     session['quiz_scores'] = {
         team: 0 for team in session.get('quiz_teams', [])}
@@ -285,13 +294,10 @@ def countdown():
 def quiz_question():
     if 'quiz_pool' not in session or 'current_question_index' not in session:
         return redirect(url_for('select_level'))
-
     index = session.get('current_question_index', 0)
     quiz_pool = session.get('quiz_pool', [])
-
     if not quiz_pool or index >= len(quiz_pool):
         return redirect(url_for('quiz_finished'))
-
     question = quiz_pool[index]
     session['current_question'] = question
     return render_template('quiz.html', question=question, question_number=index + 1)
@@ -302,12 +308,9 @@ def quiz_question():
 def submit_answer():
     user_answer = request.form.get('answer')
     question = session.get('current_question')
-
     if not question:
         return redirect(url_for('select_level'))
-
     is_correct = user_answer == question.get('correct')
-
     if is_correct:
         return render_template('assign_point.html', teams=session.get('quiz_teams', []))
     else:
@@ -322,16 +325,13 @@ def submit_answer():
 def assign_point_to_team():
     team = request.form.get('team')
     points_to_add = int(request.form.get('points', 0))
-
     if team in session.get('quiz_scores', {}):
         session['quiz_scores'][team] += points_to_add
-
         if points_to_add > 0:
             docs = teams_collection.where('name', '==', team).stream()
             for doc in docs:
                 teams_collection.document(doc.id).update(
                     {'score': Increment(points_to_add)})
-
     session['current_question_index'] = session.get(
         'current_question_index', 0) + 1
     session.modified = True
@@ -360,12 +360,10 @@ def quiz_finished():
         if len(winners) == 1:
             winner = winners[0]
             message = f"¡El equipo {winner} ha ganado!"
-
     session.pop('quiz_pool', None)
     session.pop('current_question_index', None)
     session.pop('quiz_scores', None)
     session.pop('current_question', None)
-
     return render_template('quiz_finished.html', scores=scores, winner=winner, message=message)
 
 
