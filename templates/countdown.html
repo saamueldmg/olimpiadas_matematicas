@@ -110,14 +110,15 @@
       <!-- Nombres de los equipos con diseño mejorado -->
       <div id="teams-display" class="mb-8 transition-opacity duration-500">
         <p
-          class="text-3xl md:text-5xl font-light text-blue-300 tracking-widest uppercase fade-in"
+          class="text-3xl md:text-5xl font-light text-slate-300 tracking-widest uppercase fade-in"
         >
           Se enfrentan los equipos:
         </p>
         <div class="flex justify-center items-center mt-4">
+          <!-- EQUIPO 1 (Verde) -->
           <h2
-            class="text-5xl md:text-7xl font-black slide-in-left bg-gradient-to-r from-amber-300 to-yellow-500 bg-clip-text text-transparent"
-            style="text-shadow: 2px 2px 10px rgba(252, 211, 77, 0.3)"
+            class="text-5xl md:text-7xl font-black slide-in-left bg-gradient-to-r from-green-400 to-emerald-600 bg-clip-text text-transparent py-2"
+            style="text-shadow: 2px 2px 10px rgba(74, 222, 128, 0.3)"
           >
             {{ teams[0] }}
           </h2>
@@ -125,16 +126,17 @@
             class="text-4xl md:text-6xl font-thin mx-6 md:mx-10 opacity-70 fade-in"
             >VS</span
           >
+          <!-- EQUIPO 2 (Rojo) -->
           <h2
-            class="text-5xl md:text-7xl font-black slide-in-right bg-gradient-to-r from-cyan-300 to-sky-500 bg-clip-text text-transparent"
-            style="text-shadow: 2px 2px 10px rgba(103, 232, 249, 0.3)"
+            class="text-5xl md:text-7xl font-black slide-in-right bg-gradient-to-r from-red-500 to-rose-600 bg-clip-text text-transparent py-2"
+            style="text-shadow: 2px 2px 10px rgba(239, 68, 68, 0.3)"
           >
             {{ teams[1] }}
           </h2>
         </div>
       </div>
 
-      <!-- Div para la cuenta regresiva -->
+      <!-- Div para la cuenta regresi-va -->
       <div id="countdown-display" class="relative">
         <!-- El contenido se insertará aquí con JavaScript -->
       </div>
@@ -164,13 +166,15 @@
             textEl.className = "countdown-number font-black text-white";
           } else {
             textEl.className =
-              "text-8xl md:text-9xl font-black bg-gradient-to-r from-green-300 via-emerald-400 to-teal-500 bg-clip-text text-transparent";
+              "text-8xl md:text-9xl font-black bg-gradient-to-r from-green-300 via-emerald-400 to-teal-500 bg-clip-text text-transparent pop-in py-4";
           }
 
           countdownDisplay.appendChild(textEl);
           currentStep++;
 
-          const nextDelay = currentStep === steps.length ? 700 : 1200;
+          // Ajuste en la animación final de texto
+          const isFinalText = currentStep >= steps.length - 1;
+          const nextDelay = isFinalText ? 1500 : 1200;
           setTimeout(startCountdown, nextDelay);
         } else {
           const lastElement = countdownDisplay.querySelector("h1");
@@ -183,10 +187,11 @@
         }
       }
 
+      // Muestra los nombres de los equipos por 3.5 segundos
       setTimeout(() => {
         teamsDisplay.classList.add("opacity-0");
         setTimeout(startCountdown, 600);
-      }, 3500); // Muestra los nombres de los equipos por 3.5 segundos
+      }, 3500);
     </script>
   </body>
 </html>
