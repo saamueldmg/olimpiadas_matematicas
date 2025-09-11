@@ -61,7 +61,7 @@ class User(UserMixin):
 
 
 users = {
-    "bosco@tech%": {"password": generate_password_hash("TuNuevaContraseñaAqui")}}
+    "admin": {"password": generate_password_hash("bosco@tech%")}}
 
 
 @login_manager.user_loader
