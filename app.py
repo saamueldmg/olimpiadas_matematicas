@@ -34,6 +34,12 @@ class Pregunta(db.Model):
     opcion_d = db.Column(db.String(200), nullable=False)
     respuesta_correcta = db.Column(db.String(1), nullable=False)
 
+
+# --- Creación inicial de la base de datos ---
+# ESTE ES EL CAMBIO: Movemos la creación de la BD aquí
+with app.app_context():
+    db.create_all()
+
 # --- Rutas de la Aplicación ---
 
 # Ruta principal para registrar equipos
@@ -183,6 +189,4 @@ def eliminar_pregunta(id):
 
 
 if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
     app.run(debug=True)
