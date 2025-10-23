@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Play-Off Brackets - Olimpiadas Matemáticas</title>
+    <!-- Tailwind CSS y Fuentes -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet" />
+    <!-- Font Awesome para los iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        body {
+            font-family: "Inter", sans-serif;
+            background-color: #f3f4f6;
+        }
+        /* Estilos para el bracket */
+        .bracket-container {
+            display: flex;
+            overflow-x: auto; /* Permite scroll horizontal si el bracket es muy grande */
+            padding: 20px;
+        }
+        .round {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            min-width: 280px; /* Ancho de cada columna/ronda */
+        }
+        .match {
+            position: relative;
+            background-color: white;
+            border-radius: 0.75rem; /* rounded-xl */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            margin-bottom: 2rem; /* Espacio entre partidos */
+            border: 1px solid #e5e7eb; /* border-gray-200 */
+        }
+        .match-connector {
+            /* Esta es la línea que conecta los partidos */
+            position: absolute;
+            top: 50%;
+            left: 100%;
+            width: 30px; /* Ancho de la línea */
+            height: 2px;
+            background-color: #9ca3af; /* bg-gray-400 */
+        }
+        .round-connector {
+            /* Línea vertical que une a los ganadores */
+            position: absolute;
+            left: 30px; /* Coincide con el ancho de match-connector */
+            width: 2px;
+            background-color: #9ca3af;
+            /* La altura se ajusta en el HTML con style */
+        }
+        .team {
+            display: block;
+            width: 100%;
+            padding: 0.75rem 1rem; /* py-3 px-4 */
+            font-size: 0.875rem; /* text-sm */
+            font-weight: 500; /* medium */
+            color: #4b5563; /* text-gray-600 */
+            background-color: #f9fafb; /* bg-gray-50 */
+            border: 2px solid transparent;
+            transition: all 0.2s;
+        }
+        .team-top { border-radius: 0.75rem 0.75rem 0 0; border-bottom: 1px solid #e5e7eb; }
+        .team-bottom { border-radius: 0 0 0.75rem 0.75rem; }
+        
+        .team.winner {
+            font-weight: 700; /* bold */
+            color: #166534; /* text-green-800 */
+            background-color: #d1fae5; /* bg-green-100 */
+            border-color: #10b981; /* border-green-500 */
+        }
+        .team.loser {
+            color: #9ca3af; /* text-gray-400 */
+            text-decoration: line-through;
+        }
+        .team.bye {
+            color: #9ca3af;
+            font-style: italic;
+        }
+        .team-button {
+            cursor: pointer;
+        }
+        .team-button:not(.winner):not(.loser):hover {
+            background-color: #eff6ff; /* bg-blue-50 */
+            border-color: #3b82f6; /* border-blue-500 */
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen p-4 sm:p-6 md:p-8">
+    <div class="container mx-auto max-w-full"> <!-- Max-w-full para brackets anchos -->
+        <!-- Encabezado -->
+        <header class="flex flex-col sm:flex-row justify-between items-center mb-8">
+            <div class="flex items-center space-x-4">
+                <div class="bg-purple-100 text-purple-600 p-4 rounded-2xl">
+                    <i class="fas fa-sitemap text-3xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-800">Play-Off Brackets</h1>
+                    <p class="text-gray-500">Administra el árbol del torneo municipal.</p>
+                </div>
+            </div>
+            <a href="{{ url_for('dashboard') }}" class="mt-4 sm:mt-0 flex items-center space-x-2 text-gray-600 hover:text-blue-600 transition-colors font-medium">
+                <i class="fas fa-arrow-left"></i>
+                <span>Volver al Dashboard</span>
+            </a>
+        </header>
+
+        {% if error %}
+        <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-lg mb-6 max-w-4xl mx-auto" role="alert">
+            <p class="font-bold">¡Error!</p>
+            <p>{{ error }}</p>
+        </div>
+        {% else %}
+        
+        <!-- BRACKET NIVEL I -->
+        <section class="mb-12">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4 px-5">{{ bracket_n1.category }}</h2>
+            <div class="bracket-container bg-white p-6 rounded-2xl shadow-lg">
+                {% for round in bracket_n1.rounds %}
+                {% set round_index = loop.index0 %}
+                <div class="round mr-12">
+                    <h3 class="text-xl font-bold text-center text-gray-600 mb-6">{{ round.name }}</h3>
+                    {% for match in round.matches %}
+                    <div class="match">
+                        <form action="{{ url_for('update_bracket_winner') }}" method="POST">
+                            <input type="hidden" name="doc_id" value="nivel1">
+                            <input type="hidden" name="round_index" value="{{ round_index }}">
+                            <input type="hidden" name="match_id" value="{{ match.match_id }}">
+                            
+                            <!-- Team 1 -->
+                            <button type="submit" name="winner_key" value="team1"
+                                    class="team team-top team-button
+                                    {% if match.winner == 'team1' %} winner
+                                    {% elif match.winner == 'team2' %} loser
+                                    {% elif match.team1 == 'BYE' %} bye
+                                    {% endif %}"
+                                    {% if match.winner %}disabled{% endif %}>
+                                {{ match.team1 }}
+                            </button>
+                            
+                            <!-- Team 2 -->
+                            <button type="submit" name="winner_key" value="team2"
+                                    class="team team-bottom team-button
+                                    {% if match.winner == 'team2' %} winner
+                                    {% elif match.winner == 'team1' %} loser
+                                    {% elif match.team2 == 'BYE' %} bye
+                                    {% endif %}"
+                                    {% if match.winner or match.team2 == 'BYE' %}disabled{% endif %}>
+                                {{ match.team2 }}
+                            </button>
+                        </form>
+                        
+                        <!-- Conector del partido (si no es la última ronda) -->
+                        <!-- ESTA ES LA LÍNEA CORREGIDA -->
+                        {% if not loop.parentloop.last %}
+                        <div class="match-connector"></div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <!-- BRACKET NIVEL II -->
+        <section class="mb-12">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4 px-5">{{ bracket_n2.category }}</h2>
+            <div class="bracket-container bg-white p-6 rounded-2xl shadow-lg">
+                {% for round in bracket_n2.rounds %}
+                {% set round_index = loop.index0 %}
+                <div class="round mr-12">
+                    <h3 class="text-xl font-bold text-center text-gray-600 mb-6">{{ round.name }}</h3>
+                    {% for match in round.matches %}
+                    <div class="match">
+                        <form action="{{ url_for('update_bracket_winner') }}" method="POST">
+                            <input type="hidden" name="doc_id" value="nivel2">
+                            <input type="hidden" name="round_index" value="{{ round_index }}">
+                            <input type="hidden" name="match_id" value="{{ match.match_id }}">
+                            
+                            <!-- Team 1 -->
+                            <button type="submit" name="winner_key" value="team1"
+                                    class="team team-top team-button
+                                    {% if match.winner == 'team1' %} winner
+                                    {% elif match.winner == 'team2' %} loser
+                                    {% elif match.team1 == 'BYE' %} bye
+                                    {% endif %}"
+                                    {% if match.winner %}disabled{% endif %}>
+                                {{ match.team1 }}
+                            </button>
+                            
+                            <!-- Team 2 -->
+                            <button type="submit" name="winner_key" value="team2"
+                                    class="team team-bottom team-button
+                                    {% if match.winner == 'team2' %} winner
+                                    {% elif match.winner == 'team1' %} loser
+                                    {% elif match.team2 == 'BYE' %} bye
+                                    {% endif %}"
+                                    {% if match.winner or match.team2 == 'BYE' %}disabled{% endif %}>
+                                {{ match.team2 }}
+                            </button>
+                        </form>
+                        
+                        <!-- Conector del partido (si no es la última ronda) -->
+                        <!-- ESTA ES LA LÍNEA CORREGIDA -->
+                        {% if not loop.parentloop.last %}
+                        <div class="match-connector"></div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+        
+        {% endif %}
+    </div>
+</body>
+</html>
+

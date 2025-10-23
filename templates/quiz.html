@@ -1,193 +1,311 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
+  <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Olimpiadas Matemáticas - Concurso</title>
     <!-- Tailwind CSS y Fuentes -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap"
+      rel="stylesheet"
+    />
     <!-- Font Awesome para los iconos -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f3f4f6;
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: #f3f4f6; /* bg-gray-100 */
+      }
+      .option-label {
+        transition: all 0.2s ease-in-out;
+        cursor: pointer;
+      }
+      .option-label:hover:not(.disabled) {
+        transform: scale(1.02);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        border-color: #2e92b9ff; /* blue-500 */
+      }
+      input[type="radio"]:checked + .option-label {
+        background-color: #3b82f6; /* blue-500 */
+        color: white;
+        border-color: #3b82f6;
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+      }
+      fieldset:disabled .option-label {
+        background-color: #f9fafb; /* bg-gray-50 */
+        cursor: not-allowed;
+        opacity: 0.7;
+      }
+      fieldset:disabled .option-label:hover {
+        transform: none;
+        box-shadow: none;
+        border-color: #e5e7eb; /* border-gray-200 */
+      }
+      button:disabled {
+        background-color: #9ca3af; /* bg-gray-400 */
+        cursor: not-allowed;
+      }
+      /* Keyframes for modal animation */
+      @keyframes fade-in-up {
+        0% {
+          opacity: 0;
+          transform: translateY(20px) scale(0.95);
         }
-        .option-label {
-            transition: all 0.2s ease-in-out;
-            cursor: pointer;
+        100% {
+          opacity: 1;
+          transform: translateY(0) scale(1);
         }
-        .option-label:hover:not(.disabled) {
-            transform: scale(1.02);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            border-color: #3b82f6; /* blue-500 */
-        }
-        input[type="radio"]:checked + .option-label {
-            background-color: #3b82f6; /* blue-500 */
-            color: white;
-            border-color: #3b82f6;
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-        }
-        fieldset:disabled .option-label {
-            background-color: #f9fafb; /* bg-gray-50 */
-            cursor: not-allowed;
-            opacity: 0.7;
-        }
-        fieldset:disabled .option-label:hover {
-             transform: none;
-             box-shadow: none;
-             border-color: #e5e7eb; /* border-gray-200 */
-        }
-        button:disabled {
-            background-color: #9ca3af; /* bg-gray-400 */
-            cursor: not-allowed;
-        }
+      }
+      .animate-fade-in-up {
+        animation: fade-in-up 0.3s ease-out forwards;
+      }
     </style>
-</head>
-<body class="bg-gray-100 min-h-screen p-4 sm:p-6 md:p-8 flex items-center justify-center">
+  </head>
+  <body
+    class="bg-gray-100 min-h-screen p-4 sm:p-6 md:p-8 flex items-center justify-center"
+  >
     <!-- Modal para "Tiempo Agotado" -->
-    <div id="time-up-modal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 hidden">
-        <div class="bg-white rounded-2xl shadow-lg p-8 text-center max-w-sm mx-auto transform transition-all scale-95 opacity-0 animate-fade-in-up">
-            <i class="fas fa-clock text-5xl text-red-500 mb-4"></i>
-            <h2 class="text-2xl font-bold text-gray-800 mb-2">¡Tiempo Agotado!</h2>
-            <p class="text-gray-600 mb-6">El tiempo para esta pregunta ha terminado.</p>
-            <a href="{{ url_for('skip_question') }}" class="w-full bg-blue-600 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:bg-blue-700 transition">
-                Continuar
-            </a>
-        </div>
-        <style> @keyframes fade-in-up { 0% { opacity: 0; transform: translateY(20px) scale(0.95); } 100% { opacity: 1; transform: translateY(0) scale(1); } } .animate-fade-in-up { animation: fade-in-up 0.3s ease-out forwards; } </style>
+    <div
+      id="time-up-modal"
+      class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 hidden"
+    >
+      <div
+        class="bg-white rounded-2xl shadow-lg p-8 text-center max-w-sm mx-auto transform transition-all scale-95 opacity-0 animate-fade-in-up"
+      >
+        <i class="fas fa-clock text-5xl text-red-500 mb-4"></i>
+        <h2 class="text-2xl font-bold text-gray-800 mb-2">¡Tiempo Agotado!</h2>
+        <p class="text-gray-600 mb-6">
+          El tiempo para esta pregunta ha terminado.
+        </p>
+        <a
+          href="{{ url_for('skip_question') }}"
+          class="w-full bg-blue-600 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:bg-blue-700 transition"
+        >
+          Continuar
+        </a>
+      </div>
     </div>
 
-    <div class="container mx-auto max-w-3xl">
-        <!-- Encabezado -->
-        <header class="flex flex-col sm:flex-row justify-between items-center mb-6">
-             <div class="flex items-center space-x-4">
-                <div class="bg-blue-100 text-blue-600 p-3 rounded-xl">
-                    <i class="fas fa-question-circle text-2xl"></i>
-                </div>
-                <div>
-                    <h1 class="text-2xl font-bold text-gray-800">Pregunta {{ question_number }}</h1>
-                    <p class="text-gray-500">Selecciona la respuesta correcta.</p>
-                </div>
-            </div>
-            <div class="flex items-center space-x-3 bg-gray-800 text-white rounded-full px-4 py-2 mt-4 sm:mt-0">
-                <i class="fas fa-clock"></i>
-                <span id="timer" class="text-xl font-mono font-bold tracking-wider">05:00</span>
-                <button id="start-pause-btn" class="text-xl text-green-400 hover:text-green-300 transition"><i class="fas fa-play"></i></button>
-                <button id="reset-btn" class="text-xl text-yellow-400 hover:text-yellow-300 transition"><i class="fas fa-sync-alt"></i></button>
-            </div>
-        </header>
+    <div class="container mx-auto max-w-6xl w-full">
+      <!-- Ancho estandarizado -->
+      <!-- Encabezado -->
+      <header
+        class="flex flex-col sm:flex-row justify-between items-center mb-6"
+      >
+        <div class="flex items-center space-x-4">
+          <div class="bg-blue-100 text-blue-600 p-3 rounded-xl">
+            <i class="fas fa-question-circle text-2xl"></i>
+          </div>
+          <div>
+            <h1 class="text-2xl font-bold text-gray-800">
+              Pregunta {{ question_number }}
+            </h1>
+            <p class="text-gray-500">Selecciona la respuesta correcta.</p>
+          </div>
+        </div>
+        <div
+          class="flex items-center space-x-3 bg-gray-800 text-white rounded-full px-4 py-2 mt-4 sm:mt-0"
+        >
+          <i class="fas fa-clock"></i>
+          <span id="timer" class="text-xl font-mono font-bold tracking-wider"
+            >05:00</span
+          >
+          <button
+            id="start-pause-btn"
+            class="text-xl text-green-400 hover:text-green-300 transition"
+          >
+            <i class="fas fa-play"></i>
+          </button>
+          <button
+            id="reset-btn"
+            class="text-xl text-yellow-400 hover:text-yellow-300 transition"
+          >
+            <i class="fas fa-sync-alt"></i>
+          </button>
+        </div>
+      </header>
 
-        <!-- Contenido Principal del Quiz -->
-        <main class="bg-white p-6 rounded-2xl shadow-lg">
-            <form id="quiz-form" action="{{ url_for('submit_answer') }}" method="post">
-                <fieldset id="quiz-fieldset" disabled>
-                    <!-- Contenedor de la pregunta -->
-                    <section class="text-center mb-6">
-                        <div class="w-full h-72 bg-gray-50 border-2 border-dashed border-gray-200 rounded-xl flex items-center justify-center overflow-hidden mx-auto mb-4">
-                            {% if 'question_image' in question %}
-                            <img src="{{ question.question_image }}" alt="Imagen de la pregunta" class="max-w-full max-h-full object-contain">
-                            {% endif %}
-                        </div>
-                        <p class="text-lg font-medium text-gray-700 mt-4">{{ question.get('question_text', '¿Cuál es la respuesta correcta?') }}</p>
-                    </section>
+      <!-- Contenido Principal del Quiz -->
+      <main class="bg-white p-6 md:p-8 rounded-2xl shadow-lg">
+        <form
+          id="quiz-form"
+          action="{{ url_for('submit_answer') }}"
+          method="post"
+        >
+          <fieldset id="quiz-fieldset" disabled>
+            <!-- Contenedor de la pregunta -->
+            <section class="text-center mb-8">
+              <!-- ** IMAGEN GRANDE Y COMPLETA (Estrategia object-contain) ** -->
+              <!-- Contenedor con altura fija y grande -->
+              <div
+                class="w-full h-[40rem] bg-gray-50 border-2 border-dashed border-gray-200 rounded-xl flex items-center justify-center overflow-hidden mx-auto mb-6 p-4"
+              >
+                {% if 'question_image' in question %}
+                <!-- Imagen se ajusta DENTRO del contenedor (h-full w-full) sin cortarse (object-contain) -->
+                <img
+                  src="{{ question.question_image }}"
+                  alt="Imagen de la pregunta"
+                  class="w-full h-full object-contain"
+                />
+                {% else %}
+                <p class="text-gray-400 italic text-xl py-10">
+                  <i class="fas fa-image mr-2"></i> No hay imagen para esta
+                  pregunta
+                </p>
+                {% endif %}
+              </div>
+              <p class="text-lg font-medium text-gray-700 mt-4">
+                {{ question.get('question_text', '¿Cuál es la respuesta
+                correcta?') }}
+              </p>
+            </section>
 
-                    <!-- Contenedor de las opciones -->
-                    <section class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {% for key, value in question.options.items() %}
-                        <div class="relative">
-                            <input type="radio" id="option-{{ key }}" name="answer" value="{{ key }}" class="hidden" required />
-                            <label for="option-{{ key }}" class="option-label block p-4 bg-white border-2 border-gray-200 rounded-lg shadow-sm text-gray-800 text-base font-medium text-center">
-                                <span class="font-bold mr-2">{{ key.upper() }})</span> {{ value }}
-                            </label>
-                        </div>
-                        {% endfor %}
-                    </section>
-                </fieldset>
-            </form>
+            <!-- Contenedor de las opciones -->
+            <section class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {% for key, value in question.options.items() %}
+              <div class="relative">
+                <input
+                  type="radio"
+                  id="option-{{ key }}"
+                  name="answer"
+                  value="{{ key }}"
+                  class="hidden"
+                  required
+                />
+                <label
+                  for="option-{{ key }}"
+                  class="option-label block p-4 bg-white border-2 border-gray-200 rounded-lg shadow-sm text-gray-800 text-lg font-medium text-center"
+                >
+                  <span class="font-bold mr-2">{{ key.upper() }})</span> {{
+                  value }}
+                </label>
+              </div>
+              {% endfor %}
+            </section>
+          </fieldset>
+        </form>
 
-            <!-- Botones de Acción -->
-            <footer class="mt-6 pt-6 border-t flex flex-col sm:flex-row-reverse justify-between items-center gap-4">
-                <button type="submit" form="quiz-form" id="submit-btn" class="w-full sm:w-auto bg-blue-600 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:bg-blue-700 transition" disabled>
-                    <i class="fas fa-check-circle mr-2"></i> Enviar Respuesta
-                </button>
-                <a href="{{ url_for('dashboard') }}" class="w-full sm:w-auto text-center bg-gray-200 text-gray-700 font-bold py-3 px-6 rounded-lg hover:bg-gray-300 transition">Volver al Dashboard</a>
-            </footer>
-        </main>
+        <!-- Botones de Acción -->
+        <footer
+          class="mt-8 pt-6 border-t flex flex-col sm:flex-row-reverse justify-between items-center gap-4"
+        >
+          <button
+            type="submit"
+            form="quiz-form"
+            id="submit-btn"
+            class="w-full sm:w-auto bg-blue-600 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:bg-blue-700 transition"
+            disabled
+          >
+            <i class="fas fa-check-circle mr-2"></i> Enviar Respuesta
+          </button>
+          <a
+            href="{{ url_for('dashboard') }}"
+            class="w-full sm:w-auto text-center bg-gray-200 text-gray-700 font-bold py-3 px-6 rounded-lg hover:bg-gray-300 transition"
+            >Volver al Dashboard</a
+          >
+        </footer>
+      </main>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const timerDisplay = document.getElementById('timer');
-            const startPauseBtn = document.getElementById('start-pause-btn');
-            const resetBtn = document.getElementById('reset-btn');
-            const quizFieldset = document.getElementById('quiz-fieldset');
-            const submitBtn = document.getElementById('submit-btn');
-            const modal = document.getElementById('time-up-modal');
-            
-            const totalTime = 5 * 60; // 5 minutos
-            let timeRemaining = totalTime;
-            let timerInterval = null;
-            let isPaused = true;
+      document.addEventListener("DOMContentLoaded", () => {
+        const timerDisplay = document.getElementById("timer");
+        const startPauseBtn = document.getElementById("start-pause-btn");
+        const resetBtn = document.getElementById("reset-btn");
+        const quizFieldset = document.getElementById("quiz-fieldset");
+        const submitBtn = document.getElementById("submit-btn");
+        const modal = document.getElementById("time-up-modal");
 
-            function formatTime(seconds) {
-                const minutes = Math.floor(seconds / 60);
-                const secs = seconds % 60;
-                return `${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-            }
+        const totalTime = 5 * 60; // 5 minutos
+        let timeRemaining = totalTime;
+        let timerInterval = null;
+        let isPaused = true;
 
-            function updateTimer() {
-                timerDisplay.textContent = formatTime(timeRemaining);
-                if (timeRemaining > 0) {
-                    timeRemaining--;
-                } else {
-                    clearInterval(timerInterval);
-                    timerInterval = null;
-                    modal.classList.remove('hidden');
-                }
-            }
+        function formatTime(seconds) {
+          const minutes = Math.floor(seconds / 60);
+          const secs = seconds % 60;
+          return `${String(minutes).padStart(2, "0")}:${String(secs).padStart(
+            2,
+            "0"
+          )}`;
+        }
 
-            function startTimer() {
-                if (!timerInterval) {
-                    timerInterval = setInterval(updateTimer, 1000);
-                }
-                isPaused = false;
-                startPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
-                quizFieldset.disabled = false;
-                submitBtn.disabled = false;
-            }
+        function updateTimer() {
+          timerDisplay.textContent = formatTime(timeRemaining);
+          if (timeRemaining > 0) {
+            timeRemaining--;
+          } else {
+            clearInterval(timerInterval);
+            timerInterval = null;
+            quizFieldset.disabled = true; // Deshabilita opciones
+            submitBtn.disabled = true; // Deshabilita envío
+            modal.classList.remove("hidden"); // Muestra modal
+            modal.querySelector("div").classList.add("animate-fade-in-up"); // Anima modal
+          }
+        }
 
-            function pauseTimer() {
-                clearInterval(timerInterval);
-                timerInterval = null;
-                isPaused = true;
-                startPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
-            }
+        function startTimer() {
+          if (!timerInterval && timeRemaining > 0) {
+            // Solo inicia si no está corriendo y queda tiempo
+            timerInterval = setInterval(updateTimer, 1000);
+          }
+          isPaused = false;
+          startPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+          startPauseBtn.classList.remove(
+            "text-green-400",
+            "hover:text-green-300"
+          );
+          startPauseBtn.classList.add(
+            "text-yellow-400",
+            "hover:text-yellow-300"
+          );
+          quizFieldset.disabled = false;
+          submitBtn.disabled = false;
+        }
 
-            startPauseBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                if (isPaused) {
-                    startTimer();
-                } else {
-                    pauseTimer();
-                }
-            });
+        function pauseTimer() {
+          clearInterval(timerInterval);
+          timerInterval = null;
+          isPaused = true;
+          startPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+          startPauseBtn.classList.remove(
+            "text-yellow-400",
+            "hover:text-yellow-300"
+          );
+          startPauseBtn.classList.add("text-green-400", "hover:text-green-300");
+          // No deshabilitamos los botones al pausar
+        }
 
-            resetBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                pauseTimer();
-                timeRemaining = totalTime;
-                timerDisplay.textContent = formatTime(totalTime);
-                quizFieldset.disabled = true;
-                submitBtn.disabled = true;
-            });
-
-            timerDisplay.textContent = formatTime(totalTime);
+        startPauseBtn.addEventListener("click", (e) => {
+          e.preventDefault();
+          if (isPaused) {
+            startTimer();
+          } else {
+            pauseTimer();
+          }
         });
-    </script>
-</body>
-</html>
 
+        resetBtn.addEventListener("click", (e) => {
+          e.preventDefault();
+          pauseTimer(); // Pausa si está corriendo
+          timeRemaining = totalTime;
+          timerDisplay.textContent = formatTime(totalTime);
+          quizFieldset.disabled = true; // Deshabilita al reiniciar
+          submitBtn.disabled = true;
+          modal.classList.add("hidden"); // Oculta el modal si estaba visible
+        });
+
+        // Estado inicial
+        timerDisplay.textContent = formatTime(totalTime);
+        quizFieldset.disabled = true; // Empieza deshabilitado
+        submitBtn.disabled = true;
+      });
+    </script>
+  </body>
+</html>

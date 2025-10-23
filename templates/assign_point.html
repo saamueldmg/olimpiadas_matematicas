@@ -40,7 +40,8 @@
       class="container mx-auto p-8 bg-white rounded-xl shadow-lg w-full max-w-4xl"
     >
       <h1 class="text-4xl font-bold text-center text-gray-800 mb-4">
-        ¡Argumente su respuesta!
+        <i class="fas fa-check-circle text-green-500 mr-3"></i>
+        ¡Respuesta Correcta!
       </h1>
 
       <form action="{{ url_for('assign_point_to_team') }}" method="post">
@@ -59,6 +60,7 @@
                 value="1"
                 class="hidden"
                 required
+                checked
               />
               <label
                 for="points-1"

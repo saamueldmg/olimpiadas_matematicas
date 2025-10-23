@@ -24,16 +24,23 @@
       }
       .action-card {
         transition: all 0.3s ease;
+        display: flex; /* Añadido para consistencia de altura */
+        flex-direction: column; /* Añadido para consistencia de altura */
       }
       .action-card:hover {
         transform: translateY(-5px);
         box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1),
           0 10px 10px -5px rgba(0, 0, 0, 0.04);
       }
+      /* Clase para hacer que el contenido de la tarjeta crezca */
+      .card-content-wrapper {
+        flex-grow: 1;
+      }
     </style>
   </head>
   <body class="bg-gray-100 min-h-screen p-4 sm:p-6 md:p-8">
-    <div class="container mx-auto max-w-6xl">
+    <div class="container mx-auto max-w-7xl">
+      <!-- Contenedor más ancho -->
       <!-- Encabezado -->
       <header class="flex justify-between items-center mb-8">
         <div class="flex items-center space-x-4">
@@ -56,75 +63,162 @@
         </a>
       </header>
 
-      <!-- Contenido del Dashboard -->
-      <main class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <!-- Tarjeta Principal: Iniciar Concurso -->
+      <!-- Mensajes Flash (Alertas) -->
+      {% with messages = get_flashed_messages(with_categories=true) %} {% if
+      messages %}
+      <div class="mb-6 space-y-3">
+        {% for category, message in messages %}
+        <div
+          class="{% if category == 'error' %} bg-red-100 border-red-500 text-red-700 {% else %} bg-green-100 border-green-500 text-green-700 {% endif %} border-l-4 p-4 rounded-lg"
+          role="alert"
+        >
+          <p class="font-bold">
+            {% if category == 'error' %}Error{% else %}Éxito{% endif %}
+          </p>
+          <p>{{ message }}</p>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %} {% endwith %}
+
+      <!-- Alertas de Setup Inicial -->
+      {% if needs_team_setup %}
+      <div
+        class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 p-6 rounded-lg mb-6 shadow-lg"
+      >
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <i class="fas fa-exclamation-triangle text-3xl"></i>
+          </div>
+          <div class="ml-4">
+            <h3 class="text-xl font-bold">¡Acción Requerida!</h3>
+            <p class="mt-1">
+              La base de datos de equipos está vacía. Debes cargar la lista de
+              colegios participantes antes de poder iniciar un concurso.
+            </p>
+          </div>
+          <a
+            href="{{ url_for('setup_teams') }}"
+            class="ml-auto flex-shrink-0 bg-yellow-500 text-white font-bold py-3 px-5 rounded-lg shadow-md hover:bg-yellow-600 transition transform hover:scale-105"
+          >
+            <i class="fas fa-users-cog mr-2"></i> Poblar Equipos Ahora
+          </a>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Contenido del Dashboard (NUEVA CUADRÍCULA DE 4 COLUMNAS) -->
+      <main class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <!-- Fila 1 -->
+
+        <!-- Tarjeta Principal: Iniciar Concurso (2 columnas) -->
         <a
           href="{{ url_for('select_level') }}"
-          class="action-card lg:col-span-2 lg:row-span-2 bg-blue-600 text-white p-8 rounded-2xl shadow-lg flex flex-col justify-between hover:bg-blue-700"
+          class="action-card lg:col-span-2 bg-blue-600 text-white p-8 rounded-2xl shadow-lg hover:bg-blue-700"
         >
-          <div>
+          <div class="card-content-wrapper">
             <div
               class="bg-white bg-opacity-20 w-16 h-16 rounded-full flex items-center justify-center mb-4"
             >
               <i class="fas fa-play text-3xl"></i>
             </div>
-            <h2 class="text-3xl font-bold">Iniciar Nuevo Concurso</h2>
+            <h2 class="text-3xl font-bold">Iniciar Duelo</h2>
             <p class="mt-2 opacity-80">
-              Selecciona los equipos, elige un nivel de dificultad y que
-              comience el desafío.
+              Selecciona dos equipos, elige el nivel y que comience el desafío
+              de eliminación.
             </p>
           </div>
           <div class="mt-6 font-bold text-lg">Iniciar ahora &rarr;</div>
         </a>
 
-        <!-- Tarjetas de Acción a la Derecha -->
+        <!-- Administrar Finales (1 columna) -->
+        <a
+          href="{{ url_for('manage_brackets') }}"
+          class="action-card bg-purple-600 text-white p-8 rounded-2xl shadow-lg hover:bg-purple-700"
+        >
+          <div class="card-content-wrapper">
+            <div
+              class="bg-white bg-opacity-20 w-16 h-16 rounded-full flex items-center justify-center mb-4"
+            >
+              <i class="fas fa-cogs text-3xl"></i>
+            </div>
+            <h2 class="text-2xl font-bold">Administrar Finales</h2>
+            <p class="mt-2 opacity-80">
+              Selecciona los 6 equipos finalistas de cada nivel para generar los
+              brackets.
+            </p>
+          </div>
+          <div class="mt-6 font-bold text-lg">Configurar &rarr;</div>
+        </a>
+
+        <!-- Ver Play-Offs (1 columna) -->
+        <a
+          href="{{ url_for('brackets') }}"
+          class="action-card bg-indigo-600 text-white p-8 rounded-2xl shadow-lg hover:bg-indigo-700"
+        >
+          <div class="card-content-wrapper">
+            <div
+              class="bg-white bg-opacity-20 w-16 h-16 rounded-full flex items-center justify-center mb-4"
+            >
+              <i class="fas fa-sitemap text-3xl"></i>
+            </div>
+            <h2 class="text-2xl font-bold">Ver Play-Offs</h2>
+            <p class="mt-2 opacity-80">
+              Visualiza y actualiza el bracket de las finales (Nivel I y Nivel
+              II).
+            </p>
+          </div>
+          <div class="mt-6 font-bold text-lg">Ver Brackets &rarr;</div>
+        </a>
+
+        <!-- Fila 2 -->
+
+        <!-- Gestionar Equipos (1 columna) -->
         <a
           href="{{ url_for('manage_teams') }}"
           class="action-card bg-white p-6 rounded-2xl shadow-lg hover:border-green-500 border-2 border-transparent"
         >
-          <div class="flex items-center space-x-4">
+          <div class="card-content-wrapper flex items-center space-x-4">
             <div
-              class="bg-green-100 text-green-600 w-12 h-12 rounded-full flex items-center justify-center"
+              class="bg-green-100 text-green-600 w-12 h-12 rounded-full flex-shrink-0 flex items-center justify-center"
             >
               <i class="fas fa-users text-xl"></i>
             </div>
             <div>
               <h3 class="text-xl font-bold text-gray-800">Gestionar Equipos</h3>
-              <p class="text-gray-500 mt-1">
-                Crea, edita y elimina los equipos.
-              </p>
+              <p class="text-gray-500 mt-1">Edita y elimina los equipos.</p>
             </div>
           </div>
         </a>
 
+        <!-- Ver Puntuaciones (1 columna) -->
         <a
           href="{{ url_for('show_scoreboard') }}"
           class="action-card bg-white p-6 rounded-2xl shadow-lg hover:border-yellow-500 border-2 border-transparent"
         >
-          <div class="flex items-center space-x-4">
+          <div class="card-content-wrapper flex items-center space-x-4">
             <div
-              class="bg-yellow-100 text-yellow-600 w-12 h-12 rounded-full flex items-center justify-center"
+              class="bg-yellow-100 text-yellow-600 w-12 h-12 rounded-full flex-shrink-0 flex items-center justify-center"
             >
               <i class="fas fa-trophy text-xl"></i>
             </div>
             <div>
               <h3 class="text-xl font-bold text-gray-800">Ver Puntuaciones</h3>
               <p class="text-gray-500 mt-1">
-                Consulta la tabla de clasificación.
+                Consulta la tabla de clasificación general.
               </p>
             </div>
           </div>
         </a>
 
-        <!-- Tarjetas de Acción Inferiores -->
+        <!-- Añadir Pregunta (1 columna) -->
         <a
           href="{{ url_for('add_question') }}"
           class="action-card bg-white p-6 rounded-2xl shadow-lg hover:border-blue-500 border-2 border-transparent"
         >
-          <div class="flex items-center space-x-4">
+          <div class="card-content-wrapper flex items-center space-x-4">
             <div
-              class="bg-blue-100 text-blue-600 w-12 h-12 rounded-full flex items-center justify-center"
+              class="bg-blue-100 text-blue-600 w-12 h-12 rounded-full flex-shrink-0 flex items-center justify-center"
             >
               <i class="fas fa-plus text-xl"></i>
             </div>
@@ -137,22 +231,23 @@
           </div>
         </a>
 
+        <!-- Administrar Preguntas (1 columna) -->
         <a
           href="{{ url_for('manage_questions') }}"
           class="action-card bg-white p-6 rounded-2xl shadow-lg hover:border-red-500 border-2 border-transparent"
         >
-          <div class="flex items-center space-x-4">
+          <div class="card-content-wrapper flex items-center space-x-4">
             <div
-              class="bg-red-100 text-red-600 w-12 h-12 rounded-full flex items-center justify-center"
+              class="bg-red-100 text-red-600 w-12 h-12 rounded-full flex-shrink-0 flex items-center justify-center"
             >
               <i class="fas fa-list-alt text-xl"></i>
             </div>
             <div>
-              <h3 class="text-xl font-bold text-gray-800">
+              <h3 classD="text-xl font-bold text-gray-800">
                 Administrar Preguntas
               </h3>
               <p class="text-gray-500 mt-1">
-                Visualiza y elimina las preguntas existentes por nivel.
+                Visualiza y elimina las preguntas.
               </p>
             </div>
           </div>

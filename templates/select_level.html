@@ -24,14 +24,29 @@
       }
       .level-button {
         transition: all 0.2s ease-in-out;
+        opacity: 0.5; /* Empezar semi-transparentes */
+        cursor: pointer;
       }
-      .level-button:hover {
-        transform: translateY(-5px);
+      .level-button.active {
+        opacity: 1;
+        transform: translateY(-5px) scale(1.05);
         box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+      }
+      select:disabled {
+        background-color: #f3f4f6; /* bg-gray-100 */
+        cursor: not-allowed;
       }
     </style>
   </head>
   <body class="bg-gray-100 min-h-screen p-4 sm:p-6 md:p-8">
+    <!-- Datos de Python a JavaScript -->
+    <script>
+      const teamsData = {
+          nivel1: {{ teams_n1 | tojson }},
+          nivel2: {{ teams_n2 | tojson }}
+      };
+    </script>
+
     <div class="container mx-auto max-w-5xl">
       <!-- Encabezado -->
       <header
@@ -65,25 +80,59 @@
           role="alert"
         >
           <p class="font-bold">¡Atención!</p>
-          <p>
-            {{ error }}
-            <a
-              href="{{ url_for('manage_teams') }}"
-              class="font-bold underline hover:text-red-800"
-              >Gestionar equipos</a
-            >.
-          </p>
+          <p>{{ error }}</p>
         </div>
-        {% else %}
+        {% endif %}
+
         <form
+          id="quiz-form"
           action="{{ url_for('select_level') }}"
           method="post"
           class="space-y-8"
         >
-          <!-- Sección 1: Selección de Equipos -->
+          <!-- Input oculto para el nivel -->
+          <input type="hidden" name="level" id="selected-level" value="" />
+
+          <!-- Sección 1: Selección de Nivel (AHORA PRIMERO) -->
           <section>
             <h2 class="text-2xl font-bold text-gray-700 mb-4">
-              1. Selecciona los Contendientes
+              1. Elige el Nivel del Desafío
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div
+                id="btn-nivel1"
+                data-level="Nivel I"
+                data-key="nivel1"
+                class="level-button bg-gradient-to-r from-blue-500 to-blue-600 text-white font-bold py-6 px-6 rounded-xl shadow-lg text-center"
+              >
+                <span class="text-2xl">Nivel I</span>
+                <span class="block text-sm opacity-80">(6° - 7°)</span>
+              </div>
+              <div
+                id="btn-nivel2"
+                data-level="Nivel II"
+                data-key="nivel2"
+                class="level-button bg-gradient-to-r from-purple-500 to-purple-600 text-white font-bold py-6 px-6 rounded-xl shadow-lg text-center"
+              >
+                <span class="text-2xl">Nivel II</span>
+                <span class="block text-sm opacity-80">(8° - 9°)</span>
+              </div>
+              <div
+                id="btn-nivel3"
+                data-level="Nivel III"
+                data-key="nivel3"
+                class="level-button bg-gradient-to-r from-red-500 to-red-600 text-white font-bold py-6 px-6 rounded-xl shadow-lg text-center"
+              >
+                <span class="text-2xl">Nivel III</span>
+                <span class="block text-sm opacity-80">(10° - 11°)</span>
+              </div>
+            </div>
+          </section>
+
+          <!-- Sección 2: Selección de Equipos (AHORA SEGUNDO) -->
+          <section>
+            <h2 class="text-2xl font-bold text-gray-700 mb-4">
+              2. Selecciona los Contendientes
             </h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div>
@@ -97,10 +146,9 @@
                   id="team1"
                   required
                   class="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-lg"
+                  disabled
                 >
-                  {% for team in teams %}
-                  <option value="{{ team }}">{{ team }}</option>
-                  {% endfor %}
+                  <option value="">(Selecciona un nivel primero)</option>
                 </select>
               </div>
               <div>
@@ -114,52 +162,26 @@
                   id="team2"
                   required
                   class="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-lg"
+                  disabled
                 >
-                  {% for team in teams %}
-                  <option value="{{ team }}">{{ team }}</option>
-                  {% endfor %}
+                  <option value="">(Selecciona un nivel primero)</option>
                 </select>
               </div>
             </div>
           </section>
 
-          <!-- Sección 2: Selección de Nivel -->
-          <section>
-            <h2 class="text-2xl font-bold text-gray-700 mb-4">
-              2. Elige el Nivel del Desafío
-            </h2>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <button
-                type="submit"
-                name="level"
-                value="nivel1"
-                class="level-button bg-gradient-to-r from-blue-500 to-blue-600 text-white font-bold py-6 px-6 rounded-xl shadow-lg"
-              >
-                <span class="text-2xl">Nivel I</span>
-                <span class="block text-sm opacity-80">(6° - 7°)</span>
-              </button>
-              <button
-                type="submit"
-                name="level"
-                value="nivel2"
-                class="level-button bg-gradient-to-r from-purple-500 to-purple-600 text-white font-bold py-6 px-6 rounded-xl shadow-lg"
-              >
-                <span class="text-2xl">Nivel II</span>
-                <span class="block text-sm opacity-80">(8° - 9°)</span>
-              </button>
-              <button
-                type="submit"
-                name="level"
-                value="nivel3"
-                class="level-button bg-gradient-to-r from-red-500 to-red-600 text-white font-bold py-6 px-6 rounded-xl shadow-lg"
-              >
-                <span class="text-2xl">Nivel III</span>
-                <span class="block text-sm opacity-80">(10° - 11°)</span>
-              </button>
-            </div>
-          </section>
+          <!-- Botón de Envío -->
+          <div class="text-center pt-4">
+            <button
+              id="submit-button"
+              type="submit"
+              class="w-full md:w-1/2 bg-gray-400 text-white font-bold py-4 px-12 rounded-lg shadow-lg transition-colors cursor-not-allowed"
+              disabled
+            >
+              Selecciona un Nivel
+            </button>
+          </div>
         </form>
-        {% endif %}
       </main>
     </div>
 
@@ -167,34 +189,103 @@
       document.addEventListener("DOMContentLoaded", () => {
         const team1Select = document.getElementById("team1");
         const team2Select = document.getElementById("team2");
+        const selectedLevelInput = document.getElementById("selected-level");
+        const submitButton = document.getElementById("submit-button");
+        const form = document.getElementById("quiz-form");
 
-        // Solo ejecutar el script si los selectores existen (es decir, si no hay error)
-        if (!team1Select || !team2Select) return;
+        const levelButtons = [
+          document.getElementById("btn-nivel1"),
+          document.getElementById("btn-nivel2"),
+          document.getElementById("btn-nivel3"),
+        ];
 
-        function syncSelectors(changedSelect, targetSelect) {
-          const selectedValue = changedSelect.value;
-          const targetValue = targetSelect.value;
+        function populateSelect(selectElement, teams) {
+          selectElement.innerHTML = ""; // Limpiar opciones
 
-          if (selectedValue === targetValue) {
-            // Si son iguales, busca la primera opción diferente y la selecciona
-            for (let i = 0; i < targetSelect.options.length; i++) {
-              if (targetSelect.options[i].value !== selectedValue) {
-                targetSelect.selectedIndex = i;
-                break;
-              }
-            }
+          if (!teams || teams.length === 0) {
+            selectElement.disabled = true;
+            selectElement.innerHTML =
+              '<option value="">No hay equipos para este nivel</option>';
+            return;
           }
+
+          selectElement.disabled = false;
+          selectElement.innerHTML =
+            '<option value="" disabled selected>Selecciona un equipo...</option>';
+
+          teams.forEach((team) => {
+            const option = document.createElement("option");
+            option.value = team;
+            option.textContent = team;
+            selectElement.appendChild(option);
+          });
         }
 
-        // Sincronización inicial para asegurar que no empiecen iguales
-        syncSelectors(team1Select, team2Select);
+        levelButtons.forEach((button) => {
+          button.addEventListener("click", (e) => {
+            e.preventDefault(); // Evitar que el form se envíe
 
+            // Manejar estado visual
+            levelButtons.forEach((btn) => btn.classList.remove("active"));
+            button.classList.add("active");
+
+            const levelName = button.dataset.level; // "Nivel I"
+            const levelKey = button.dataset.key; // "nivel1"
+
+            // Guardar el nivel seleccionado
+            selectedLevelInput.value = levelName;
+
+            // Llenar los menús desplegables
+            const teamsForLevel = teamsData[levelKey] || [];
+            populateSelect(team1Select, teamsForLevel);
+            populateSelect(team2Select, teamsForLevel);
+
+            // Activar botón de envío
+            if (teamsForLevel.length > 0) {
+              submitButton.disabled = false;
+              submitButton.textContent = `Iniciar Duelo - ${levelName}`;
+              submitButton.classList.remove(
+                "bg-gray-400",
+                "cursor-not-allowed"
+              );
+              submitButton.classList.add(
+                "bg-purple-600",
+                "hover:bg-purple-700"
+              );
+            } else {
+              submitButton.disabled = true;
+              submitButton.textContent = `No hay equipos para ${levelName}`;
+              submitButton.classList.add("bg-gray-400", "cursor-not-allowed");
+              submitButton.classList.remove(
+                "bg-purple-600",
+                "hover:bg-purple-700"
+              );
+            }
+          });
+        });
+
+        // Lógica para evitar selección duplicada
+        function syncSelectors(changedSelect, targetSelect) {
+          if (changedSelect.value === targetSelect.value) {
+            targetSelect.selectedIndex = 0; // Resetear al placeholder
+          }
+        }
         team1Select.addEventListener("change", () =>
           syncSelectors(team1Select, team2Select)
         );
         team2Select.addEventListener("change", () =>
           syncSelectors(team2Select, team1Select)
         );
+
+        // Envío final del formulario
+        form.addEventListener("submit", (e) => {
+          if (!selectedLevelInput.value) {
+            e.preventDefault();
+            alert(
+              "Por favor, selecciona un nivel haciendo clic en uno de los botones."
+            );
+          }
+        });
       });
     </script>
   </body>

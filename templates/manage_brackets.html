@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Administrar Finales - Olimpiadas Matemáticas</title>
+    <!-- Tailwind CSS y Fuentes -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Font Awesome para los iconos -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: #f3f4f6;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-100 min-h-screen p-4 sm:p-6 md:p-8">
+    <div class="container mx-auto max-w-6xl">
+      <!-- Encabezado -->
+      <header
+        class="flex flex-col sm:flex-row justify-between items-center mb-8"
+      >
+        <div class="flex items-center space-x-4">
+          <div class="bg-purple-100 text-purple-600 p-4 rounded-2xl">
+            <i class="fas fa-cogs text-3xl"></i>
+          </div>
+          <div>
+            <h1 class="text-3xl font-bold text-gray-800">
+              Administrar Finales
+            </h1>
+            <p class="text-gray-500">
+              Define los 6 finalistas para cada categoría.
+            </p>
+          </div>
+        </div>
+        <a
+          href="{{ url_for('dashboard') }}"
+          class="mt-4 sm:mt-0 flex items-center space-x-2 text-gray-600 hover:text-blue-600 transition-colors font-medium"
+        >
+          <i class="fas fa-arrow-left"></i>
+          <span>Volver al Dashboard</span>
+        </a>
+      </header>
+
+      <!-- Mensajes Flash (Alertas) -->
+      {% with messages = get_flashed_messages(with_categories=true) %} {% if
+      messages %}
+      <div class="mb-6 space-y-3">
+        {% for category, message in messages %}
+        <div
+          class="{% if category == 'error' %} bg-red-100 border-red-500 text-red-700 {% else %} bg-green-100 border-green-500 text-green-700 {% endif %} border-l-4 p-4 rounded-lg"
+          role="alert"
+        >
+          <p class="font-bold">
+            {% if category == 'error' %}Error{% else %}Éxito{% endif %}
+          </p>
+          <p>{{ message }}</p>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %} {% endwith %}
+
+      <main class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- FORMULARIO NIVEL I -->
+        <form
+          action="{{ url_for('manage_brackets') }}"
+          method="POST"
+          class="bg-white p-8 rounded-2xl shadow-lg space-y-6"
+        >
+          <input type="hidden" name="level" value="nivel1" />
+          <h2 class="text-2xl font-bold text-gray-800 border-b pb-4">
+            <i class="fas fa-layer-group text-blue-500 mr-2"></i>
+            Finalistas - Nivel I
+          </h2>
+
+          <p class="text-sm text-gray-600 bg-blue-50 p-4 rounded-lg">
+            <span class="font-bold">Importante:</span> Los equipos 1 y 2
+            (Preclasificados) pasarán directamente a Semifinales (BYE). Los
+            equipos 3, 4, 5 y 6 jugarán los Cuartos de Final.
+          </p>
+
+          <!-- Preclasificado 1 -->
+          <div>
+            <label
+              for="nivel1_team_1"
+              class="block text-sm font-bold text-gray-700 mb-1"
+              >Preclasificado 1 (Pasa a Semis)</label
+            >
+            <select
+              id="nivel1_team_1"
+              name="nivel1_team_1"
+              required
+              class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="" disabled selected>
+                Selecciona el 1er equipo...
+              </option>
+              <!-- Bucle solo para equipos Nivel I -->
+              {% for team in teams_n1 %}
+              <option value="{{ team }}">{{ team }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <!-- Preclasificado 2 -->
+          <div>
+            <label
+              for="nivel1_team_2"
+              class="block text-sm font-bold text-gray-700 mb-1"
+              >Preclasificado 2 (Pasa a Semis)</label
+            >
+            <select
+              id="nivel1_team_2"
+              name="nivel1_team_2"
+              required
+              class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="" disabled selected>
+                Selecciona el 2do equipo...
+              </option>
+              <!-- Bucle solo para equipos Nivel I -->
+              {% for team in teams_n1 %}
+              <option value="{{ team }}">{{ team }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <!-- Cuartos de Final -->
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label
+                for="nivel1_team_3"
+                class="block text-sm font-medium text-gray-700 mb-1"
+                >Equipo Cuartos 1</label
+              >
+              <select
+                id="nivel1_team_3"
+                name="nivel1_team_3"
+                required
+                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="" disabled selected>Selecciona equipo...</option>
+                <!-- Bucle solo para equipos Nivel I -->
+                {% for team in teams_n1 %}
+                <option value="{{ team }}">{{ team }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div>
+              <label
+                for="nivel1_team_4"
+                class="block text-sm font-medium text-gray-700 mb-1"
+                >Equipo Cuartos 2</label
+              >
+              <select
+                id="nivel1_team_4"
+                name="nivel1_team_4"
+                required
+                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="" disabled selected>Selecciona equipo...</option>
+                <!-- Bucle solo para equipos Nivel I -->
+                {% for team in teams_n1 %}
+                <option value="{{ team }}">{{ team }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div>
+              <label
+                for="nivel1_team_5"
+                class="block text-sm font-medium text-gray-700 mb-1"
+                >Equipo Cuartos 3</label
+              >
+              <select
+                id="nivel1_team_5"
+                name="nivel1_team_5"
+                required
+                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="" disabled selected>Selecciona equipo...</option>
+                <!-- Bucle solo para equipos Nivel I -->
+                {% for team in teams_n1 %}
+                <option value="{{ team }}">{{ team }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div>
+              <label
+                for="nivel1_team_6"
+                class="block text-sm font-medium text-gray-700 mb-1"
+                >Equipo Cuartos 4</label
+              >
+              <select
+                id="nivel1_team_6"
+                name="nivel1_team_6"
+                required
+                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="" disabled selected>Selecciona equipo...</option>
+                <!-- Bucle solo para equipos Nivel I -->
+                {% for team in teams_n1 %}
+                <option value="{{ team }}">{{ team }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            class="w-full bg-blue-600 text-white font-bold py-4 px-6 rounded-lg shadow-lg hover:bg-blue-700 transition transform hover:scale-105"
+          >
+            <i class="fas fa-sitemap mr-2"></i> Generar Bracket Nivel I
+          </button>
+        </form>
+
+        <!-- FORMULARIO NIVEL II -->
+        <form
+          action="{{ url_for('manage_brackets') }}"
+          method="POST"
+          class="bg-white p-8 rounded-2xl shadow-lg space-y-6"
+        >
+          <input type="hidden" name="level" value="nivel2" />
+          <h2 class="text-2xl font-bold text-gray-800 border-b pb-4">
+            <i class="fas fa-layer-group text-purple-500 mr-2"></i>
+            Finalistas - Nivel II
+          </h2>
+
+          <p class="text-sm text-gray-600 bg-purple-50 p-4 rounded-lg">
+            <span class="font-bold">Importante:</span> Los equipos 1 y 2
+            (Preclasificados) pasarán directamente a Semifinales (BYE). Los
+            equipos 3, 4, 5 y 6 jugarán los Cuartos de Final.
+          </p>
+
+          <!-- Preclasificado 1 -->
+          <div>
+            <label
+              for="nivel2_team_1"
+              class="block text-sm font-bold text-gray-700 mb-1"
+              >Preclasificado 1 (Pasa a Semis)</label
+            >
+            <select
+              id="nivel2_team_1"
+              name="nivel2_team_1"
+              required
+              class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+            >
+              <option value="" disabled selected>
+                Selecciona el 1er equipo...
+              </option>
+              <!-- Bucle solo para equipos Nivel II -->
+              {% for team in teams_n2 %}
+              <option value="{{ team }}">{{ team }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <!-- Preclasificado 2 -->
+          <div>
+            <label
+              for="nivel2_team_2"
+              class="block text-sm font-bold text-gray-700 mb-1"
+              >Preclasificado 2 (Pasa a Semis)</label
+            >
+            <select
+              id="nivel2_team_2"
+              name="nivel2_team_2"
+              required
+              class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+            >
+              <option value="" disabled selected>
+                Selecciona el 2do equipo...
+              </option>
+              <!-- Bucle solo para equipos Nivel II -->
+              {% for team in teams_n2 %}
+              <option value="{{ team }}">{{ team }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <!-- Cuartos de Final -->
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label
+                for="nivel2_team_3"
+                class="block text-sm font-medium text-gray-700 mb-1"
+                >Equipo Cuartos 1</label
+              >
+              <select
+                id="nivel2_team_3"
+                name="nivel2_team_3"
+                required
+                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+              >
+                <option value="" disabled selected>Selecciona equipo...</option>
+                <!-- Bucle solo para equipos Nivel II -->
+                {% for team in teams_n2 %}
+                <option value="{{ team }}">{{ team }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div>
+              <label
+                for="nivel2_team_4"
+                class="block text-sm font-medium text-gray-700 mb-1"
+                >Equipo Cuartos 2</label
+              >
+              <select
+                id="nivel2_team_4"
+                name="nivel2_team_4"
+                required
+                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+              >
+                <option value="" disabled selected>Selecciona equipo...</option>
+                <!-- Bucle solo para equipos Nivel II -->
+                {% for team in teams_n2 %}
+                <option value="{{ team }}">{{ team }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div>
+              <label
+                for="nivel2_team_5"
+                class="block text-sm font-medium text-gray-700 mb-1"
+                >Equipo Cuartos 3</label
+              >
+              <select
+                id="nivel2_team_5"
+                name="nivel2_team_5"
+                required
+                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+              >
+                <option value="" disabled selected>Selecciona equipo...</option>
+                <!-- Bucle solo para equipos Nivel II -->
+                {% for team in teams_n2 %}
+                <option value="{{ team }}">{{ team }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div>
+              <label
+                for="nivel2_team_6"
+                class="block text-sm font-medium text-gray-700 mb-1"
+                >Equipo Cuartos 4</label
+              >
+              <select
+                id="nivel2_team_6"
+                name="nivel2_team_6"
+                required
+                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+              >
+                <option value="" disabled selected>Selecciona equipo...</option>
+                <!-- Bucle solo para equipos Nivel II -->
+                {% for team in teams_n2 %}
+                <option value="{{ team }}">{{ team }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            class="w-full bg-purple-600 text-white font-bold py-4 px-6 rounded-lg shadow-lg hover:bg-purple-700 transition transform hover:scale-105"
+          >
+            <i class="fas fa-sitemap mr-2"></i> Generar Bracket Nivel II
+          </button>
+        </form>
+      </main>
+    </div>
+  </body>
+</html>

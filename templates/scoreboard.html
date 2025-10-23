@@ -2,7 +2,7 @@
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale-1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Tabla de Puntuaciones - Olimpiadas Matemáticas</title>
     <!-- Tailwind CSS y Fuentes -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -22,10 +22,14 @@
         font-family: "Inter", sans-serif;
         background-color: #f3f4f6;
       }
+      .score-row:hover {
+        background-color: #f9fafb;
+      }
     </style>
   </head>
   <body class="bg-gray-100 min-h-screen p-4 sm:p-6 md:p-8">
-    <div class="container mx-auto max-w-4xl">
+    <div class="container mx-auto max-w-6xl">
+      <!-- Contenedor más ancho -->
       <!-- Encabezado -->
       <header
         class="flex flex-col sm:flex-row justify-between items-center mb-8"
@@ -41,7 +45,7 @@
               Tabla de Puntuaciones
             </h1>
             <p class="text-gray-500">
-              Clasificación de las Olimpiadas Matemáticas.
+              Clasificación por Niveles de las Olimpiadas Matemáticas.
             </p>
           </div>
         </div>
@@ -54,79 +58,165 @@
         </a>
       </header>
 
-      <!-- Contenido Principal -->
-      <main class="bg-white p-8 rounded-2xl shadow-lg">
-        <div class="space-y-4">
-          <!-- Cabecera de la tabla -->
-          <div
-            class="hidden md:grid grid-cols-12 gap-4 px-4 text-sm font-bold text-gray-500 uppercase tracking-wider"
+      <!-- Contenido Principal - Dos Columnas -->
+      <main class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Columna Nivel I -->
+        <section class="bg-white p-6 rounded-2xl shadow-lg">
+          <h2
+            class="text-2xl font-bold text-blue-600 mb-6 text-center border-b pb-4"
           >
-            <div class="col-span-1 text-center">#</div>
-            <div class="col-span-8">Equipo</div>
-            <div class="col-span-3 text-right">Puntaje Total</div>
-          </div>
-
-          <!-- Lista de equipos -->
-          {% for team_data in scores %}
-          <div
-            class="grid grid-cols-12 gap-4 items-center p-4 rounded-xl transition-all duration-300 {% if loop.index == 1 %} bg-yellow-100 border-2 border-yellow-400 shadow-lg {% elif loop.index == 2 %} bg-gray-100 border border-gray-200 {% elif loop.index == 3 %} bg-orange-50 border border-orange-200 {% else %} border {% endif %}"
-          >
-            <!-- Rango y Medalla -->
-            <div class="col-span-2 md:col-span-1 text-center text-xl font-bold">
-              {% if loop.index == 1 %}
-              <i class="fas fa-trophy text-yellow-500" title="1er Lugar"></i>
-              {% elif loop.index == 2 %}
-              <i class="fas fa-medal text-gray-500" title="2do Lugar"></i>
-              {% elif loop.index == 3 %}
-              <i class="fas fa-award text-orange-500" title="3er Lugar"></i>
-              {% else %}
-              <span class="text-gray-500">{{ loop.index }}</span>
-              {% endif %}
-            </div>
-
-            <!-- Nombre del Equipo -->
+            <i class="fas fa-layer-group mr-2"></i> Nivel I (6° - 7°)
+          </h2>
+          <div class="space-y-3">
+            <!-- Cabecera de la tabla Nivel I -->
             <div
-              class="col-span-6 md:col-span-8 text-xl font-medium text-gray-800"
+              class="hidden md:grid grid-cols-12 gap-4 px-4 text-xs font-bold text-gray-500 uppercase tracking-wider"
             >
-              {{ team_data.name }}
+              <div class="col-span-1 text-center">#</div>
+              <div class="col-span-8">Equipo</div>
+              <div class="col-span-3 text-right">Puntaje</div>
             </div>
 
-            <!-- Puntaje -->
+            <!-- Lista de equipos Nivel I -->
+            {% for team_data in scores_n1 %}
             <div
-              class="col-span-4 md:col-span-3 text-3xl font-black text-gray-900 text-right font-mono"
+              class="score-row grid grid-cols-12 gap-4 items-center p-3 rounded-lg transition-all duration-300 {% if loop.index == 1 %} bg-yellow-50 border border-yellow-300 {% elif loop.index == 2 %} bg-gray-50 border border-gray-200 {% elif loop.index == 3 %} bg-orange-50 border border-orange-200 {% else %} border border-gray-100 {% endif %}"
             >
-              {{ team_data.score }}
+              <!-- Rango y Medalla -->
+              <div class="col-span-2 md:col-span-1 text-center font-bold">
+                {% if loop.index == 1 %}
+                <i
+                  class="fas fa-trophy text-lg text-yellow-500"
+                  title="1er Lugar"
+                ></i>
+                {% elif loop.index == 2 %}
+                <i
+                  class="fas fa-medal text-lg text-gray-500"
+                  title="2do Lugar"
+                ></i>
+                {% elif loop.index == 3 %}
+                <i
+                  class="fas fa-award text-lg text-orange-500"
+                  title="3er Lugar"
+                ></i>
+                {% else %}
+                <span class="text-gray-500 text-sm">{{ loop.index }}</span>
+                {% endif %}
+              </div>
+              <!-- Nombre del Equipo -->
+              <div
+                class="col-span-6 md:col-span-8 text-md font-medium text-gray-800 truncate"
+              >
+                {{ team_data.name.replace(' (Nivel I)', '') }} {# Quita el
+                sufijo para mostrar #}
+              </div>
+              <!-- Puntaje -->
+              <div
+                class="col-span-4 md:col-span-3 text-xl font-black text-gray-900 text-right font-mono"
+              >
+                {{ team_data.score }}
+              </div>
             </div>
+            {% else %}
+            <div class="text-center py-8 text-gray-400">
+              <i class="fas fa-info-circle text-3xl mb-3"></i>
+              <p>No hay puntuaciones para Nivel I todavía.</p>
+            </div>
+            {% endfor %}
           </div>
-          {% else %}
-          <div class="text-center py-8 text-gray-500">
-            <i class="fas fa-chart-bar text-4xl mb-4"></i>
-            <p>No hay puntuaciones para mostrar todavía.</p>
-          </div>
-          {% endfor %}
-        </div>
+        </section>
 
-        <!-- Botones de Acción -->
-        <div
-          class="mt-8 border-t pt-6 flex flex-col sm:flex-row-reverse justify-between items-center gap-4"
-        >
-          <form action="{{ url_for('reset_points') }}" method="POST">
-            <button
-              type="submit"
-              class="w-full sm:w-auto flex items-center justify-center space-x-2 bg-red-600 text-white font-bold py-3 px-6 rounded-lg shadow-md hover:bg-red-700 transition transform hover:scale-105"
-            >
-              <i class="fas fa-sync-alt"></i>
-              <span>Reiniciar Puntos</span>
-            </button>
-          </form>
-          <a
-            href="{{ url_for('dashboard') }}"
-            class="w-full sm:w-auto text-center bg-gray-200 text-gray-700 font-bold py-3 px-6 rounded-lg hover:bg-gray-300 transition"
+        <!-- Columna Nivel II -->
+        <section class="bg-white p-6 rounded-2xl shadow-lg">
+          <h2
+            class="text-2xl font-bold text-purple-600 mb-6 text-center border-b pb-4"
           >
-            Volver
-          </a>
-        </div>
+            <i class="fas fa-layer-group mr-2"></i> Nivel II (8° - 9°)
+          </h2>
+          <div class="space-y-3">
+            <!-- Cabecera de la tabla Nivel II -->
+            <div
+              class="hidden md:grid grid-cols-12 gap-4 px-4 text-xs font-bold text-gray-500 uppercase tracking-wider"
+            >
+              <div class="col-span-1 text-center">#</div>
+              <div class="col-span-8">Equipo</div>
+              <div class="col-span-3 text-right">Puntaje</div>
+            </div>
+
+            <!-- Lista de equipos Nivel II -->
+            {% for team_data in scores_n2 %}
+            <div
+              class="score-row grid grid-cols-12 gap-4 items-center p-3 rounded-lg transition-all duration-300 {% if loop.index == 1 %} bg-yellow-50 border border-yellow-300 {% elif loop.index == 2 %} bg-gray-50 border border-gray-200 {% elif loop.index == 3 %} bg-orange-50 border border-orange-200 {% else %} border border-gray-100 {% endif %}"
+            >
+              <!-- Rango y Medalla -->
+              <div class="col-span-2 md:col-span-1 text-center font-bold">
+                {% if loop.index == 1 %}
+                <i
+                  class="fas fa-trophy text-lg text-yellow-500"
+                  title="1er Lugar"
+                ></i>
+                {% elif loop.index == 2 %}
+                <i
+                  class="fas fa-medal text-lg text-gray-500"
+                  title="2do Lugar"
+                ></i>
+                {% elif loop.index == 3 %}
+                <i
+                  class="fas fa-award text-lg text-orange-500"
+                  title="3er Lugar"
+                ></i>
+                {% else %}
+                <span class="text-gray-500 text-sm">{{ loop.index }}</span>
+                {% endif %}
+              </div>
+              <!-- Nombre del Equipo -->
+              <div
+                class="col-span-6 md:col-span-8 text-md font-medium text-gray-800 truncate"
+              >
+                {{ team_data.name.replace(' (Nivel II)', '') }} {# Quita el
+                sufijo para mostrar #}
+              </div>
+              <!-- Puntaje -->
+              <div
+                class="col-span-4 md:col-span-3 text-xl font-black text-gray-900 text-right font-mono"
+              >
+                {{ team_data.score }}
+              </div>
+            </div>
+            {% else %}
+            <div class="text-center py-8 text-gray-400">
+              <i class="fas fa-info-circle text-3xl mb-3"></i>
+              <p>No hay puntuaciones para Nivel II todavía.</p>
+            </div>
+            {% endfor %}
+          </div>
+        </section>
       </main>
+
+      <!-- Botones de Acción (Fuera de la grilla principal) -->
+      <footer
+        class="mt-8 pt-6 border-t border-gray-300 flex flex-col sm:flex-row-reverse justify-between items-center gap-4 bg-white p-6 rounded-2xl shadow-lg"
+      >
+        <form
+          action="{{ url_for('reset_points') }}"
+          method="POST"
+          onsubmit="return confirm('¿Estás seguro de que quieres reiniciar TODOS los puntajes a CERO?');"
+        >
+          <button
+            type="submit"
+            class="w-full sm:w-auto flex items-center justify-center space-x-2 bg-red-600 text-white font-bold py-3 px-6 rounded-lg shadow-md hover:bg-red-700 transition transform hover:scale-105"
+          >
+            <i class="fas fa-sync-alt"></i>
+            <span>Reiniciar Todos los Puntos</span>
+          </button>
+        </form>
+        <a
+          href="{{ url_for('dashboard') }}"
+          class="w-full sm:w-auto text-center bg-gray-200 text-gray-700 font-bold py-3 px-6 rounded-lg hover:bg-gray-300 transition"
+        >
+          Volver al Dashboard
+        </a>
+      </footer>
     </div>
   </body>
 </html>
