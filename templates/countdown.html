@@ -1,232 +1,147 @@
 <!DOCTYPE html>
 <html lang="es">
-   
   <head>
-       
     <meta charset="UTF-8" />
-       
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-       
     <title>¡El Duelo Comienza!</title>
-       
     <!-- Tailwind CSS y Fuentes -->
-       
     <script src="https://cdn.tailwindcss.com"></script>
-       
     <link rel="preconnect" href="https://fonts.googleapis.com" />
-       
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-       
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&display=swap"
       rel="stylesheet"
     />
-       
     <style>
-            body {
-              font-family: "Inter", sans-serif;
-              background: linear-gradient(-45deg, #0f172a, #1e3a8a, #3730a3, #111827);
-              background-size: 400% 400%;
-              animation: gradientBG 20s ease infinite;
-              overflow: hidden; /* Evita scrollbars */
-            }
-            @keyframes gradientBG {
-              0% {
-                background-position: 0% 50%;
-              }
-              50% {
-                background-position: 100% 50%;
-              }
-              100% {
-                background-position: 0% 50%;
-              }
-            }
+      body {
+        font-family: "Inter", sans-serif;
+        background: linear-gradient(-45deg, #0f172a, #1e3a8a, #3730a3, #111827);
+        background-size: 400% 400%;
+        animation: gradientBG 20s ease infinite;
+        overflow: hidden;
+      }
+      @keyframes gradientBG {
+        0% {
+          background-position: 0% 50%;
+        }
+        50% {
+          background-position: 100% 50%;
+        }
+        100% {
+          background-position: 0% 50%;
+        }
+      }
 
-            /* Animaciones de Entrada */
-            .slide-in-left {
-              animation: slide-in-left 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
-            }
-            .slide-in-right {
-              animation: slide-in-right 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
-            }
-            .fade-in {
-              animation: fade-in 1.5s ease-in both;
-              animation-delay: 0.5s;
-            }
+      /* --- Animaciones de Entrada para los Equipos --- */
+      .slide-in-left {
+        animation: slide-in-left 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+      }
+      .slide-in-right {
+        animation: slide-in-right 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+      }
+      .fade-in {
+        animation: fade-in 1.5s ease-in both;
+        animation-delay: 0.5s;
+      }
 
-            @keyframes slide-in-left {
-              0% {
-                transform: translateX(-100px);
-                opacity: 0;
-              }
-              100% {
-                transform: translateX(0);
-                opacity: 1;
-              }
-            }
-            @keyframes slide-in-right {
-              0% {
-                transform: translateX(100px);
-                opacity: 0;
-              }
-              100% {
-                transform: translateX(0);
-                opacity: 1;
-              }
-            }
-            @keyframes fade-in {
-              0% {
-                opacity: 0;
-              }
-              100% {
-                opacity: 1;
-              }
-            }
+      @keyframes slide-in-left {
+        0% {
+          transform: translateX(-100px);
+          opacity: 0;
+        }
+        100% {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+      @keyframes slide-in-right {
+        0% {
+          transform: translateX(100px);
+          opacity: 0;
+        }
+        100% {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+      @keyframes fade-in {
+        0% {
+          opacity: 0;
+        }
+        100% {
+          opacity: 1;
+        }
+      }
 
-            /* Animaciones de Countdown */
-            .countdown-number {
-              font-size: clamp(10rem, 25vw, 20rem); /* Tamaño fluido */
-              line-height: 1;
-              text-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
-              animation: pop-in 1s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
-            }
-            .countdown-text {
-              font-size: clamp(4rem, 10vw, 8rem); /* Tamaño fluido texto final */
-              line-height: 1.1;
-              animation: pop-in 1s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
-            }
-
-            @keyframes pop-in {
-              0% {
-                transform: scale(0.5);
-                opacity: 0;
-              }
-              100% {
-                transform: scale(1);
-                opacity: 1;
-              }
-            }
-            .launch-animation {
-              animation: zoom-out-fade 0.7s ease-out forwards;
-            }
-            @keyframes zoom-out-fade {
-              0% {
-                transform: scale(1);
-                opacity: 1;
-              }
-              100% {
-                transform: scale(2.5);
-                opacity: 0;
-              }
-            }
-         
+      /* --- Animaciones de la Cuenta Regresiva --- */
+      .countdown-number {
+        font-size: 20rem;
+        line-height: 1;
+        text-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
+        animation: pop-in 1s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
+      }
+      @keyframes pop-in {
+        0% {
+          transform: scale(0.5);
+          opacity: 0;
+        }
+        100% {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+      .launch-animation {
+        animation: zoom-out-fade 0.7s ease-out forwards;
+      }
+      @keyframes zoom-out-fade {
+        0% {
+          transform: scale(1);
+          opacity: 1;
+        }
+        100% {
+          transform: scale(2.5);
+          opacity: 0;
+        }
+      }
     </style>
-     
   </head>
-   
   <body class="flex items-center justify-center min-h-screen text-white p-4">
-       
-    <div id="container" class="text-center w-full max-w-7xl mx-auto">
-           
-      <!-- Contenedor más ancho -->
-           
+    <div id="container" class="text-center">
       <!-- Nombres de los equipos con diseño mejorado -->
-           
       <div id="teams-display" class="mb-8 transition-opacity duration-500">
-               
         <p
-          class="text-xl md:text-3xl font-light text-slate-300 tracking-widest uppercase fade-in mb-6"
+          class="text-3xl md:text-5xl font-light text-slate-300 tracking-widest uppercase fade-in"
         >
-                    Se enfrentan los equipos:        
+          Se enfrentan los equipos:
         </p>
-               
-        <!-- Flex container para nombres y VS -->
-               
-        <div
-          class="flex flex-col md:flex-row justify-between items-center md:items-start gap-4 md:gap-10"
-          <!--
-          justify-between,
-          items-start
-          --
-        >
-                  >          
-          <!-- EQUIPO 1 -->
-                   
-          <div class="flex-1 min-w-0 md:text-right">
-            <!-- Contenedor flexible -->
-                       
-            <h2
-              class="text-3xl sm:text-4xl lg:text-5xl font-black slide-in-left bg-gradient-to-r from-green-400 to-emerald-600 bg-clip-text text-transparent py-2 break-words"
-              <!--
-              Sin
-              truncate,
-              tamaño
-              ajustado,
-              break-words
-              --
-            >
-                            style="text-shadow: 2px 2px 10px rgba(74, 222, 128,
-              0.3)"               title="{{ teams[0] }}"             >          
-                  {{ teams[0] }}            
-            </h2>
-                     
-          </div>
-
-                   
-          <!-- VS -->
-                   
+        <div class="flex justify-center items-center mt-4">
+          <!-- EQUIPO 1 (Verde) -->
+          <h2
+            class="text-5xl md:text-7xl font-black slide-in-left bg-gradient-to-r from-green-400 to-emerald-600 bg-clip-text text-transparent py-2"
+            style="text-shadow: 2px 2px 10px rgba(74, 222, 128, 0.3)"
+          >
+            {{ teams[0] }}
+          </h2>
           <span
-            class="text-3xl md:text-5xl font-thin opacity-70 fade-in order-first md:order-none py-2"
-            <!--
-            Añadimos
-            padding
-            vertical
-            para
-            alinear
-            --
+            class="text-4xl md:text-6xl font-thin mx-6 md:mx-10 opacity-70 fade-in"
+            >VS</span
           >
-                        >VS</span
+          <!-- EQUIPO 2 (Rojo) -->
+          <h2
+            class="text-5xl md:text-7xl font-black slide-in-right bg-gradient-to-r from-red-500 to-rose-600 bg-clip-text text-transparent py-2"
+            style="text-shadow: 2px 2px 10px rgba(239, 68, 68, 0.3)"
           >
-
-                   
-          <!-- EQUIPO 2 -->
-                   
-          <div class="flex-1 min-w-0 md:text-left">
-            <!-- Contenedor flexible -->
-                       
-            <h2
-              class="text-3xl sm:text-4xl lg:text-5xl font-black slide-in-right bg-gradient-to-r from-red-500 to-rose-600 bg-clip-text text-transparent py-2 break-words"
-              <!--
-              Sin
-              truncate,
-              tamaño
-              ajustado,
-              break-words
-              --
-            >
-                            style="text-shadow: 2px 2px 10px rgba(239, 68, 68,
-              0.3)"               title="{{ teams[1] }}"             >          
-                  {{ teams[1] }}            
-            </h2>
-                     
-          </div>
-                 
+            {{ teams[1] }}
+          </h2>
         </div>
-             
       </div>
 
-           
-      <!-- Div para la cuenta regresiva -->
-           
+      <!-- Div para la cuenta regresi-va -->
       <div id="countdown-display" class="relative">
-               
         <!-- El contenido se insertará aquí con JavaScript -->
-             
       </div>
-       
     </div>
 
-       
     <script>
       const teamsDisplay = document.getElementById("teams-display");
       const countdownDisplay = document.getElementById("countdown-display");
@@ -235,49 +150,48 @@
         "3",
         "2",
         "1",
-        "¡Que gane el mejor!", // Texto final más corto
+        "¡Que gane el mejor!",
+        "¡Comienza el duelo!",
       ];
       let currentStep = 0;
 
       function startCountdown() {
         if (currentStep < steps.length) {
-          countdownDisplay.innerHTML = ""; // Limpia el contenido anterior
+          countdownDisplay.innerHTML = "";
 
           const textEl = document.createElement("h1");
           textEl.textContent = steps[currentStep];
 
           if (currentStep < 3) {
-            // Números 3, 2, 1
             textEl.className = "countdown-number font-black text-white";
           } else {
-            // Texto final
             textEl.className =
-              "countdown-text font-black bg-gradient-to-r from-yellow-300 via-amber-400 to-orange-500 bg-clip-text text-transparent py-4";
+              "text-8xl md:text-9xl font-black bg-gradient-to-r from-green-300 via-emerald-400 to-teal-500 bg-clip-text text-transparent pop-in py-4";
           }
 
           countdownDisplay.appendChild(textEl);
           currentStep++;
 
-          const isFinalText = currentStep >= steps.length;
-          const nextDelay = isFinalText ? 1800 : 1200; // Un poco más de tiempo para el texto final
+          // Ajuste en la animación final de texto
+          const isFinalText = currentStep >= steps.length - 1;
+          const nextDelay = isFinalText ? 1500 : 1200;
           setTimeout(startCountdown, nextDelay);
         } else {
-          // Último paso: Animar salida y redirigir
           const lastElement = countdownDisplay.querySelector("h1");
           if (lastElement) {
             lastElement.classList.add("launch-animation");
           }
           setTimeout(() => {
             window.location.href = redirectUrl;
-          }, 700); // Espera que termine la animación de salida
+          }, 700);
         }
-      } // Muestra los nombres de los equipos por 3.5 segundos antes de empezar
+      }
 
+      // Muestra los nombres de los equipos por 3.5 segundos
       setTimeout(() => {
-        teamsDisplay.classList.add("opacity-0"); // Oculta los nombres
-        setTimeout(startCountdown, 600); // Empieza el countdown después de ocultar
+        teamsDisplay.classList.add("opacity-0");
+        setTimeout(startCountdown, 600);
       }, 3500);
     </script>
-     
   </body>
 </html>
