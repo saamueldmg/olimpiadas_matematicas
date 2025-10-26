@@ -4,7 +4,6 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Dashboard - Olimpiadas Matemáticas</title>
-    <!-- Tailwind CSS y Fuentes -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -12,7 +11,6 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap"
       rel="stylesheet"
     />
-    <!-- Font Awesome para los iconos -->
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
@@ -20,234 +18,336 @@
     <style>
       body {
         font-family: "Inter", sans-serif;
-        background-color: #f3f4f6;
+        background-color: #ffffff;
+        min-height: 100vh;
       }
       .action-card {
         transition: all 0.3s ease;
-        display: flex; /* Añadido para consistencia de altura */
-        flex-direction: column; /* Añadido para consistencia de altura */
+        position: relative;
+        overflow: hidden;
+      }
+      .action-card::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.1);
+        transform: translate(-50%, -50%);
+        transition: width 0.6s, height 0.6s;
+      }
+      .action-card:hover::before {
+        width: 400px;
+        height: 400px;
       }
       .action-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1),
-          0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        transform: translateY(-8px) scale(1.02);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
       }
-      /* Clase para hacer que el contenido de la tarjeta crezca */
-      .card-content-wrapper {
-        flex-grow: 1;
+      .toast {
+        animation: slideIn 0.5s ease-out;
+      }
+      @keyframes slideIn {
+        from {
+          transform: translateX(100%);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .animate-fade-in-up {
+        animation: fadeInUp 0.6s ease-out;
+      }
+      @keyframes shrink {
+        from {
+          width: 100%;
+        }
+        to {
+          width: 0%;
+        }
       }
     </style>
   </head>
-  <body class="bg-gray-100 min-h-screen p-4 sm:p-6 md:p-8">
-    <div class="container mx-auto max-w-7xl">
-      <!-- Contenedor más ancho -->
-      <!-- Encabezado -->
-      <header class="flex justify-between items-center mb-8">
+  <body class="min-h-screen p-4 sm:p-6 md:p-8 bg-gray-50">
+    <div class="container mx-auto max-w-7xl animate-fade-in-up">
+      <!-- Header -->
+      <header
+        class="bg-white rounded-2xl shadow-xl p-6 mb-8 flex flex-col sm:flex-row justify-between items-center border border-gray-100"
+      >
         <div class="flex items-center space-x-4">
-          <img
-            src="{{ url_for('static', filename='images/logo.jpg') }}"
-            alt="Logo BoscoTechLab"
-            class="w-16 h-16 rounded-2xl shadow-md"
-          />
+          <div class="relative">
+            <img
+              src="{{ url_for('static', filename='images/logo.jpg') }}"
+              alt="Logo BoscoTechLab"
+              class="w-20 h-20 rounded-2xl shadow-lg ring-4 ring-purple-100"
+            />
+          </div>
           <div>
             <h1 class="text-3xl font-bold text-gray-800">Panel de Control</h1>
-            <p class="text-gray-500">Olimpiadas Matemáticas BoscoTech Lab</p>
+            <p class="text-gray-500 flex items-center mt-1">
+              Olimpiadas Matemáticas BoscoTech Lab
+            </p>
           </div>
         </div>
         <a
-          href="{{ url_for('logout') }}"
-          class="flex items-center space-x-2 text-gray-600 hover:text-red-500 transition-colors font-medium"
+          href="{{ url_for('auth.logout') }}"
+          class="mt-4 sm:mt-0 flex items-center space-x-2 px-5 py-2.5 bg-red-50 text-red-600 rounded-xl hover:bg-red-100 transition-all font-semibold shadow-sm hover:shadow-md"
         >
           <i class="fas fa-sign-out-alt"></i>
           <span>Cerrar sesión</span>
         </a>
       </header>
 
-      <!-- Mensajes Flash (Alertas) -->
+      <!-- Toast Notifications -->
       {% with messages = get_flashed_messages(with_categories=true) %} {% if
       messages %}
-      <div class="mb-6 space-y-3">
+      <div class="fixed top-4 right-4 z-50 space-y-3 max-w-md">
         {% for category, message in messages %}
         <div
-          class="{% if category == 'error' %} bg-red-100 border-red-500 text-red-700 {% else %} bg-green-100 border-green-500 text-green-700 {% endif %} border-l-4 p-4 rounded-lg"
-          role="alert"
+          class="toast bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-100"
         >
-          <p class="font-bold">
-            {% if category == 'error' %}Error{% else %}Éxito{% endif %}
-          </p>
-          <p>{{ message }}</p>
+          <div class="flex items-start p-4">
+            <div class="flex-shrink-0">
+              {% if category == 'error' %}
+              <div class="bg-red-100 rounded-full p-2">
+                <i class="fas fa-times-circle text-red-500 text-xl"></i>
+              </div>
+              {% else %}
+              <div class="bg-green-100 rounded-full p-2">
+                <i class="fas fa-check-circle text-green-500 text-xl"></i>
+              </div>
+              {% endif %}
+            </div>
+            <div class="ml-3 flex-1">
+              <p class="text-sm font-bold text-gray-900">
+                {% if category == 'error' %}Error{% else %}Éxito{% endif %}
+              </p>
+              <p class="text-sm text-gray-600 mt-1">{{ message }}</p>
+            </div>
+            <button
+              onclick="this.parentElement.parentElement.remove()"
+              class="flex-shrink-0 ml-4 text-gray-400 hover:text-gray-600 transition"
+            >
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+          <div
+            class="h-1 {% if category == 'error' %}bg-red-500{% else %}bg-green-500{% endif %}"
+            style="animation: shrink 5s linear forwards"
+          ></div>
         </div>
         {% endfor %}
       </div>
+      <script>
+        setTimeout(() => {
+          document.querySelectorAll(".toast").forEach((toast) => {
+            toast.style.animation = "slideIn 0.5s ease-out reverse";
+            setTimeout(() => toast.remove(), 500);
+          });
+        }, 5000);
+      </script>
       {% endif %} {% endwith %}
 
-      <!-- Alertas de Setup Inicial -->
+      <!-- Warning Alert -->
       {% if needs_team_setup %}
       <div
-        class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 p-6 rounded-lg mb-6 shadow-lg"
+        class="bg-white rounded-3xl shadow-2xl mb-8 overflow-hidden animate-fade-in-up border-2 border-orange-200"
       >
-        <div class="flex items-center">
-          <div class="flex-shrink-0">
-            <i class="fas fa-exclamation-triangle text-3xl"></i>
+        <div class="bg-gradient-to-r from-yellow-400 to-orange-500 p-1">
+          <div class="bg-white rounded-2xl p-6">
+            <div class="flex items-center">
+              <div class="flex-shrink-0">
+                <div
+                  class="bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full p-4"
+                >
+                  <i
+                    class="fas fa-exclamation-triangle text-white text-3xl"
+                  ></i>
+                </div>
+              </div>
+              <div class="ml-6 flex-1">
+                <h3 class="text-2xl font-bold text-gray-800">
+                  ¡Acción Requerida!
+                </h3>
+                <p class="mt-2 text-gray-600">
+                  La base de datos de equipos está vacía. Debes cargar la lista
+                  de colegios participantes antes de poder iniciar un concurso.
+                </p>
+              </div>
+              <a
+                href="{{ url_for('team.setup_teams') }}"
+                class="ml-6 flex-shrink-0 bg-gradient-to-r from-orange-500 to-orange-600 text-white font-bold py-4 px-8 rounded-2xl shadow-lg hover:shadow-2xl transition transform hover:scale-105"
+              >
+                <i class="fas fa-users-cog mr-2"></i> Poblar Equipos
+              </a>
+            </div>
           </div>
-          <div class="ml-4">
-            <h3 class="text-xl font-bold">¡Acción Requerida!</h3>
-            <p class="mt-1">
-              La base de datos de equipos está vacía. Debes cargar la lista de
-              colegios participantes antes de poder iniciar un concurso.
-            </p>
-          </div>
-          <a
-            href="{{ url_for('setup_teams') }}"
-            class="ml-auto flex-shrink-0 bg-yellow-500 text-white font-bold py-3 px-5 rounded-lg shadow-md hover:bg-yellow-600 transition transform hover:scale-105"
-          >
-            <i class="fas fa-users-cog mr-2"></i> Poblar Equipos Ahora
-          </a>
         </div>
       </div>
       {% endif %}
 
-      <!-- Contenido del Dashboard (NUEVA CUADRÍCULA DE 4 COLUMNAS) -->
+      <!-- Main Grid -->
       <main class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <!-- Fila 1 -->
-
-        <!-- Tarjeta Principal: Iniciar Concurso (2 columnas) -->
+        <!-- Iniciar Duelo - Grande -->
         <a
-          href="{{ url_for('select_level') }}"
-          class="action-card lg:col-span-2 bg-blue-600 text-white p-8 rounded-2xl shadow-lg hover:bg-blue-700"
+          href="{{ url_for('quiz.select_level') }}"
+          class="action-card lg:col-span-2 bg-gradient-to-br from-blue-500 to-blue-700 text-white p-8 rounded-3xl shadow-2xl"
         >
-          <div class="card-content-wrapper">
+          <div class="relative z-10">
             <div
-              class="bg-white bg-opacity-20 w-16 h-16 rounded-full flex items-center justify-center mb-4"
+              class="bg-white bg-opacity-20 w-20 h-20 rounded-2xl flex items-center justify-center mb-6 shadow-lg"
             >
-              <i class="fas fa-play text-3xl"></i>
+              <i class="fas fa-play text-4xl"></i>
             </div>
-            <h2 class="text-3xl font-bold">Iniciar Duelo</h2>
-            <p class="mt-2 opacity-80">
+            <h2 class="text-4xl font-black mb-3">Iniciar Duelo</h2>
+            <p class="text-blue-100 text-lg leading-relaxed">
               Selecciona dos equipos, elige el nivel y que comience el desafío
               de eliminación.
             </p>
+            <div class="mt-8 flex items-center font-bold text-xl">
+              <span>Iniciar ahora</span>
+              <i
+                class="fas fa-arrow-right ml-3 transform group-hover:translate-x-2 transition-transform"
+              ></i>
+            </div>
           </div>
-          <div class="mt-6 font-bold text-lg">Iniciar ahora &rarr;</div>
         </a>
 
-        <!-- Administrar Finales (1 columna) -->
+        <!-- Administrar Finales -->
         <a
-          href="{{ url_for('manage_brackets') }}"
-          class="action-card bg-purple-600 text-white p-8 rounded-2xl shadow-lg hover:bg-purple-700"
+          href="{{ url_for('bracket.manage_brackets') }}"
+          class="action-card bg-gradient-to-br from-purple-500 to-purple-700 text-white p-8 rounded-3xl shadow-2xl"
         >
-          <div class="card-content-wrapper">
+          <div class="relative z-10">
             <div
-              class="bg-white bg-opacity-20 w-16 h-16 rounded-full flex items-center justify-center mb-4"
+              class="bg-white bg-opacity-20 w-16 h-16 rounded-2xl flex items-center justify-center mb-4 shadow-lg"
             >
               <i class="fas fa-cogs text-3xl"></i>
             </div>
-            <h2 class="text-2xl font-bold">Administrar Finales</h2>
-            <p class="mt-2 opacity-80">
-              Selecciona los 6 equipos finalistas de cada nivel para generar los
+            <h2 class="text-2xl font-black mb-2">Administrar Finales</h2>
+            <p class="text-purple-100 leading-relaxed">
+              Selecciona los 8 equipos finalistas de cada nivel para generar los
               brackets.
             </p>
+            <div class="mt-6 flex items-center font-bold text-lg">
+              <span>Configurar</span>
+              <i class="fas fa-arrow-right ml-2"></i>
+            </div>
           </div>
-          <div class="mt-6 font-bold text-lg">Configurar &rarr;</div>
         </a>
 
-        <!-- Ver Play-Offs (1 columna) -->
+        <!-- Ver Play-Offs (CORREGIDO) -->
         <a
-          href="{{ url_for('brackets') }}"
-          class="action-card bg-indigo-600 text-white p-8 rounded-2xl shadow-lg hover:bg-indigo-700"
+          href="{{ url_for('bracket.view_brackets') }}"
+          class="action-card bg-gradient-to-br from-indigo-500 to-indigo-700 text-white p-8 rounded-3xl shadow-2xl"
         >
-          <div class="card-content-wrapper">
+          <div class="relative z-10">
             <div
-              class="bg-white bg-opacity-20 w-16 h-16 rounded-full flex items-center justify-center mb-4"
+              class="bg-white bg-opacity-20 w-16 h-16 rounded-2xl flex items-center justify-center mb-4 shadow-lg"
             >
               <i class="fas fa-sitemap text-3xl"></i>
             </div>
-            <h2 class="text-2xl font-bold">Ver Play-Offs</h2>
-            <p class="mt-2 opacity-80">
+            <h2 class="text-2xl font-black mb-2">Ver Play-Offs</h2>
+            <p class="text-indigo-100 leading-relaxed">
               Visualiza y actualiza el bracket de las finales (Nivel I y Nivel
               II).
             </p>
+            <div class="mt-6 flex items-center font-bold text-lg">
+              <span>Ver Brackets</span>
+              <i class="fas fa-arrow-right ml-2"></i>
+            </div>
           </div>
-          <div class="mt-6 font-bold text-lg">Ver Brackets &rarr;</div>
         </a>
 
-        <!-- Fila 2 -->
-
-        <!-- Gestionar Equipos (1 columna) -->
+        <!-- Gestionar Equipos -->
         <a
-          href="{{ url_for('manage_teams') }}"
-          class="action-card bg-white p-6 rounded-2xl shadow-lg hover:border-green-500 border-2 border-transparent"
+          href="{{ url_for('team.manage_teams') }}"
+          class="action-card bg-white p-6 rounded-2xl shadow-xl hover:shadow-2xl border-2 border-gray-200 hover:border-green-500"
         >
-          <div class="card-content-wrapper flex items-center space-x-4">
+          <div class="flex items-center space-x-4">
             <div
-              class="bg-green-100 text-green-600 w-12 h-12 rounded-full flex-shrink-0 flex items-center justify-center"
+              class="bg-gradient-to-br from-green-400 to-green-600 text-white w-14 h-14 rounded-2xl flex-shrink-0 flex items-center justify-center shadow-lg"
             >
-              <i class="fas fa-users text-xl"></i>
+              <i class="fas fa-users text-2xl"></i>
             </div>
             <div>
               <h3 class="text-xl font-bold text-gray-800">Gestionar Equipos</h3>
-              <p class="text-gray-500 mt-1">Edita y elimina los equipos.</p>
+              <p class="text-gray-500 mt-1 text-sm">
+                Edita y elimina los equipos
+              </p>
             </div>
           </div>
         </a>
 
-        <!-- Ver Puntuaciones (1 columna) -->
+        <!-- Ver Puntuaciones -->
         <a
-          href="{{ url_for('show_scoreboard') }}"
-          class="action-card bg-white p-6 rounded-2xl shadow-lg hover:border-yellow-500 border-2 border-transparent"
+          href="{{ url_for('quiz.scoreboard') }}"
+          class="action-card bg-white p-6 rounded-2xl shadow-xl hover:shadow-2xl border-2 border-gray-200 hover:border-yellow-500"
         >
-          <div class="card-content-wrapper flex items-center space-x-4">
+          <div class="flex items-center space-x-4">
             <div
-              class="bg-yellow-100 text-yellow-600 w-12 h-12 rounded-full flex-shrink-0 flex items-center justify-center"
+              class="bg-gradient-to-br from-yellow-400 to-yellow-600 text-white w-14 h-14 rounded-2xl flex-shrink-0 flex items-center justify-center shadow-lg"
             >
-              <i class="fas fa-trophy text-xl"></i>
+              <i class="fas fa-trophy text-2xl"></i>
             </div>
             <div>
               <h3 class="text-xl font-bold text-gray-800">Ver Puntuaciones</h3>
-              <p class="text-gray-500 mt-1">
-                Consulta la tabla de clasificación general.
+              <p class="text-gray-500 mt-1 text-sm">
+                Consulta la tabla de clasificación
               </p>
             </div>
           </div>
         </a>
 
-        <!-- Añadir Pregunta (1 columna) -->
+        <!-- Añadir Pregunta -->
         <a
-          href="{{ url_for('add_question') }}"
-          class="action-card bg-white p-6 rounded-2xl shadow-lg hover:border-blue-500 border-2 border-transparent"
+          href="{{ url_for('question.add_question') }}"
+          class="action-card bg-white p-6 rounded-2xl shadow-xl hover:shadow-2xl border-2 border-gray-200 hover:border-blue-500"
         >
-          <div class="card-content-wrapper flex items-center space-x-4">
+          <div class="flex items-center space-x-4">
             <div
-              class="bg-blue-100 text-blue-600 w-12 h-12 rounded-full flex-shrink-0 flex items-center justify-center"
+              class="bg-gradient-to-br from-blue-400 to-blue-600 text-white w-14 h-14 rounded-2xl flex-shrink-0 flex items-center justify-center shadow-lg"
             >
-              <i class="fas fa-plus text-xl"></i>
+              <i class="fas fa-plus text-2xl"></i>
             </div>
             <div>
               <h3 class="text-xl font-bold text-gray-800">Añadir Pregunta</h3>
-              <p class="text-gray-500 mt-1">
-                Crea nuevos desafíos para los concursantes.
-              </p>
+              <p class="text-gray-500 mt-1 text-sm">Crea nuevos desafíos</p>
             </div>
           </div>
         </a>
 
-        <!-- Administrar Preguntas (1 columna) -->
+        <!-- Administrar Preguntas -->
         <a
-          href="{{ url_for('manage_questions') }}"
-          class="action-card bg-white p-6 rounded-2xl shadow-lg hover:border-red-500 border-2 border-transparent"
+          href="{{ url_for('question.manage_questions') }}"
+          class="action-card bg-white p-6 rounded-2xl shadow-xl hover:shadow-2xl border-2 border-gray-200 hover:border-red-500"
         >
-          <div class="card-content-wrapper flex items-center space-x-4">
+          <div class="flex items-center space-x-4">
             <div
-              class="bg-red-100 text-red-600 w-12 h-12 rounded-full flex-shrink-0 flex items-center justify-center"
+              class="bg-gradient-to-br from-red-400 to-red-600 text-white w-14 h-14 rounded-2xl flex-shrink-0 flex items-center justify-center shadow-lg"
             >
-              <i class="fas fa-list-alt text-xl"></i>
+              <i class="fas fa-list-alt text-2xl"></i>
             </div>
             <div>
-              <h3 classD="text-xl font-bold text-gray-800">
+              <h3 class="text-xl font-bold text-gray-800">
                 Administrar Preguntas
               </h3>
-              <p class="text-gray-500 mt-1">
-                Visualiza y elimina las preguntas.
+              <p class="text-gray-500 mt-1 text-sm">
+                Visualiza y elimina preguntas
               </p>
             </div>
           </div>
