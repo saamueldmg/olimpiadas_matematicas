@@ -4,15 +4,13 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Evaluar Respuesta</title>
-    <!-- Tailwind CSS y Fuentes -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap"
       rel="stylesheet"
     />
-    <!-- Font Awesome para Iconos -->
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
@@ -20,105 +18,165 @@
     <style>
       body {
         font-family: "Inter", sans-serif;
-        background-color: #f3f4f6;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       }
       .rubric-label {
-        transition: all 0.2s ease-in-out;
+        transition: all 0.3s ease;
         cursor: pointer;
       }
+      .rubric-label:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+      }
       input[type="radio"]:checked + .rubric-label {
-        background-color: #3b82f6; /* bg-blue-600 */
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
         color: white;
-        border-color: #3b82f6;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        border-color: #1d4ed8;
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .animate-fade-in {
+        animation: fadeIn 0.6s ease-out;
       }
     </style>
   </head>
-  <body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
-    <div
-      class="container mx-auto p-8 bg-white rounded-xl shadow-lg w-full max-w-4xl"
-    >
-      <h1 class="text-4xl font-bold text-center text-gray-800 mb-4">
-        <i class="fas fa-check-circle text-green-500 mr-3"></i>
-        ¡Respuesta Correcta!
-      </h1>
-
-      <form action="{{ url_for('assign_point_to_team') }}" method="post">
-        <!-- Rúbrica de Puntuación -->
-        <div class="bg-gray-50 p-6 rounded-lg border mb-6">
-          <h2 class="text-xl font-bold text-gray-800 mb-4 text-center">
-            Asignar Puntuación
-          </h2>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-md mx-auto">
-            <!-- 1 Punto -->
-            <div class="relative">
-              <input
-                type="radio"
-                id="points-1"
-                name="points"
-                value="1"
-                class="hidden"
-                required
-                checked
-              />
-              <label
-                for="points-1"
-                class="rubric-label block p-4 bg-white border-2 border-gray-300 rounded-lg shadow-sm text-center"
-              >
-                <span class="block text-2xl font-bold text-yellow-600"
-                  >1 pt</span
-                >
-                <span class="block text-sm text-gray-600 mt-1"
-                  >Correcta / Sin Argumento</span
-                >
-              </label>
-            </div>
-            <!-- 2 Puntos -->
-            <div class="relative">
-              <input
-                type="radio"
-                id="points-2"
-                name="points"
-                value="2"
-                class="hidden"
-              />
-              <label
-                for="points-2"
-                class="rubric-label block p-4 bg-white border-2 border-gray-300 rounded-lg shadow-sm text-center"
-              >
-                <span class="block text-2xl font-bold text-green-600"
-                  >2 pt</span
-                >
-                <span class="block text-sm text-gray-600 mt-1"
-                  >Correcta / Con Argumento</span
-                >
-              </label>
-            </div>
-          </div>
-        </div>
-
-        <!-- Selección de Equipo -->
-        <div class="bg-gray-50 p-6 rounded-lg border mb-8">
-          <h2 class="text-xl font-bold text-gray-800 mb-4 text-center">
-            Asignar Puntos a:
-          </h2>
+  <body class="min-h-screen flex items-center justify-center p-4">
+    <div class="container mx-auto max-w-4xl animate-fade-in">
+      <div class="bg-white rounded-3xl shadow-2xl overflow-hidden">
+        <!-- Header -->
+        <div
+          class="bg-gradient-to-r from-green-500 to-emerald-600 p-8 text-center"
+        >
           <div
-            class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4"
+            class="bg-white bg-opacity-20 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4"
           >
-            {% for team in teams %}
-            <button
-              type="submit"
-              name="team"
-              value="{{ team }}"
-              class="w-full bg-indigo-600 text-white font-bold py-4 px-8 rounded-lg shadow-lg hover:bg-indigo-700 transition-all duration-300 transform hover:scale-105"
-            >
-              <i class="fas fa-users mr-2"></i> {{ team }}
-            </button>
-            {% endfor %}
+            <i class="fas fa-check-circle text-5xl text-white"></i>
           </div>
+          <h1 class="text-4xl font-bold text-white mb-2">
+            ¡Respuesta Correcta!
+          </h1>
+          <p class="text-green-100 text-lg">
+            Asigna la puntuación al equipo correspondiente
+          </p>
         </div>
-      </form>
+
+        <form
+          action="{{ url_for('quiz.assign_point') }}"
+          method="POST"
+          class="p-8"
+        >
+          <!-- Sección de Puntuación -->
+          <div class="mb-8">
+            <h2
+              class="text-2xl font-bold text-gray-800 mb-6 text-center flex items-center justify-center"
+            >
+              <i class="fas fa-star text-yellow-500 mr-3"></i>
+              Selecciona la Puntuación
+            </h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-lg mx-auto">
+              <div class="relative">
+                <input
+                  type="radio"
+                  id="points-1"
+                  name="points"
+                  value="1"
+                  class="hidden"
+                  required
+                  checked
+                />
+                <label
+                  for="points-1"
+                  class="rubric-label block p-6 bg-gradient-to-br from-yellow-50 to-yellow-100 border-3 border-yellow-300 rounded-2xl shadow-md text-center"
+                >
+                  <span class="block text-4xl font-black text-yellow-600 mb-2"
+                    >1 pt</span
+                  >
+                  <span class="block text-sm font-semibold text-gray-700"
+                    >Correcta</span
+                  >
+                  <span class="block text-xs text-gray-500 mt-1"
+                    >Sin Argumento</span
+                  >
+                </label>
+              </div>
+              <div class="relative">
+                <input
+                  type="radio"
+                  id="points-2"
+                  name="points"
+                  value="2"
+                  class="hidden"
+                />
+                <label
+                  for="points-2"
+                  class="rubric-label block p-6 bg-gradient-to-br from-green-50 to-green-100 border-3 border-green-300 rounded-2xl shadow-md text-center"
+                >
+                  <span class="block text-4xl font-black text-green-600 mb-2"
+                    >2 pt</span
+                  >
+                  <span class="block text-sm font-semibold text-gray-700"
+                    >Correcta</span
+                  >
+                  <span class="block text-xs text-gray-500 mt-1"
+                    >Con Argumento</span
+                  >
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Divisor -->
+          <div class="relative my-8">
+            <div class="absolute inset-0 flex items-center">
+              <div class="w-full border-t-2 border-gray-200"></div>
+            </div>
+            <div class="relative flex justify-center">
+              <span class="bg-white px-4 text-gray-500 font-medium">
+                <i class="fas fa-arrow-down"></i>
+              </span>
+            </div>
+          </div>
+
+          <!-- Sección de Equipos -->
+          <div>
+            <h2
+              class="text-2xl font-bold text-gray-800 mb-6 text-center flex items-center justify-center"
+            >
+              <i class="fas fa-users text-indigo-500 mr-3"></i>
+              Asignar Puntos a:
+            </h2>
+            <div
+              class="grid grid-cols-1 sm:grid-cols-2 gap-5 max-w-2xl mx-auto"
+            >
+              {% for team in teams %}
+              <button
+                type="submit"
+                name="team"
+                value="{{ team }}"
+                class="group relative bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold py-6 px-8 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 hover:from-indigo-700 hover:to-purple-700"
+              >
+                <div class="flex items-center justify-center space-x-3">
+                  <i
+                    class="fas fa-trophy text-2xl group-hover:rotate-12 transition-transform"
+                  ></i>
+                  <span class="text-lg">{{ team }}</span>
+                </div>
+              </button>
+              {% endfor %}
+            </div>
+          </div>
+        </form>
+      </div>
     </div>
   </body>
 </html>

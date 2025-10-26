@@ -3,16 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Fin del Concurso</title>
-    <!-- Tailwind CSS y Fuentes -->
+    <title>¡Quiz Finalizado! - Olimpiadas Matemáticas</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap"
       rel="stylesheet"
     />
-    <!-- Font Awesome para Iconos -->
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
@@ -20,116 +18,185 @@
     <style>
       body {
         font-family: "Inter", sans-serif;
-        background-color: #f3f4f6;
-        overflow: hidden; /* Evita el scroll por el confeti */
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       }
-      .confetti {
-        position: absolute;
-        width: 10px;
-        height: 10px;
-        background-color: #facc15; /* yellow-400 */
-        opacity: 0.7;
-        animation: fall 5s linear infinite;
-      }
-      .confetti:nth-child(2n) {
-        background-color: #3b82f6; /* blue-500 */
-      }
-      .confetti:nth-child(3n) {
-        background-color: #10b981; /* emerald-500 */
-      }
-      @keyframes fall {
-        to {
-          transform: translateY(100vh) rotate(360deg);
+      @keyframes fadeInUp {
+        from {
           opacity: 0;
+          transform: translateY(30px);
         }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .animate-fade-in-up {
+        animation: fadeInUp 0.6s ease-out;
       }
     </style>
   </head>
-  <body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
-    <!-- Contenedor de Confeti -->
-    <div id="confetti-container"></div>
-
-    <div
-      class="container mx-auto p-8 bg-white rounded-xl shadow-lg text-center w-full max-w-2xl z-10"
-    >
-      <!-- Logo de BoscoTechLab -->
-      <div class="flex justify-center items-center">
-        <img
-          src="{{ url_for('static', filename='images/logo.jpg') }}"
-          alt="Logo de BoscoTechLab"
-          class="h-24 w-auto"
-        />
-      </div>
-
-      <h1 class="text-5xl font-extrabold text-center text-gray-800 my-4">
-        ¡Fin de la ronda!
-      </h1>
-
-      <p class="text-xl font-semibold text-gray-700 mb-8">{{ message }}</p>
-
-      <!-- Tabla de puntajes -->
-      <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
-        <table class="min-w-full divide-y divide-gray-200">
-          <thead class="bg-gray-100">
-            <tr>
-              <th
-                scope="col"
-                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-              >
-                Equipo
-              </th>
-              <th
-                scope="col"
-                class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
-              >
-                Puntaje Final
-              </th>
-            </tr>
-          </thead>
-          <tbody class="bg-white divide-y divide-gray-200">
-            {% for team, score in scores.items() %}
-            <!-- Si el equipo es el ganador, se le añade un fondo dorado -->
-            <tr class="{{ 'bg-yellow-100' if team == winner }}">
-              <td
-                class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 text-left"
-              >
-                {{ team }}
-              </td>
-              <td
-                class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 text-right font-bold"
-              >
-                {{ score }}
-              </td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-
-      <div class="mt-8">
-        <a
-          href="{{ url_for('dashboard') }}"
-          class="w-full sm:w-auto inline-block bg-gray-500 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:bg-gray-600 transition-all"
+  <body class="min-h-screen flex items-center justify-center p-4">
+    <div class="container mx-auto max-w-4xl animate-fade-in-up">
+      <div class="bg-white rounded-3xl shadow-2xl overflow-hidden">
+        <!-- Header -->
+        <div
+          class="bg-gradient-to-r from-purple-600 to-indigo-600 p-8 text-center"
         >
-          <i class="fas fa-arrow-left mr-2"></i> Volver al Dashboard
-        </a>
+          <div
+            class="bg-white bg-opacity-20 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-4"
+          >
+            <i class="fas fa-trophy text-6xl text-white"></i>
+          </div>
+          <h1 class="text-4xl font-black text-white mb-2">¡Quiz Finalizado!</h1>
+          <p class="text-purple-100 text-lg">Resultados del duelo matemático</p>
+        </div>
+
+        <!-- Resultados -->
+        <div class="p-8">
+          <!-- Mensaje del ganador -->
+          <div
+            class="bg-gradient-to-r from-blue-50 to-purple-50 p-6 rounded-2xl border-2 border-purple-200 mb-8 text-center"
+          >
+            <h2
+              class="text-3xl font-black {% if winner == 'Empate' %}text-orange-600{% else %}text-green-600{% endif %} mb-2"
+            >
+              {{ message }}
+            </h2>
+          </div>
+
+          <!-- Tabla de puntuaciones (ORDEN ORIGINAL) -->
+          <div class="bg-gray-50 p-6 rounded-2xl mb-8">
+            <h3 class="text-2xl font-bold text-gray-800 mb-4 text-center">
+              <i class="fas fa-chart-bar text-indigo-500 mr-2"></i>
+              Puntuaciones Finales
+            </h3>
+            <div class="space-y-4">
+              {% for team in teams_order %}
+              <div
+                class="flex justify-between items-center p-4 bg-white rounded-xl border-2 {% if team == winner and winner != 'Empate' %}border-green-500{% else %}border-gray-200{% endif %} shadow-sm"
+              >
+                <div class="flex items-center space-x-3">
+                  <div
+                    class="w-12 h-12 rounded-full {% if team == winner and winner != 'Empate' %}bg-gradient-to-br from-green-400 to-green-600{% else %}bg-gradient-to-br from-gray-300 to-gray-400{% endif %} flex items-center justify-center text-white font-bold shadow-md"
+                  >
+                    {% if loop.index == 1 %}
+                    <i class="fas fa-trophy text-xl"></i>
+                    {% else %}
+                    <i class="fas fa-medal text-xl"></i>
+                    {% endif %}
+                  </div>
+                  <span class="text-xl font-bold text-gray-800"
+                    >{{ team }}</span
+                  >
+                </div>
+                <span
+                  class="text-3xl font-black {% if team == winner and winner != 'Empate' %}text-green-600{% else %}text-gray-600{% endif %}"
+                >
+                  {{ scores[team] }} pts
+                </span>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+
+          <!-- ========== TIE BREAKER SECTION (SOLO SI HAY EMPATE) ========== -->
+          {% if winner == 'Empate' %}
+          <div
+            class="bg-white rounded-3xl shadow-2xl p-8 border-4 border-orange-400 mb-6 animate-fade-in-up"
+          >
+            <div class="text-center mb-6">
+              <div
+                class="inline-block bg-gradient-to-br from-orange-400 to-orange-600 text-white w-20 h-20 rounded-full flex items-center justify-center shadow-lg mb-4"
+              >
+                <i class="fas fa-exclamation-triangle text-4xl"></i>
+              </div>
+              <h2 class="text-3xl font-black text-gray-800 mb-2">
+                Pregunta de Desempate!
+              </h2>
+              <p class="text-gray-600 text-lg mb-4">
+                Los equipos terminaron con el mismo puntaje.
+                <span class="font-bold text-orange-600"
+                  >El presentador hará una pregunta de desempate en vivo.</span
+                >
+              </p>
+              <div
+                class="bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-xl border-2 border-blue-200 mt-4"
+              >
+                <p class="text-blue-800 font-semibold">
+                  <i class="fas fa-microphone-alt mr-2"></i>
+                  Asigna
+                  <strong class="text-green-600">+1 punto extra</strong> al
+                  equipo que responda correctamente
+                </p>
+              </div>
+            </div>
+
+            <!-- Botones para seleccionar ganador (PERFECTAMENTE ALINEADOS) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {% for team in teams_order %}
+              <form action="{{ url_for('quiz.break_tie') }}" method="POST">
+                <input type="hidden" name="winner_team" value="{{ team }}" />
+                <button
+                  type="submit"
+                  class="w-full bg-gradient-to-br from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-bold rounded-2xl shadow-lg hover:shadow-2xl transition-all transform hover:scale-105 group h-64 flex items-center justify-center"
+                >
+                  <div
+                    class="flex flex-col items-center justify-center space-y-3"
+                  >
+                    <i
+                      class="fas fa-trophy text-5xl group-hover:scale-110 transition-transform"
+                    ></i>
+                    <div class="text-center px-4">
+                      <span class="block text-xl font-black leading-tight"
+                        >{{ team }}</span
+                      >
+                    </div>
+                    <span class="text-sm opacity-90 block"
+                      >Respondió correctamente</span
+                    >
+                    <span class="text-xs opacity-75 block"
+                      >({{ scores[team] }} pts + 1)</span
+                    >
+                  </div>
+                </button>
+              </form>
+              {% endfor %}
+            </div>
+
+            <!-- Advertencia -->
+            <div
+              class="mt-6 bg-yellow-50 p-4 rounded-xl border-2 border-yellow-300"
+            >
+              <p class="text-yellow-800 text-sm text-center">
+                <i class="fas fa-info-circle mr-2"></i>
+                <strong>Nota:</strong> Al hacer clic en un botón, se agregará
+                automáticamente <strong>+1 punto</strong> al equipo seleccionado
+                y se declarará ganador del duelo.
+              </p>
+            </div>
+          </div>
+          {% endif %}
+          <!-- ========== FIN SECCIÓN DESEMPATE ========== -->
+
+          <!-- Botones de navegación -->
+          <div class="flex flex-col sm:flex-row gap-4">
+            <a
+              href="{{ url_for('quiz.scoreboard') }}"
+              class="flex-1 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold py-4 px-8 rounded-xl shadow-lg hover:shadow-2xl transition-all transform hover:scale-105 text-center"
+            >
+              <i class="fas fa-chart-line mr-2"></i>
+              Ver Scoreboard General
+            </a>
+            <a
+              href="{{ url_for('quiz.dashboard') }}"
+              class="flex-1 bg-gray-200 text-gray-700 font-bold py-4 px-8 rounded-xl hover:bg-gray-300 transition-all text-center"
+            >
+              <i class="fas fa-home mr-2"></i>
+              Volver al Dashboard
+            </a>
+          </div>
+        </div>
       </div>
     </div>
-
-    <script>
-      // Solo muestra el confeti si hay un ganador y no es un empate
-      const winner = "{{ winner }}";
-      if (winner && winner !== "Empate") {
-        const container = document.getElementById("confetti-container");
-        for (let i = 0; i < 50; i++) {
-          const confetti = document.createElement("div");
-          confetti.classList.add("confetti");
-          confetti.style.left = Math.random() * 100 + "vw";
-          confetti.style.animationDuration = Math.random() * 3 + 2 + "s";
-          confetti.style.animationDelay = Math.random() * 5 + "s";
-          container.appendChild(confetti);
-        }
-      }
-    </script>
   </body>
 </html>

@@ -4,7 +4,6 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Gestionar Equipos - Olimpiadas Matemáticas</title>
-    <!-- Tailwind CSS y Fuentes -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -12,7 +11,6 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap"
       rel="stylesheet"
     />
-    <!-- Font Awesome para los iconos -->
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
@@ -23,7 +21,50 @@
         background-color: #f3f4f6;
       }
       .team-row:hover {
-        background-color: #f9fafb; /* Un sutil hover para las filas de equipos */
+        background-color: #f9fafb;
+      }
+
+      /* Modal styles */
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 50;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        animation: fadeIn 0.3s ease;
+      }
+
+      .modal.active {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      .modal-content {
+        animation: slideUp 0.3s ease;
+      }
+
+      @keyframes slideUp {
+        from {
+          transform: translateY(30px);
+          opacity: 0;
+        }
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
       }
     </style>
   </head>
@@ -40,18 +81,45 @@
           <div>
             <h1 class="text-3xl font-bold text-gray-800">Gestionar Equipos</h1>
             <p class="text-gray-500">
-              Edita y elimina los equipos participantes.
+              Edita, agrega y elimina los equipos participantes.
             </p>
           </div>
         </div>
-        <a
-          href="{{ url_for('dashboard') }}"
-          class="mt-4 sm:mt-0 flex items-center space-x-2 text-gray-600 hover:text-blue-600 transition-colors font-medium"
-        >
-          <i class="fas fa-arrow-left"></i>
-          <span>Volver al Dashboard</span>
-        </a>
+        <div class="flex space-x-3 mt-4 sm:mt-0">
+          <button
+            onclick="openModal()"
+            class="flex items-center space-x-2 bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-xl hover:from-green-600 hover:to-green-700 transition-all shadow-lg hover:shadow-xl transform hover:scale-105 font-bold"
+          >
+            <i class="fas fa-plus-circle"></i>
+            <span>Agregar Equipo</span>
+          </button>
+          <a
+            href="{{ url_for('quiz.dashboard') }}"
+            class="flex items-center space-x-2 text-gray-600 hover:text-blue-600 transition-colors font-medium px-4 py-3"
+          >
+            <i class="fas fa-arrow-left"></i>
+            <span>Volver</span>
+          </a>
+        </div>
       </header>
+
+      <!-- Mensajes Flash (Alertas) -->
+      {% with messages = get_flashed_messages(with_categories=true) %} {% if
+      messages %}
+      <div class="mb-6 space-y-3">
+        {% for category, message in messages %}
+        <div
+          class="{% if category == 'error' %}bg-red-100 border-red-500 text-red-700{% else %}bg-green-100 border-green-500 text-green-700{% endif %} border-l-4 p-4 rounded-lg"
+          role="alert"
+        >
+          <p class="font-bold">
+            {% if category == 'error' %}Error{% else %}Éxito{% endif %}
+          </p>
+          <p>{{ message }}</p>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %} {% endwith %}
 
       <!-- Contenido Principal -->
       <main class="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -61,24 +129,28 @@
             <i class="fas fa-layer-group text-blue-500 mr-2"></i>
             Equipos - Nivel I
           </h2>
+
           <div class="space-y-4">
-            {% for team in teams_n1 %}
+            {% for team in teams %} {% if team.level == 'Nivel I' %}
             <div
               class="team-row grid grid-cols-12 gap-4 items-center bg-white p-4 rounded-xl border transition"
             >
               <!-- Celda para Nombre/Formulario de Edición -->
               <div class="col-span-12 md:col-span-8">
                 <form
-                  action="{{ url_for('update_team_name', team_id=team.id) }}"
+                  action="{{ url_for('team.manage_teams') }}"
                   method="POST"
                   class="flex items-center space-x-2"
                 >
+                  <input type="hidden" name="action" value="update" />
+                  <input type="hidden" name="team_id" value="{{ team.id }}" />
                   <input
                     type="text"
-                    name="new_name"
+                    name="name"
                     value="{{ team.name }}"
                     class="w-full p-2 border border-gray-200 rounded-lg bg-gray-50"
                   />
+                  <input type="hidden" name="level" value="{{ team.level }}" />
                   <button
                     type="submit"
                     class="p-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600 transition"
@@ -87,12 +159,16 @@
                   </button>
                 </form>
               </div>
+
               <!-- Acciones -->
               <div class="col-span-12 md:col-span-4 flex justify-end">
                 <form
-                  action="{{ url_for('delete_team', team_id=team.id) }}"
+                  action="{{ url_for('team.manage_teams') }}"
                   method="POST"
+                  onsubmit="return confirm('¿Estás seguro de eliminar este equipo?');"
                 >
+                  <input type="hidden" name="action" value="delete" />
+                  <input type="hidden" name="team_id" value="{{ team.id }}" />
                   <button
                     type="submit"
                     class="flex items-center space-x-2 text-red-500 hover:text-red-700 font-bold transition"
@@ -103,13 +179,13 @@
                 </form>
               </div>
             </div>
-            {% else %}
-            <div class="text-center py-8 text-gray-500">
-              <i class="fas fa-users-slash text-4xl mb-4"></i>
-              <p>No hay equipos creados para Nivel I.</p>
-              <p>Ve al Dashboard para ejecutar el setup.</p>
+            {% endif %} {% endfor %} {% if teams|selectattr('level', 'equalto',
+            'Nivel I')|list|length == 0 %}
+            <div class="text-center py-8 text-gray-400">
+              <i class="fas fa-inbox text-4xl mb-3"></i>
+              <p>No hay equipos en Nivel I todavía.</p>
             </div>
-            {% endfor %}
+            {% endif %}
           </div>
         </section>
 
@@ -119,24 +195,28 @@
             <i class="fas fa-layer-group text-purple-500 mr-2"></i>
             Equipos - Nivel II
           </h2>
+
           <div class="space-y-4">
-            {% for team in teams_n2 %}
+            {% for team in teams %} {% if team.level == 'Nivel II' %}
             <div
               class="team-row grid grid-cols-12 gap-4 items-center bg-white p-4 rounded-xl border transition"
             >
               <!-- Celda para Nombre/Formulario de Edición -->
               <div class="col-span-12 md:col-span-8">
                 <form
-                  action="{{ url_for('update_team_name', team_id=team.id) }}"
+                  action="{{ url_for('team.manage_teams') }}"
                   method="POST"
                   class="flex items-center space-x-2"
                 >
+                  <input type="hidden" name="action" value="update" />
+                  <input type="hidden" name="team_id" value="{{ team.id }}" />
                   <input
                     type="text"
-                    name="new_name"
+                    name="name"
                     value="{{ team.name }}"
                     class="w-full p-2 border border-gray-200 rounded-lg bg-gray-50"
                   />
+                  <input type="hidden" name="level" value="{{ team.level }}" />
                   <button
                     type="submit"
                     class="p-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600 transition"
@@ -145,12 +225,16 @@
                   </button>
                 </form>
               </div>
+
               <!-- Acciones -->
               <div class="col-span-12 md:col-span-4 flex justify-end">
                 <form
-                  action="{{ url_for('delete_team', team_id=team.id) }}"
+                  action="{{ url_for('team.manage_teams') }}"
                   method="POST"
+                  onsubmit="return confirm('¿Estás seguro de eliminar este equipo?');"
                 >
+                  <input type="hidden" name="action" value="delete" />
+                  <input type="hidden" name="team_id" value="{{ team.id }}" />
                   <button
                     type="submit"
                     class="flex items-center space-x-2 text-red-500 hover:text-red-700 font-bold transition"
@@ -161,16 +245,127 @@
                 </form>
               </div>
             </div>
-            {% else %}
-            <div class="text-center py-8 text-gray-500">
-              <i class="fas fa-users-slash text-4xl mb-4"></i>
-              <p>No hay equipos creados para Nivel II.</p>
-              <p>Ve al Dashboard para ejecutar el setup.</p>
+            {% endif %} {% endfor %} {% if teams|selectattr('level', 'equalto',
+            'Nivel II')|list|length == 0 %}
+            <div class="text-center py-8 text-gray-400">
+              <i class="fas fa-inbox text-4xl mb-3"></i>
+              <p>No hay equipos en Nivel II todavía.</p>
             </div>
-            {% endfor %}
+            {% endif %}
           </div>
         </section>
       </main>
     </div>
+
+    <!-- Modal para Agregar Equipo -->
+    <div id="addTeamModal" class="modal">
+      <div
+        class="modal-content bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full mx-4"
+      >
+        <div class="flex justify-between items-center mb-6">
+          <h3 class="text-2xl font-bold text-gray-800">
+            <i class="fas fa-plus-circle text-green-500 mr-2"></i>
+            Agregar Nuevo Equipo
+          </h3>
+          <button
+            onclick="closeModal()"
+            class="text-gray-400 hover:text-gray-600 transition"
+          >
+            <i class="fas fa-times text-2xl"></i>
+          </button>
+        </div>
+
+        <form
+          action="{{ url_for('team.manage_teams') }}"
+          method="POST"
+          class="space-y-4"
+        >
+          <input type="hidden" name="action" value="add" />
+
+          <!-- Nombre del Equipo -->
+          <div>
+            <label
+              for="team-name"
+              class="block text-sm font-bold text-gray-700 mb-2"
+            >
+              <i class="fas fa-school mr-1"></i> Nombre del Equipo
+            </label>
+            <input
+              type="text"
+              id="team-name"
+              name="name"
+              required
+              placeholder="Ej: Colegio San José Nivel I"
+              class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            />
+          </div>
+
+          <!-- Nivel -->
+          <div>
+            <label
+              for="team-level"
+              class="block text-sm font-bold text-gray-700 mb-2"
+            >
+              <i class="fas fa-layer-group mr-1"></i> Nivel
+            </label>
+            <select
+              id="team-level"
+              name="level"
+              required
+              class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            >
+              <option value="">Selecciona un nivel</option>
+              <option value="Nivel I">Nivel I (6° - 7°)</option>
+              <option value="Nivel II">Nivel II (8° - 9°)</option>
+            </select>
+          </div>
+
+          <!-- Botones -->
+          <div class="flex space-x-3 pt-4">
+            <button
+              type="submit"
+              class="flex-1 bg-gradient-to-r from-green-500 to-green-600 text-white font-bold py-3 px-6 rounded-xl hover:from-green-600 hover:to-green-700 transition-all shadow-lg hover:shadow-xl transform hover:scale-105"
+            >
+              <i class="fas fa-check mr-2"></i>
+              Agregar Equipo
+            </button>
+            <button
+              type="button"
+              onclick="closeModal()"
+              class="flex-1 bg-gray-200 text-gray-700 font-bold py-3 px-6 rounded-xl hover:bg-gray-300 transition-all"
+            >
+              <i class="fas fa-times mr-2"></i>
+              Cancelar
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      function openModal() {
+        document.getElementById("addTeamModal").classList.add("active");
+      }
+
+      function closeModal() {
+        document.getElementById("addTeamModal").classList.remove("active");
+      }
+
+      // Cerrar modal al hacer clic fuera del contenido
+      document
+        .getElementById("addTeamModal")
+        .addEventListener("click", function (e) {
+          if (e.target === this) {
+            closeModal();
+          }
+        });
+
+      // Cerrar modal con tecla Escape
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape") {
+          closeModal();
+        }
+      });
+    </script>
   </body>
 </html>
