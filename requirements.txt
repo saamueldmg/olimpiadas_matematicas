@@ -1,7 +1,8 @@
-Flask
-Flask-Login
-Flask-SQLAlchemy
-firebase-admin
-google-cloud-firestore
-gunicorn
-whitenoise
+Flask==3.0.0
+Werkzeug==3.0.1
+Flask-Login==0.6.3
+firebase-admin==6.3.0
+google-cloud-firestore==2.14.0
+python-dotenv==1.0.0
+whitenoise==6.6.0
+gunicorn==21.2.0
