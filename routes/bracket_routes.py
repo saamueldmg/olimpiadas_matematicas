@@ -17,17 +17,17 @@ def manage_brackets():
     team_service = TeamService(db)
 
     if request.method == 'POST':
-        level = request.form.get('level')
+        level = request.form.get('level')  # nivel1 o nivel2
 
         # Obtener los equipos seleccionados desde los checkboxes
         selected_teams = request.form.getlist('selected_teams')
 
         if len(selected_teams) != 8:
             flash(
-                f'❌ Debes seleccionar exactamente 8 equipos. Seleccionaste {len(selected_teams)}.', 'error')
+                f'Debes seleccionar exactamente 8 equipos. Seleccionaste {len(selected_teams)}.', 'error')
             return redirect(url_for('bracket.manage_brackets'))
 
-        # Guardar equipos en sesión (cuartos de final)
+        # ✅ CORRECCIÓN: Guardar con el sufijo correcto
         session[f'bracket_{level}_quarters'] = selected_teams
 
         # Resetear fases siguientes
@@ -35,10 +35,6 @@ def manage_brackets():
         session[f'bracket_{level}_final'] = []
         session[f'bracket_{level}_champion'] = None
         session.modified = True
-
-        flash(
-            f'✅ Bracket de {level} generado correctamente con 8 equipos!', 'success')
-        return redirect(url_for('bracket.view_brackets'))
 
     # Obtener todos los equipos
     all_teams = team_service.get_all_teams(use_cache=False)
@@ -67,7 +63,6 @@ def advance_team():
             semis.append(winner)
             session[f'bracket_{level}_semis'] = semis
             session.modified = True
-            flash(f'✅ {winner} avanzó a semifinales!', 'success')
 
     elif phase == 'semis':
         # Avanzar de semifinales a final
@@ -92,6 +87,7 @@ def advance_team():
 @handle_errors
 def view_brackets():
     """Visualizar los brackets generados"""
+    # ✅ CORRECCIÓN: Usar el nombre correcto con _quarters
     # Obtener datos de Nivel I
     bracket_n1_quarters = session.get('bracket_nivel1_quarters', [])
     bracket_n1_semis = session.get('bracket_nivel1_semis', [])
@@ -125,6 +121,3 @@ def reset_bracket(level):
     session[f'bracket_{level}_final'] = []
     session[f'bracket_{level}_champion'] = None
     session.modified = True
-
-    flash(f'🔄 Bracket de {level} reseteado correctamente.', 'success')
-    return redirect(url_for('bracket.view_brackets'))

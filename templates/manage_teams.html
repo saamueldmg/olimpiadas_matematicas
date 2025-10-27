@@ -18,12 +18,24 @@
     <style>
       body {
         font-family: "Inter", sans-serif;
-        background-color: #f3f4f6;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      }
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .animate-fade-in-up {
+        animation: fadeInUp 0.6s ease-out;
       }
       .team-row:hover {
         background-color: #f9fafb;
       }
-
       /* Modal styles */
       .modal {
         display: none;
@@ -36,13 +48,11 @@
         background-color: rgba(0, 0, 0, 0.5);
         animation: fadeIn 0.3s ease;
       }
-
       .modal.active {
         display: flex;
         justify-content: center;
         align-items: center;
       }
-
       @keyframes fadeIn {
         from {
           opacity: 0;
@@ -51,11 +61,9 @@
           opacity: 1;
         }
       }
-
       .modal-content {
         animation: slideUp 0.3s ease;
       }
-
       @keyframes slideUp {
         from {
           transform: translateY(30px);
@@ -68,54 +76,60 @@
       }
     </style>
   </head>
-  <body class="bg-gray-100 min-h-screen p-4 sm:p-6 md:p-8">
-    <div class="container mx-auto max-w-6xl">
-      <!-- Encabezado -->
+  <body class="min-h-screen p-4 sm:p-6 md:p-8">
+    <div class="container mx-auto max-w-7xl">
+      <!-- Header Elegante -->
       <header
-        class="flex flex-col sm:flex-row justify-between items-center mb-8"
+        class="bg-white rounded-3xl shadow-2xl p-8 mb-8 animate-fade-in-up"
       >
-        <div class="flex items-center space-x-4">
-          <div class="bg-green-100 text-green-600 p-4 rounded-2xl">
-            <i class="fas fa-users text-3xl"></i>
+        <div class="flex justify-between items-center">
+          <div class="flex items-center space-x-5">
+            <div
+              class="bg-gradient-to-br from-purple-500 to-purple-700 text-white p-5 rounded-2xl shadow-lg"
+            >
+              <i class="fas fa-users text-4xl"></i>
+            </div>
+            <div>
+              <h1 class="text-4xl font-black text-gray-800">
+                Gestionar Equipos
+              </h1>
+              <p class="text-gray-500 mt-1 text-lg">
+                Edita, agrega y elimina los equipos participantes
+              </p>
+            </div>
           </div>
-          <div>
-            <h1 class="text-3xl font-bold text-gray-800">Gestionar Equipos</h1>
-            <p class="text-gray-500">
-              Edita, agrega y elimina los equipos participantes.
-            </p>
+          <div class="flex space-x-3">
+            <button
+              onclick="openModal()"
+              class="flex items-center space-x-2 bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-xl hover:shadow-xl transition-all font-semibold shadow-md transform hover:scale-105"
+            >
+              <i class="fas fa-plus-circle"></i>
+              <span>Agregar Equipo</span>
+            </button>
+            <a
+              href="{{ url_for('quiz.dashboard') }}"
+              class="flex items-center space-x-2 px-6 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-all font-semibold shadow-md hover:shadow-lg"
+            >
+              <i class="fas fa-arrow-left"></i>
+              <span>Dashboard</span>
+            </a>
           </div>
-        </div>
-        <div class="flex space-x-3 mt-4 sm:mt-0">
-          <button
-            onclick="openModal()"
-            class="flex items-center space-x-2 bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-xl hover:from-green-600 hover:to-green-700 transition-all shadow-lg hover:shadow-xl transform hover:scale-105 font-bold"
-          >
-            <i class="fas fa-plus-circle"></i>
-            <span>Agregar Equipo</span>
-          </button>
-          <a
-            href="{{ url_for('quiz.dashboard') }}"
-            class="flex items-center space-x-2 text-gray-600 hover:text-blue-600 transition-colors font-medium px-4 py-3"
-          >
-            <i class="fas fa-arrow-left"></i>
-            <span>Volver</span>
-          </a>
         </div>
       </header>
 
-      <!-- Mensajes Flash (Alertas) -->
+      <!-- Flash Messages -->
       {% with messages = get_flashed_messages(with_categories=true) %} {% if
       messages %}
       <div class="mb-6 space-y-3">
         {% for category, message in messages %}
         <div
-          class="{% if category == 'error' %}bg-red-100 border-red-500 text-red-700{% else %}bg-green-100 border-green-500 text-green-700{% endif %} border-l-4 p-4 rounded-lg"
+          class="p-4 rounded-xl text-sm animate-fade-in-up bg-white shadow-lg {% if category == 'success' %} border-l-4 border-green-500 {% elif category == 'error' %} border-l-4 border-red-500 {% else %} border-l-4 border-blue-500 {% endif %}"
           role="alert"
         >
-          <p class="font-bold">
-            {% if category == 'error' %}Error{% else %}Éxito{% endif %}
-          </p>
-          <p>{{ message }}</p>
+          <i
+            class="fas fa-{% if category == 'error' %}times-circle text-red-500{% else %}check-circle text-green-500{% endif %} mr-2"
+          ></i>
+          {{ message }}
         </div>
         {% endfor %}
       </div>
@@ -124,16 +138,21 @@
       <!-- Contenido Principal -->
       <main class="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <!-- Columna Nivel I -->
-        <section class="bg-white p-8 rounded-2xl shadow-lg">
-          <h2 class="text-2xl font-bold text-gray-700 mb-6 border-b pb-4">
-            <i class="fas fa-layer-group text-blue-500 mr-2"></i>
-            Equipos - Nivel I
+        <section
+          class="bg-white rounded-3xl shadow-2xl p-8 animate-fade-in-up"
+          style="animation-delay: 0.1s"
+        >
+          <h2
+            class="text-2xl font-bold text-blue-600 mb-6 pb-4 border-b-2 border-blue-100"
+          >
+            <i class="fas fa-layer-group mr-2"></i>
+            Equipos - Nivel I (6° - 7°)
           </h2>
 
           <div class="space-y-4">
             {% for team in teams %} {% if team.level == 'Nivel I' %}
             <div
-              class="team-row grid grid-cols-12 gap-4 items-center bg-white p-4 rounded-xl border transition"
+              class="team-row grid grid-cols-12 gap-4 items-center bg-gray-50 p-4 rounded-xl border-2 border-gray-200 transition hover:border-blue-300"
             >
               <!-- Celda para Nombre/Formulario de Edición -->
               <div class="col-span-12 md:col-span-8">
@@ -148,12 +167,12 @@
                     type="text"
                     name="name"
                     value="{{ team.name }}"
-                    class="w-full p-2 border border-gray-200 rounded-lg bg-gray-50"
+                    class="w-full p-3 border-2 border-gray-200 rounded-xl bg-white focus:border-blue-500 focus:outline-none transition-all font-semibold text-gray-800"
                   />
                   <input type="hidden" name="level" value="{{ team.level }}" />
                   <button
                     type="submit"
-                    class="p-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600 transition"
+                    class="p-3 text-white bg-blue-500 rounded-xl hover:bg-blue-600 transition shadow-md"
                   >
                     <i class="fas fa-save"></i>
                   </button>
@@ -171,7 +190,7 @@
                   <input type="hidden" name="team_id" value="{{ team.id }}" />
                   <button
                     type="submit"
-                    class="flex items-center space-x-2 text-red-500 hover:text-red-700 font-bold transition"
+                    class="flex items-center space-x-2 bg-red-100 text-red-600 hover:bg-red-200 font-bold px-4 py-2 rounded-xl transition"
                   >
                     <i class="fas fa-trash-alt"></i>
                     <span>Borrar</span>
@@ -181,25 +200,38 @@
             </div>
             {% endif %} {% endfor %} {% if teams|selectattr('level', 'equalto',
             'Nivel I')|list|length == 0 %}
-            <div class="text-center py-8 text-gray-400">
-              <i class="fas fa-inbox text-4xl mb-3"></i>
-              <p>No hay equipos en Nivel I todavía.</p>
+            <div
+              class="text-center py-12 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-300"
+            >
+              <div
+                class="bg-gray-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4"
+              >
+                <i class="fas fa-inbox text-4xl text-gray-400"></i>
+              </div>
+              <p class="text-gray-500 font-semibold">
+                No hay equipos en Nivel I todavía.
+              </p>
             </div>
             {% endif %}
           </div>
         </section>
 
         <!-- Columna Nivel II -->
-        <section class="bg-white p-8 rounded-2xl shadow-lg">
-          <h2 class="text-2xl font-bold text-gray-700 mb-6 border-b pb-4">
-            <i class="fas fa-layer-group text-purple-500 mr-2"></i>
-            Equipos - Nivel II
+        <section
+          class="bg-white rounded-3xl shadow-2xl p-8 animate-fade-in-up"
+          style="animation-delay: 0.2s"
+        >
+          <h2
+            class="text-2xl font-bold text-purple-600 mb-6 pb-4 border-b-2 border-purple-100"
+          >
+            <i class="fas fa-layer-group mr-2"></i>
+            Equipos - Nivel II (8° - 9°)
           </h2>
 
           <div class="space-y-4">
             {% for team in teams %} {% if team.level == 'Nivel II' %}
             <div
-              class="team-row grid grid-cols-12 gap-4 items-center bg-white p-4 rounded-xl border transition"
+              class="team-row grid grid-cols-12 gap-4 items-center bg-gray-50 p-4 rounded-xl border-2 border-gray-200 transition hover:border-purple-300"
             >
               <!-- Celda para Nombre/Formulario de Edición -->
               <div class="col-span-12 md:col-span-8">
@@ -214,12 +246,12 @@
                     type="text"
                     name="name"
                     value="{{ team.name }}"
-                    class="w-full p-2 border border-gray-200 rounded-lg bg-gray-50"
+                    class="w-full p-3 border-2 border-gray-200 rounded-xl bg-white focus:border-purple-500 focus:outline-none transition-all font-semibold text-gray-800"
                   />
                   <input type="hidden" name="level" value="{{ team.level }}" />
                   <button
                     type="submit"
-                    class="p-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600 transition"
+                    class="p-3 text-white bg-purple-500 rounded-xl hover:bg-purple-600 transition shadow-md"
                   >
                     <i class="fas fa-save"></i>
                   </button>
@@ -237,7 +269,7 @@
                   <input type="hidden" name="team_id" value="{{ team.id }}" />
                   <button
                     type="submit"
-                    class="flex items-center space-x-2 text-red-500 hover:text-red-700 font-bold transition"
+                    class="flex items-center space-x-2 bg-red-100 text-red-600 hover:bg-red-200 font-bold px-4 py-2 rounded-xl transition"
                   >
                     <i class="fas fa-trash-alt"></i>
                     <span>Borrar</span>
@@ -247,9 +279,17 @@
             </div>
             {% endif %} {% endfor %} {% if teams|selectattr('level', 'equalto',
             'Nivel II')|list|length == 0 %}
-            <div class="text-center py-8 text-gray-400">
-              <i class="fas fa-inbox text-4xl mb-3"></i>
-              <p>No hay equipos en Nivel II todavía.</p>
+            <div
+              class="text-center py-12 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-300"
+            >
+              <div
+                class="bg-gray-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4"
+              >
+                <i class="fas fa-inbox text-4xl text-gray-400"></i>
+              </div>
+              <p class="text-gray-500 font-semibold">
+                No hay equipos en Nivel II todavía.
+              </p>
             </div>
             {% endif %}
           </div>
@@ -269,9 +309,9 @@
           </h3>
           <button
             onclick="closeModal()"
-            class="text-gray-400 hover:text-gray-600 transition"
+            class="text-gray-400 hover:text-gray-600 transition text-2xl"
           >
-            <i class="fas fa-times text-2xl"></i>
+            <i class="fas fa-times"></i>
           </button>
         </div>
 
@@ -295,8 +335,8 @@
               id="team-name"
               name="name"
               required
-              placeholder="Ej: Colegio San José Nivel I"
-              class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              placeholder="Ej: Colegio San José"
+              class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:outline-none transition-all"
             />
           </div>
 
@@ -312,7 +352,7 @@
               id="team-level"
               name="level"
               required
-              class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:outline-none transition-all"
             >
               <option value="">Selecciona un nivel</option>
               <option value="Nivel I">Nivel I (6° - 7°)</option>
@@ -324,7 +364,7 @@
           <div class="flex space-x-3 pt-4">
             <button
               type="submit"
-              class="flex-1 bg-gradient-to-r from-green-500 to-green-600 text-white font-bold py-3 px-6 rounded-xl hover:from-green-600 hover:to-green-700 transition-all shadow-lg hover:shadow-xl transform hover:scale-105"
+              class="flex-1 bg-gradient-to-r from-green-500 to-green-600 text-white font-bold py-3 px-6 rounded-xl hover:shadow-xl transition-all transform hover:scale-105"
             >
               <i class="fas fa-check mr-2"></i>
               Agregar Equipo

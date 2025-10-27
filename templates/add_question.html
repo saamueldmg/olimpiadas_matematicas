@@ -18,7 +18,7 @@
     <style>
       body {
         font-family: "Inter", sans-serif;
-        background-color: #ffffff;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       }
       @keyframes fadeInUp {
         from {
@@ -44,42 +44,56 @@
         color: white;
         border-color: #3b82f6;
       }
+      input[type="radio"]:checked + .option-content input {
+        color: white;
+      }
+      input[type="radio"]:checked + .option-content input::placeholder {
+        color: rgba(255, 255, 255, 0.7);
+      }
+      input[type="radio"]:checked + .option-content .option-letter {
+        background: rgba(255, 255, 255, 0.3);
+        color: white;
+      }
     </style>
   </head>
-  <body class="min-h-screen p-4 sm:p-6 md:p-8 bg-gray-50">
-    <div class="container mx-auto max-w-5xl animate-fade-in-up">
-      <!-- Header -->
+  <body class="min-h-screen p-4 sm:p-6 md:p-8">
+    <div class="container mx-auto max-w-5xl">
+      <!-- Header Elegante -->
       <header
-        class="bg-white rounded-2xl shadow-xl p-6 mb-8 flex flex-col sm:flex-row justify-between items-center border border-gray-100"
+        class="bg-white rounded-3xl shadow-2xl p-8 mb-8 animate-fade-in-up"
       >
-        <div class="flex items-center space-x-4">
-          <div
-            class="bg-gradient-to-br from-blue-400 to-blue-600 text-white p-4 rounded-2xl shadow-lg"
+        <div class="flex justify-between items-center">
+          <div class="flex items-center space-x-5">
+            <div
+              class="bg-gradient-to-br from-purple-500 to-purple-700 text-white p-5 rounded-2xl shadow-lg"
+            >
+              <i class="fas fa-plus-circle text-4xl"></i>
+            </div>
+            <div>
+              <h1 class="text-4xl font-black text-gray-800">
+                Añadir Nueva Pregunta
+              </h1>
+              <p class="text-gray-500 mt-1 text-lg">
+                Completa el formulario para agregar una pregunta al concurso
+              </p>
+            </div>
+          </div>
+          <a
+            href="{{ url_for('quiz.dashboard') }}"
+            class="flex items-center space-x-2 px-6 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-all font-semibold shadow-md hover:shadow-lg"
           >
-            <i class="fas fa-plus-circle text-3xl"></i>
-          </div>
-          <div>
-            <h1 class="text-3xl font-bold text-gray-800">
-              Añadir Nueva Pregunta
-            </h1>
-            <p class="text-gray-500 mt-1">
-              Completa el formulario para agregar una pregunta
-            </p>
-          </div>
+            <i class="fas fa-arrow-left"></i>
+            <span>Dashboard</span>
+          </a>
         </div>
-        <a
-          href="{{ url_for('quiz.dashboard') }}"
-          class="mt-4 sm:mt-0 flex items-center space-x-2 px-5 py-2.5 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-all font-semibold shadow-sm hover:shadow-md"
-        >
-          <i class="fas fa-arrow-left"></i>
-          <span>Volver</span>
-        </a>
       </header>
 
       <!-- Main Form -->
       <main
-        class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden"
+        class="bg-white rounded-3xl shadow-2xl overflow-hidden animate-fade-in-up"
+        style="animation-delay: 0.1s"
       >
+        <!-- Banner Superior -->
         <div class="bg-gradient-to-r from-blue-500 to-purple-600 p-6">
           <div class="flex items-center space-x-3 text-white">
             <i class="fas fa-file-alt text-3xl"></i>
@@ -96,7 +110,7 @@
           enctype="multipart/form-data"
           class="p-8 space-y-8"
         >
-          <!-- Paso 1: Nivel y Imagen -->
+          <!-- Paso 1 y 2: Nivel e Imagen -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <!-- Nivel -->
             <div>
@@ -105,7 +119,7 @@
                 class="flex items-center text-lg font-bold text-gray-700 mb-3"
               >
                 <div
-                  class="bg-blue-100 text-blue-600 w-8 h-8 rounded-full flex items-center justify-center mr-3 font-bold"
+                  class="bg-blue-100 text-blue-600 w-10 h-10 rounded-full flex items-center justify-center mr-3 font-bold shadow-sm"
                 >
                   1
                 </div>
@@ -115,7 +129,7 @@
                 name="level"
                 id="level"
                 required
-                class="w-full p-4 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-200 focus:border-blue-500 text-base bg-white transition shadow-sm"
+                class="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-200 focus:border-blue-500 text-base bg-white transition shadow-sm font-semibold"
               >
                 <option value="nivel1">🥉 Nivel I (6° - 7°)</option>
                 <option value="nivel2">🥈 Nivel II (8° - 9°)</option>
@@ -130,7 +144,7 @@
                 class="flex items-center text-lg font-bold text-gray-700 mb-3"
               >
                 <div
-                  class="bg-purple-100 text-purple-600 w-8 h-8 rounded-full flex items-center justify-center mr-3 font-bold"
+                  class="bg-purple-100 text-purple-600 w-10 h-10 rounded-full flex items-center justify-center mr-3 font-bold shadow-sm"
                 >
                   2
                 </div>
@@ -143,13 +157,13 @@
                   id="question_image"
                   accept="image/*"
                   required
-                  class="w-full text-gray-500 file:mr-4 file:py-3 file:px-6 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-gradient-to-r file:from-purple-500 file:to-purple-600 file:text-white hover:file:from-purple-600 hover:file:to-purple-700 file:transition file:shadow-md cursor-pointer border-2 border-dashed border-gray-300 rounded-xl p-3 hover:border-purple-400"
+                  class="w-full text-gray-500 file:mr-4 file:py-3 file:px-6 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-gradient-to-r file:from-purple-500 file:to-purple-600 file:text-white hover:file:from-purple-600 hover:file:to-purple-700 file:transition file:shadow-md cursor-pointer border-2 border-dashed border-gray-300 rounded-xl p-3 hover:border-purple-400 transition"
                 />
               </div>
             </div>
           </div>
 
-          <!-- Divisor -->
+          <!-- Divisor Visual -->
           <div class="relative">
             <div class="absolute inset-0 flex items-center">
               <div class="w-full border-t-2 border-gray-200"></div>
@@ -167,7 +181,7 @@
               class="flex items-center text-lg font-bold text-gray-700 mb-4"
             >
               <div
-                class="bg-green-100 text-green-600 w-8 h-8 rounded-full flex items-center justify-center mr-3 font-bold"
+                class="bg-green-100 text-green-600 w-10 h-10 rounded-full flex items-center justify-center mr-3 font-bold shadow-sm"
               >
                 3
               </div>
@@ -176,6 +190,7 @@
             <div
               class="bg-gradient-to-br from-gray-50 to-gray-100 p-6 rounded-2xl border-2 border-gray-200"
             >
+              <!-- Instrucción -->
               <div
                 class="flex items-center space-x-2 mb-4 bg-blue-50 p-3 rounded-xl border border-blue-200"
               >
@@ -198,10 +213,10 @@
                       class="hidden"
                     />
                     <div
-                      class="option-content flex items-center space-x-3 flex-grow p-4 bg-white border-2 border-gray-300 rounded-xl transition"
+                      class="option-content flex items-center space-x-3 flex-grow p-4 bg-white border-2 border-gray-300 rounded-xl transition shadow-sm hover:shadow-md"
                     >
                       <div
-                        class="flex-shrink-0 w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-lg"
+                        class="option-letter flex-shrink-0 w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-lg"
                       >
                         A
                       </div>
@@ -210,7 +225,7 @@
                         name="option_a"
                         placeholder="Escribe la opción A"
                         required
-                        class="flex-grow p-2 bg-transparent border-none focus:outline-none font-medium"
+                        class="flex-grow p-2 bg-transparent border-none focus:outline-none font-medium text-gray-800"
                       />
                     </div>
                   </label>
@@ -226,10 +241,10 @@
                       class="hidden"
                     />
                     <div
-                      class="option-content flex items-center space-x-3 flex-grow p-4 bg-white border-2 border-gray-300 rounded-xl transition"
+                      class="option-content flex items-center space-x-3 flex-grow p-4 bg-white border-2 border-gray-300 rounded-xl transition shadow-sm hover:shadow-md"
                     >
                       <div
-                        class="flex-shrink-0 w-10 h-10 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center font-bold text-lg"
+                        class="option-letter flex-shrink-0 w-10 h-10 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center font-bold text-lg"
                       >
                         B
                       </div>
@@ -238,7 +253,7 @@
                         name="option_b"
                         placeholder="Escribe la opción B"
                         required
-                        class="flex-grow p-2 bg-transparent border-none focus:outline-none font-medium"
+                        class="flex-grow p-2 bg-transparent border-none focus:outline-none font-medium text-gray-800"
                       />
                     </div>
                   </label>
@@ -254,10 +269,10 @@
                       class="hidden"
                     />
                     <div
-                      class="option-content flex items-center space-x-3 flex-grow p-4 bg-white border-2 border-gray-300 rounded-xl transition"
+                      class="option-content flex items-center space-x-3 flex-grow p-4 bg-white border-2 border-gray-300 rounded-xl transition shadow-sm hover:shadow-md"
                     >
                       <div
-                        class="flex-shrink-0 w-10 h-10 rounded-full bg-green-100 text-green-600 flex items-center justify-center font-bold text-lg"
+                        class="option-letter flex-shrink-0 w-10 h-10 rounded-full bg-green-100 text-green-600 flex items-center justify-center font-bold text-lg"
                       >
                         C
                       </div>
@@ -266,7 +281,7 @@
                         name="option_c"
                         placeholder="Escribe la opción C"
                         required
-                        class="flex-grow p-2 bg-transparent border-none focus:outline-none font-medium"
+                        class="flex-grow p-2 bg-transparent border-none focus:outline-none font-medium text-gray-800"
                       />
                     </div>
                   </label>
@@ -282,10 +297,10 @@
                       class="hidden"
                     />
                     <div
-                      class="option-content flex items-center space-x-3 flex-grow p-4 bg-white border-2 border-gray-300 rounded-xl transition"
+                      class="option-content flex items-center space-x-3 flex-grow p-4 bg-white border-2 border-gray-300 rounded-xl transition shadow-sm hover:shadow-md"
                     >
                       <div
-                        class="flex-shrink-0 w-10 h-10 rounded-full bg-red-100 text-red-600 flex items-center justify-center font-bold text-lg"
+                        class="option-letter flex-shrink-0 w-10 h-10 rounded-full bg-red-100 text-red-600 flex items-center justify-center font-bold text-lg"
                       >
                         D
                       </div>
@@ -294,7 +309,7 @@
                         name="option_d"
                         placeholder="Escribe la opción D"
                         required
-                        class="flex-grow p-2 bg-transparent border-none focus:outline-none font-medium"
+                        class="flex-grow p-2 bg-transparent border-none focus:outline-none font-medium text-gray-800"
                       />
                     </div>
                   </label>

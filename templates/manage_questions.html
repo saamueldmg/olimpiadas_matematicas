@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.comcss2?family=Inter:wght@400;500;600;700;900&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap"
       rel="stylesheet"
     />
     <link
@@ -18,7 +18,20 @@
     <style>
       body {
         font-family: "Inter", sans-serif;
-        background-color: #f3f4f6;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      }
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .animate-fade-in-up {
+        animation: fadeInUp 0.6s ease-out;
       }
       .accordion-content {
         max-height: 0;
@@ -26,7 +39,7 @@
         transition: max-height 0.5s ease-in-out;
       }
       .accordion-content.open {
-        max-height: 1000px;
+        max-height: 2000px;
       }
       .accordion-header i {
         transition: transform 0.3s ease-in-out;
@@ -50,77 +63,105 @@
       }
     </style>
   </head>
-  <body class="bg-gray-100 min-h-screen p-4 sm:p-6 md:p-8">
+  <body class="min-h-screen p-4 sm:p-6 md:p-8">
     <div class="container mx-auto max-w-7xl">
-      <!-- Encabezado -->
+      <!-- Header Elegante -->
       <header
-        class="flex flex-col sm:flex-row justify-between items-center mb-8"
+        class="bg-white rounded-3xl shadow-2xl p-8 mb-8 animate-fade-in-up"
       >
-        <div class="flex items-center space-x-4">
-          <div class="bg-red-100 text-red-600 p-4 rounded-2xl">
-            <i class="fas fa-list-alt text-3xl"></i>
+        <div class="flex justify-between items-center">
+          <div class="flex items-center space-x-5">
+            <div
+              class="bg-gradient-to-br from-purple-500 to-purple-700 text-white p-5 rounded-2xl shadow-lg"
+            >
+              <i class="fas fa-list-alt text-4xl"></i>
+            </div>
+            <div>
+              <h1 class="text-4xl font-black text-gray-800">
+                Administrar Preguntas
+              </h1>
+              <p class="text-gray-500 mt-1 text-lg">
+                Selecciona una pregunta de la galería para ver sus detalles
+              </p>
+            </div>
           </div>
-          <div>
-            <h1 class="text-3xl font-bold text-gray-800">
-              Administrar Preguntas
-            </h1>
-            <p class="text-gray-500">
-              Selecciona una pregunta de la galería para ver sus detalles.
-            </p>
-          </div>
+          <a
+            href="{{ url_for('quiz.dashboard') }}"
+            class="flex items-center space-x-2 px-6 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-all font-semibold shadow-md hover:shadow-lg"
+          >
+            <i class="fas fa-arrow-left"></i>
+            <span>Dashboard</span>
+          </a>
         </div>
-        <a
-          href="{{ url_for('quiz.dashboard') }}"
-          class="mt-4 sm:mt-0 flex items-center space-x-2 text-gray-600 hover:text-blue-600 transition-colors font-medium"
-        >
-          <i class="fas fa-arrow-left"></i>
-          <span>Volver al Dashboard</span>
-        </a>
       </header>
 
       <!-- Contenido Principal con Acordeones -->
-      <main class="space-y-4">
+      <main class="space-y-6">
         <!-- Nivel I -->
         <div
-          class="accordion-item bg-white rounded-2xl shadow-lg overflow-hidden"
+          class="accordion-item bg-white rounded-3xl shadow-2xl overflow-hidden animate-fade-in-up"
+          style="animation-delay: 0.1s"
         >
           <div
             class="accordion-header flex justify-between items-center p-6 cursor-pointer hover:bg-gray-50 transition"
+            onclick="toggleAccordion(this)"
           >
             <div class="flex items-center space-x-4">
-              <span class="text-2xl font-bold text-gray-700">Nivel I</span>
-              <span
-                class="bg-gray-200 text-gray-600 text-sm font-bold px-3 py-1 rounded-full"
-                >{{ questions_n1|length }} Preguntas</span
+              <div
+                class="bg-gradient-to-br from-blue-400 to-blue-600 text-white w-12 h-12 rounded-xl flex items-center justify-center shadow-md"
               >
+                <i class="fas fa-trophy text-xl"></i>
+              </div>
+              <span class="text-2xl font-bold text-blue-600"
+                >Nivel I (6° - 7°)</span
+              >
+              <span
+                class="bg-blue-100 text-blue-700 text-sm font-bold px-4 py-2 rounded-full"
+              >
+                {{ questions_n1|length }} Preguntas
+              </span>
             </div>
             <i class="fas fa-chevron-down text-gray-500 text-2xl"></i>
           </div>
           <div class="accordion-content">
-            <div class="p-6 border-t grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div
+              class="p-6 border-t-2 border-gray-100 grid grid-cols-1 md:grid-cols-3 gap-6"
+            >
               <!-- Columna de Galería -->
-              <div class="md:col-span-1 h-96 overflow-y-auto space-y-4 pr-4">
-                {% for question in questions_n1 %}
+              <div
+                class="md:col-span-1 h-96 overflow-y-auto space-y-4 pr-4 custom-scrollbar"
+              >
+                {% if questions_n1 %} {% for question in questions_n1 %}
                 <div
-                  class="thumbnail rounded-lg p-2"
+                  class="thumbnail rounded-xl p-2 bg-gray-50"
                   onclick="showDetails('nivel1', '{{ question.id }}')"
                 >
                   <img
                     src="{{ question.question_image }}"
-                    class="w-full h-auto object-cover rounded-md"
+                    class="w-full h-auto object-cover rounded-lg"
+                    alt="Pregunta {{ loop.index }}"
                   />
                 </div>
-                {% endfor %}
+                {% endfor %} {% else %}
+                <div class="text-center py-12 text-gray-400">
+                  <i class="fas fa-inbox text-4xl mb-3"></i>
+                  <p class="font-semibold">No hay preguntas en Nivel I</p>
+                </div>
+                {% endif %}
               </div>
 
               <!-- Columna de Detalles -->
               <div class="md:col-span-2">
-                <div id="details-container-nivel1">
+                <div id="details-container-nivel1" class="h-full">
                   <div
                     class="placeholder-nivel1 flex flex-col items-center justify-center h-full text-gray-400"
                   >
-                    <i class="fas fa-eye text-6xl mb-4"></i>
-                    <p class="text-xl">
+                    <div
+                      class="bg-gray-100 w-24 h-24 rounded-full flex items-center justify-center mb-4"
+                    >
+                      <i class="fas fa-eye text-5xl text-gray-400"></i>
+                    </div>
+                    <p class="text-xl font-semibold">
                       Selecciona una pregunta para verla aquí
                     </p>
                   </div>
@@ -131,22 +172,25 @@
                     class="question-detail-nivel1 hidden"
                   >
                     <div
-                      class="w-full h-80 bg-gray-100 border rounded-lg flex items-center justify-center overflow-hidden mx-auto mb-4"
+                      class="w-full h-80 bg-gradient-to-br from-gray-50 to-gray-100 border-2 border-gray-200 rounded-2xl flex items-center justify-center overflow-hidden mx-auto mb-6 shadow-inner"
                     >
                       <img
                         src="{{ question.question_image }}"
                         class="max-w-full max-h-full object-contain"
+                        alt="Pregunta completa"
                       />
                     </div>
-                    <ul class="space-y-2 mb-4">
+                    <ul class="space-y-3 mb-6">
                       {% for key, value in question.options.items() %}
                       <li
-                        class="flex items-center text-gray-700 text-lg {% if key == question.correct %}font-bold text-green-600{% endif %}"
+                        class="flex items-center text-gray-700 text-base p-3 rounded-xl transition {% if key == question.correct %}bg-green-50 border-2 border-green-300 font-bold text-green-700{% else %}bg-gray-50 border-2 border-gray-200{% endif %}"
                       >
                         <i
-                          class="{% if key == question.correct %}fas fa-check-circle{% else %}far fa-circle{% endif %} mr-3 w-5"
+                          class="{% if key == question.correct %}fas fa-check-circle text-green-600{% else %}far fa-circle text-gray-400{% endif %} mr-3 text-xl"
                         ></i>
-                        <span class="font-bold mr-2">{{ key.upper() }})</span>
+                        <span class="font-black mr-2 text-lg"
+                          >{{ key.upper() }})</span
+                        >
                         {{ value }}
                       </li>
                       {% endfor %}
@@ -155,12 +199,13 @@
                       <form
                         action="{{ url_for('question.delete_question', question_id=question.id) }}"
                         method="POST"
+                        onsubmit="return confirm('¿Estás seguro de eliminar esta pregunta?');"
                       >
                         <button
                           type="submit"
-                          class="bg-red-600 text-white font-bold py-2 px-5 rounded-lg shadow-md hover:bg-red-700 transition transform hover:scale-105"
+                          class="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-bold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transition transform hover:scale-105"
                         >
-                          <i class="fas fa-trash-alt mr-2"></i>Eliminar
+                          <i class="fas fa-trash-alt mr-2"></i>Eliminar Pregunta
                         </button>
                       </form>
                     </div>
@@ -174,43 +219,65 @@
 
         <!-- Nivel II -->
         <div
-          class="accordion-item bg-white rounded-2xl shadow-lg overflow-hidden"
+          class="accordion-item bg-white rounded-3xl shadow-2xl overflow-hidden animate-fade-in-up"
+          style="animation-delay: 0.2s"
         >
           <div
             class="accordion-header flex justify-between items-center p-6 cursor-pointer hover:bg-gray-50 transition"
+            onclick="toggleAccordion(this)"
           >
             <div class="flex items-center space-x-4">
-              <span class="text-2xl font-bold text-gray-700">Nivel II</span>
-              <span
-                class="bg-gray-200 text-gray-600 text-sm font-bold px-3 py-1 rounded-full"
-                >{{ questions_n2|length }} Preguntas</span
+              <div
+                class="bg-gradient-to-br from-purple-400 to-purple-600 text-white w-12 h-12 rounded-xl flex items-center justify-center shadow-md"
               >
+                <i class="fas fa-trophy text-xl"></i>
+              </div>
+              <span class="text-2xl font-bold text-purple-600"
+                >Nivel II (8° - 9°)</span
+              >
+              <span
+                class="bg-purple-100 text-purple-700 text-sm font-bold px-4 py-2 rounded-full"
+              >
+                {{ questions_n2|length }} Preguntas
+              </span>
             </div>
             <i class="fas fa-chevron-down text-gray-500 text-2xl"></i>
           </div>
           <div class="accordion-content">
-            <div class="p-6 border-t grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div
+              class="p-6 border-t-2 border-gray-100 grid grid-cols-1 md:grid-cols-3 gap-6"
+            >
               <div class="md:col-span-1 h-96 overflow-y-auto space-y-4 pr-4">
-                {% for question in questions_n2 %}
+                {% if questions_n2 %} {% for question in questions_n2 %}
                 <div
-                  class="thumbnail rounded-lg p-2"
+                  class="thumbnail rounded-xl p-2 bg-gray-50"
                   onclick="showDetails('nivel2', '{{ question.id }}')"
                 >
                   <img
                     src="{{ question.question_image }}"
-                    class="w-full h-auto object-cover rounded-md"
+                    class="w-full h-auto object-cover rounded-lg"
+                    alt="Pregunta {{ loop.index }}"
                   />
                 </div>
-                {% endfor %}
+                {% endfor %} {% else %}
+                <div class="text-center py-12 text-gray-400">
+                  <i class="fas fa-inbox text-4xl mb-3"></i>
+                  <p class="font-semibold">No hay preguntas en Nivel II</p>
+                </div>
+                {% endif %}
               </div>
 
               <div class="md:col-span-2">
-                <div id="details-container-nivel2">
+                <div id="details-container-nivel2" class="h-full">
                   <div
                     class="placeholder-nivel2 flex flex-col items-center justify-center h-full text-gray-400"
                   >
-                    <i class="fas fa-eye text-6xl mb-4"></i>
-                    <p class="text-xl">
+                    <div
+                      class="bg-gray-100 w-24 h-24 rounded-full flex items-center justify-center mb-4"
+                    >
+                      <i class="fas fa-eye text-5xl text-gray-400"></i>
+                    </div>
+                    <p class="text-xl font-semibold">
                       Selecciona una pregunta para verla aquí
                     </p>
                   </div>
@@ -221,22 +288,24 @@
                     class="question-detail-nivel2 hidden"
                   >
                     <div
-                      class="w-full h-80 bg-gray-100 border rounded-lg flex items-center justify-center overflow-hidden mx-auto mb-4"
+                      class="w-full h-80 bg-gradient-to-br from-gray-50 to-gray-100 border-2 border-gray-200 rounded-2xl flex items-center justify-center overflow-hidden mx-auto mb-6 shadow-inner"
                     >
                       <img
                         src="{{ question.question_image }}"
                         class="max-w-full max-h-full object-contain"
                       />
                     </div>
-                    <ul class="space-y-2 mb-4">
+                    <ul class="space-y-3 mb-6">
                       {% for key, value in question.options.items() %}
                       <li
-                        class="flex items-center text-gray-700 text-lg {% if key == question.correct %}font-bold text-green-600{% endif %}"
+                        class="flex items-center text-gray-700 text-base p-3 rounded-xl transition {% if key == question.correct %}bg-green-50 border-2 border-green-300 font-bold text-green-700{% else %}bg-gray-50 border-2 border-gray-200{% endif %}"
                       >
                         <i
-                          class="{% if key == question.correct %}fas fa-check-circle{% else %}far fa-circle{% endif %} mr-3 w-5"
+                          class="{% if key == question.correct %}fas fa-check-circle text-green-600{% else %}far fa-circle text-gray-400{% endif %} mr-3 text-xl"
                         ></i>
-                        <span class="font-bold mr-2">{{ key.upper() }})</span>
+                        <span class="font-black mr-2 text-lg"
+                          >{{ key.upper() }})</span
+                        >
                         {{ value }}
                       </li>
                       {% endfor %}
@@ -245,12 +314,13 @@
                       <form
                         action="{{ url_for('question.delete_question', question_id=question.id) }}"
                         method="POST"
+                        onsubmit="return confirm('¿Estás seguro de eliminar esta pregunta?');"
                       >
                         <button
                           type="submit"
-                          class="bg-red-600 text-white font-bold py-2 px-5 rounded-lg shadow-md hover:bg-red-700 transition transform hover:scale-105"
+                          class="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-bold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transition transform hover:scale-105"
                         >
-                          <i class="fas fa-trash-alt mr-2"></i>Eliminar
+                          <i class="fas fa-trash-alt mr-2"></i>Eliminar Pregunta
                         </button>
                       </form>
                     </div>
@@ -262,45 +332,66 @@
           </div>
         </div>
 
-        <!-- Nivel III -->
+        <!-- Nivel III (Solo si lo necesitas en el futuro) -->
         <div
-          class="accordion-item bg-white rounded-2xl shadow-lg overflow-hidden"
+          class="accordion-item bg-white rounded-3xl shadow-2xl overflow-hidden animate-fade-in-up"
+          style="animation-delay: 0.3s"
         >
           <div
             class="accordion-header flex justify-between items-center p-6 cursor-pointer hover:bg-gray-50 transition"
+            onclick="toggleAccordion(this)"
           >
             <div class="flex items-center space-x-4">
-              <span class="text-2xl font-bold text-gray-700">Nivel III</span>
-              <span
-                class="bg-gray-200 text-gray-600 text-sm font-bold px-3 py-1 rounded-full"
-                >{{ questions_n3|length }} Preguntas</span
+              <div
+                class="bg-gradient-to-br from-green-400 to-green-600 text-white w-12 h-12 rounded-xl flex items-center justify-center shadow-md"
               >
+                <i class="fas fa-trophy text-xl"></i>
+              </div>
+              <span class="text-2xl font-bold text-green-600"
+                >Nivel III (10° - 11°)</span
+              >
+              <span
+                class="bg-green-100 text-green-700 text-sm font-bold px-4 py-2 rounded-full"
+              >
+                {{ questions_n3|length }} Preguntas
+              </span>
             </div>
             <i class="fas fa-chevron-down text-gray-500 text-2xl"></i>
           </div>
           <div class="accordion-content">
-            <div class="p-6 border-t grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div
+              class="p-6 border-t-2 border-gray-100 grid grid-cols-1 md:grid-cols-3 gap-6"
+            >
               <div class="md:col-span-1 h-96 overflow-y-auto space-y-4 pr-4">
-                {% for question in questions_n3 %}
+                {% if questions_n3 %} {% for question in questions_n3 %}
                 <div
-                  class="thumbnail rounded-lg p-2"
+                  class="thumbnail rounded-xl p-2 bg-gray-50"
                   onclick="showDetails('nivel3', '{{ question.id }}')"
                 >
                   <img
                     src="{{ question.question_image }}"
-                    class="w-full h-auto object-cover rounded-md"
+                    class="w-full h-auto object-cover rounded-lg"
                   />
                 </div>
-                {% endfor %}
+                {% endfor %} {% else %}
+                <div class="text-center py-12 text-gray-400">
+                  <i class="fas fa-inbox text-4xl mb-3"></i>
+                  <p class="font-semibold">No hay preguntas en Nivel III</p>
+                </div>
+                {% endif %}
               </div>
 
               <div class="md:col-span-2">
-                <div id="details-container-nivel3">
+                <div id="details-container-nivel3" class="h-full">
                   <div
                     class="placeholder-nivel3 flex flex-col items-center justify-center h-full text-gray-400"
                   >
-                    <i class="fas fa-eye text-6xl mb-4"></i>
-                    <p class="text-xl">
+                    <div
+                      class="bg-gray-100 w-24 h-24 rounded-full flex items-center justify-center mb-4"
+                    >
+                      <i class="fas fa-eye text-5xl text-gray-400"></i>
+                    </div>
+                    <p class="text-xl font-semibold">
                       Selecciona una pregunta para verla aquí
                     </p>
                   </div>
@@ -311,22 +402,24 @@
                     class="question-detail-nivel3 hidden"
                   >
                     <div
-                      class="w-full h-80 bg-gray-100 border rounded-lg flex items-center justify-center overflow-hidden mx-auto mb-4"
+                      class="w-full h-80 bg-gradient-to-br from-gray-50 to-gray-100 border-2 border-gray-200 rounded-2xl flex items-center justify-center overflow-hidden mx-auto mb-6 shadow-inner"
                     >
                       <img
                         src="{{ question.question_image }}"
                         class="max-w-full max-h-full object-contain"
                       />
                     </div>
-                    <ul class="space-y-2 mb-4">
+                    <ul class="space-y-3 mb-6">
                       {% for key, value in question.options.items() %}
                       <li
-                        class="flex items-center text-gray-700 text-lg {% if key == question.correct %}font-bold text-green-600{% endif %}"
+                        class="flex items-center text-gray-700 text-base p-3 rounded-xl transition {% if key == question.correct %}bg-green-50 border-2 border-green-300 font-bold text-green-700{% else %}bg-gray-50 border-2 border-gray-200{% endif %}"
                       >
                         <i
-                          class="{% if key == question.correct %}fas fa-check-circle{% else %}far fa-circle{% endif %} mr-3 w-5"
+                          class="{% if key == question.correct %}fas fa-check-circle text-green-600{% else %}far fa-circle text-gray-400{% endif %} mr-3 text-xl"
                         ></i>
-                        <span class="font-bold mr-2">{{ key.upper() }})</span>
+                        <span class="font-black mr-2 text-lg"
+                          >{{ key.upper() }})</span
+                        >
                         {{ value }}
                       </li>
                       {% endfor %}
@@ -335,12 +428,13 @@
                       <form
                         action="{{ url_for('question.delete_question', question_id=question.id) }}"
                         method="POST"
+                        onsubmit="return confirm('¿Estás seguro de eliminar esta pregunta?');"
                       >
                         <button
                           type="submit"
-                          class="bg-red-600 text-white font-bold py-2 px-5 rounded-lg shadow-md hover:bg-red-700 transition transform hover:scale-105"
+                          class="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-bold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transition transform hover:scale-105"
                         >
-                          <i class="fas fa-trash-alt mr-2"></i>Eliminar
+                          <i class="fas fa-trash-alt mr-2"></i>Eliminar Pregunta
                         </button>
                       </form>
                     </div>
@@ -356,24 +450,24 @@
 
     <script>
       // Toggle acordeón
-      document.querySelectorAll(".accordion-header").forEach((header) => {
-        header.addEventListener("click", () => {
-          const content = header.nextElementSibling;
-          const isOpen = content.classList.contains("open");
+      function toggleAccordion(header) {
+        const content = header.nextElementSibling;
+        const isOpen = content.classList.contains("open");
 
-          document
-            .querySelectorAll(".accordion-content")
-            .forEach((c) => c.classList.remove("open"));
-          document
-            .querySelectorAll(".accordion-header")
-            .forEach((h) => h.classList.remove("open"));
+        // Cerrar todos
+        document
+          .querySelectorAll(".accordion-content")
+          .forEach((c) => c.classList.remove("open"));
+        document
+          .querySelectorAll(".accordion-header")
+          .forEach((h) => h.classList.remove("open"));
 
-          if (!isOpen) {
-            content.classList.add("open");
-            header.classList.add("open");
-          }
-        });
-      });
+        // Abrir el clickeado
+        if (!isOpen) {
+          content.classList.add("open");
+          header.classList.add("open");
+        }
+      }
 
       // Mostrar detalles de pregunta
       function showDetails(nivel, questionId) {
@@ -392,9 +486,9 @@
         if (selectedDetail) selectedDetail.classList.remove("hidden");
 
         // Actualizar thumbnails activos
-        const thumbnails = document.querySelectorAll(
-          `.accordion-content .thumbnail`
-        );
+        const accordionContent =
+          event.currentTarget.closest(".accordion-content");
+        const thumbnails = accordionContent.querySelectorAll(".thumbnail");
         thumbnails.forEach((t) => t.classList.remove("active"));
         event.currentTarget.classList.add("active");
       }
