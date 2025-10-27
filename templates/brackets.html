@@ -649,9 +649,12 @@
       {% endif %}
 
       <!-- El código continúa con Nivel II... -->
-             <!-- BRACKET NIVEL II - COMPLETO -->
+      <!-- BRACKET NIVEL II - COMPLETO -->
       {% if bracket_n2_quarters and bracket_n2_quarters|length == 8 %}
-      <section class="bg-white rounded-3xl shadow-2xl p-8 animate-fade-in-up" style="animation-delay: 0.2s">
+      <section
+        class="bg-white rounded-3xl shadow-2xl p-8 animate-fade-in-up"
+        style="animation-delay: 0.2s"
+      >
         <div class="flex justify-between items-center mb-8">
           <h2 class="text-3xl font-black text-purple-600">
             <i class="fas fa-trophy mr-2"></i> Bracket Nivel II (8° - 9°)
@@ -668,125 +671,255 @@
         <div class="grid grid-cols-1 lg:grid-cols-4 gap-8 items-center">
           <!-- Cuartos de Final N2 -->
           <div class="space-y-6">
-            <h4 class="text-lg font-bold text-gray-700 text-center mb-4 bg-gradient-to-r from-purple-100 to-purple-200 py-3 rounded-xl">
+            <h4
+              class="text-lg font-bold text-gray-700 text-center mb-4 bg-gradient-to-r from-purple-100 to-purple-200 py-3 rounded-xl"
+            >
               <i class="fas fa-layer-group mr-2"></i>Cuartos de Final
             </h4>
 
             <!-- Match 1 -->
-            <div class="match-card bg-white rounded-2xl shadow-lg border-2 border-purple-200 p-4">
+            <div
+              class="match-card bg-white rounded-2xl shadow-lg border-2 border-purple-200 p-4"
+            >
               <div class="text-center mb-2">
-                <span class="bg-purple-100 text-purple-700 text-xs font-bold px-3 py-1 rounded-full">Match 1</span>
+                <span
+                  class="bg-purple-100 text-purple-700 text-xs font-bold px-3 py-1 rounded-full"
+                  >Match 1</span
+                >
               </div>
               <div class="space-y-2">
-                <form action="{{ url_for('bracket.advance_team') }}" method="POST">
+                <form
+                  action="{{ url_for('bracket.advance_team') }}"
+                  method="POST"
+                >
                   <input type="hidden" name="level" value="nivel2" />
                   <input type="hidden" name="phase" value="quarters" />
                   <input type="hidden" name="match_id" value="1" />
-                  <input type="hidden" name="winner" value="{{ bracket_n2_quarters[0] }}" />
-                  <button type="submit" class="team-btn w-full bg-gradient-to-r from-purple-50 to-purple-100 p-3 rounded-xl border-2 border-purple-300 hover:border-purple-500 text-left">
-                    <p class="font-bold text-gray-800 text-sm">{{ bracket_n2_quarters[0] }}</p>
+                  <input
+                    type="hidden"
+                    name="winner"
+                    value="{{ bracket_n2_quarters[0] }}"
+                  />
+                  <button
+                    type="submit"
+                    class="team-btn w-full bg-gradient-to-r from-purple-50 to-purple-100 p-3 rounded-xl border-2 border-purple-300 hover:border-purple-500 text-left"
+                  >
+                    <p class="font-bold text-gray-800 text-sm">
+                      {{ bracket_n2_quarters[0] }}
+                    </p>
                   </button>
                 </form>
                 <div class="text-center">
-                  <span class="inline-block bg-gray-200 text-gray-600 font-bold px-3 py-1 rounded-full text-xs">VS</span>
+                  <span
+                    class="inline-block bg-gray-200 text-gray-600 font-bold px-3 py-1 rounded-full text-xs"
+                    >VS</span
+                  >
                 </div>
-                <form action="{{ url_for('bracket.advance_team') }}" method="POST">
+                <form
+                  action="{{ url_for('bracket.advance_team') }}"
+                  method="POST"
+                >
                   <input type="hidden" name="level" value="nivel2" />
                   <input type="hidden" name="phase" value="quarters" />
                   <input type="hidden" name="match_id" value="1" />
-                  <input type="hidden" name="winner" value="{{ bracket_n2_quarters[1] }}" />
-                  <button type="submit" class="team-btn w-full bg-gradient-to-r from-purple-50 to-purple-100 p-3 rounded-xl border-2 border-purple-300 hover:border-purple-500 text-left">
-                    <p class="font-bold text-gray-800 text-sm">{{ bracket_n2_quarters[1] }}</p>
+                  <input
+                    type="hidden"
+                    name="winner"
+                    value="{{ bracket_n2_quarters[1] }}"
+                  />
+                  <button
+                    type="submit"
+                    class="team-btn w-full bg-gradient-to-r from-purple-50 to-purple-100 p-3 rounded-xl border-2 border-purple-300 hover:border-purple-500 text-left"
+                  >
+                    <p class="font-bold text-gray-800 text-sm">
+                      {{ bracket_n2_quarters[1] }}
+                    </p>
                   </button>
                 </form>
               </div>
             </div>
 
             <!-- Match 2 -->
-            <div class="match-card bg-white rounded-2xl shadow-lg border-2 border-purple-200 p-4">
+            <div
+              class="match-card bg-white rounded-2xl shadow-lg border-2 border-purple-200 p-4"
+            >
               <div class="text-center mb-2">
-                <span class="bg-purple-100 text-purple-700 text-xs font-bold px-3 py-1 rounded-full">Match 2</span>
+                <span
+                  class="bg-purple-100 text-purple-700 text-xs font-bold px-3 py-1 rounded-full"
+                  >Match 2</span
+                >
               </div>
               <div class="space-y-2">
-                <form action="{{ url_for('bracket.advance_team') }}" method="POST">
+                <form
+                  action="{{ url_for('bracket.advance_team') }}"
+                  method="POST"
+                >
                   <input type="hidden" name="level" value="nivel2" />
                   <input type="hidden" name="phase" value="quarters" />
                   <input type="hidden" name="match_id" value="2" />
-                  <input type="hidden" name="winner" value="{{ bracket_n2_quarters[2] }}" />
-                  <button type="submit" class="team-btn w-full bg-gradient-to-r from-purple-50 to-purple-100 p-3 rounded-xl border-2 border-purple-300 hover:border-purple-500 text-left">
-                    <p class="font-bold text-gray-800 text-sm">{{ bracket_n2_quarters[2] }}</p>
+                  <input
+                    type="hidden"
+                    name="winner"
+                    value="{{ bracket_n2_quarters[2] }}"
+                  />
+                  <button
+                    type="submit"
+                    class="team-btn w-full bg-gradient-to-r from-purple-50 to-purple-100 p-3 rounded-xl border-2 border-purple-300 hover:border-purple-500 text-left"
+                  >
+                    <p class="font-bold text-gray-800 text-sm">
+                      {{ bracket_n2_quarters[2] }}
+                    </p>
                   </button>
                 </form>
                 <div class="text-center">
-                  <span class="inline-block bg-gray-200 text-gray-600 font-bold px-3 py-1 rounded-full text-xs">VS</span>
+                  <span
+                    class="inline-block bg-gray-200 text-gray-600 font-bold px-3 py-1 rounded-full text-xs"
+                    >VS</span
+                  >
                 </div>
-                <form action="{{ url_for('bracket.advance_team') }}" method="POST">
+                <form
+                  action="{{ url_for('bracket.advance_team') }}"
+                  method="POST"
+                >
                   <input type="hidden" name="level" value="nivel2" />
                   <input type="hidden" name="phase" value="quarters" />
                   <input type="hidden" name="match_id" value="2" />
-                  <input type="hidden" name="winner" value="{{ bracket_n2_quarters[3] }}" />
-                  <button type="submit" class="team-btn w-full bg-gradient-to-r from-purple-50 to-purple-100 p-3 rounded-xl border-2 border-purple-300 hover:border-purple-500 text-left">
-                    <p class="font-bold text-gray-800 text-sm">{{ bracket_n2_quarters[3] }}</p>
+                  <input
+                    type="hidden"
+                    name="winner"
+                    value="{{ bracket_n2_quarters[3] }}"
+                  />
+                  <button
+                    type="submit"
+                    class="team-btn w-full bg-gradient-to-r from-purple-50 to-purple-100 p-3 rounded-xl border-2 border-purple-300 hover:border-purple-500 text-left"
+                  >
+                    <p class="font-bold text-gray-800 text-sm">
+                      {{ bracket_n2_quarters[3] }}
+                    </p>
                   </button>
                 </form>
               </div>
             </div>
 
             <!-- Match 3 -->
-            <div class="match-card bg-white rounded-2xl shadow-lg border-2 border-purple-200 p-4">
+            <div
+              class="match-card bg-white rounded-2xl shadow-lg border-2 border-purple-200 p-4"
+            >
               <div class="text-center mb-2">
-                <span class="bg-purple-100 text-purple-700 text-xs font-bold px-3 py-1 rounded-full">Match 3</span>
+                <span
+                  class="bg-purple-100 text-purple-700 text-xs font-bold px-3 py-1 rounded-full"
+                  >Match 3</span
+                >
               </div>
               <div class="space-y-2">
-                <form action="{{ url_for('bracket.advance_team') }}" method="POST">
+                <form
+                  action="{{ url_for('bracket.advance_team') }}"
+                  method="POST"
+                >
                   <input type="hidden" name="level" value="nivel2" />
                   <input type="hidden" name="phase" value="quarters" />
                   <input type="hidden" name="match_id" value="3" />
-                  <input type="hidden" name="winner" value="{{ bracket_n2_quarters[4] }}" />
-                  <button type="submit" class="team-btn w-full bg-gradient-to-r from-purple-50 to-purple-100 p-3 rounded-xl border-2 border-purple-300 hover:border-purple-500 text-left">
-                    <p class="font-bold text-gray-800 text-sm">{{ bracket_n2_quarters[4] }}</p>
+                  <input
+                    type="hidden"
+                    name="winner"
+                    value="{{ bracket_n2_quarters[4] }}"
+                  />
+                  <button
+                    type="submit"
+                    class="team-btn w-full bg-gradient-to-r from-purple-50 to-purple-100 p-3 rounded-xl border-2 border-purple-300 hover:border-purple-500 text-left"
+                  >
+                    <p class="font-bold text-gray-800 text-sm">
+                      {{ bracket_n2_quarters[4] }}
+                    </p>
                   </button>
                 </form>
                 <div class="text-center">
-                  <span class="inline-block bg-gray-200 text-gray-600 font-bold px-3 py-1 rounded-full text-xs">VS</span>
+                  <span
+                    class="inline-block bg-gray-200 text-gray-600 font-bold px-3 py-1 rounded-full text-xs"
+                    >VS</span
+                  >
                 </div>
-                <form action="{{ url_for('bracket.advance_team') }}" method="POST">
+                <form
+                  action="{{ url_for('bracket.advance_team') }}"
+                  method="POST"
+                >
                   <input type="hidden" name="level" value="nivel2" />
                   <input type="hidden" name="phase" value="quarters" />
                   <input type="hidden" name="match_id" value="3" />
-                  <input type="hidden" name="winner" value="{{ bracket_n2_quarters[5] }}" />
-                  <button type="submit" class="team-btn w-full bg-gradient-to-r from-purple-50 to-purple-100 p-3 rounded-xl border-2 border-purple-300 hover:border-purple-500 text-left">
-                    <p class="font-bold text-gray-800 text-sm">{{ bracket_n2_quarters[5] }}</p>
+                  <input
+                    type="hidden"
+                    name="winner"
+                    value="{{ bracket_n2_quarters[5] }}"
+                  />
+                  <button
+                    type="submit"
+                    class="team-btn w-full bg-gradient-to-r from-purple-50 to-purple-100 p-3 rounded-xl border-2 border-purple-300 hover:border-purple-500 text-left"
+                  >
+                    <p class="font-bold text-gray-800 text-sm">
+                      {{ bracket_n2_quarters[5] }}
+                    </p>
                   </button>
                 </form>
               </div>
             </div>
 
             <!-- Match 4 -->
-            <div class="match-card bg-white rounded-2xl shadow-lg border-2 border-purple-200 p-4">
+            <div
+              class="match-card bg-white rounded-2xl shadow-lg border-2 border-purple-200 p-4"
+            >
               <div class="text-center mb-2">
-                <span class="bg-purple-100 text-purple-700 text-xs font-bold px-3 py-1 rounded-full">Match 4</span>
+                <span
+                  class="bg-purple-100 text-purple-700 text-xs font-bold px-3 py-1 rounded-full"
+                  >Match 4</span
+                >
               </div>
               <div class="space-y-2">
-                <form action="{{ url_for('bracket.advance_team') }}" method="POST">
+                <form
+                  action="{{ url_for('bracket.advance_team') }}"
+                  method="POST"
+                >
                   <input type="hidden" name="level" value="nivel2" />
                   <input type="hidden" name="phase" value="quarters" />
                   <input type="hidden" name="match_id" value="4" />
-                  <input type="hidden" name="winner" value="{{ bracket_n2_quarters[6] }}" />
-                  <button type="submit" class="team-btn w-full bg-gradient-to-r from-purple-50 to-purple-100 p-3 rounded-xl border-2 border-purple-300 hover:border-purple-500 text-left">
-                    <p class="font-bold text-gray-800 text-sm">{{ bracket_n2_quarters[6] }}</p>
+                  <input
+                    type="hidden"
+                    name="winner"
+                    value="{{ bracket_n2_quarters[6] }}"
+                  />
+                  <button
+                    type="submit"
+                    class="team-btn w-full bg-gradient-to-r from-purple-50 to-purple-100 p-3 rounded-xl border-2 border-purple-300 hover:border-purple-500 text-left"
+                  >
+                    <p class="font-bold text-gray-800 text-sm">
+                      {{ bracket_n2_quarters[6] }}
+                    </p>
                   </button>
                 </form>
                 <div class="text-center">
-                  <span class="inline-block bg-gray-200 text-gray-600 font-bold px-3 py-1 rounded-full text-xs">VS</span>
+                  <span
+                    class="inline-block bg-gray-200 text-gray-600 font-bold px-3 py-1 rounded-full text-xs"
+                    >VS</span
+                  >
                 </div>
-                <form action="{{ url_for('bracket.advance_team') }}" method="POST">
+                <form
+                  action="{{ url_for('bracket.advance_team') }}"
+                  method="POST"
+                >
                   <input type="hidden" name="level" value="nivel2" />
                   <input type="hidden" name="phase" value="quarters" />
                   <input type="hidden" name="match_id" value="4" />
-                  <input type="hidden" name="winner" value="{{ bracket_n2_quarters[7] }}" />
-                  <button type="submit" class="team-btn w-full bg-gradient-to-r from-purple-50 to-purple-100 p-3 rounded-xl border-2 border-purple-300 hover:border-purple-500 text-left">
-                    <p class="font-bold text-gray-800 text-sm">{{ bracket_n2_quarters[7] }}</p>
+                  <input
+                    type="hidden"
+                    name="winner"
+                    value="{{ bracket_n2_quarters[7] }}"
+                  />
+                  <button
+                    type="submit"
+                    class="team-btn w-full bg-gradient-to-r from-purple-50 to-purple-100 p-3 rounded-xl border-2 border-purple-300 hover:border-purple-500 text-left"
+                  >
+                    <p class="font-bold text-gray-800 text-sm">
+                      {{ bracket_n2_quarters[7] }}
+                    </p>
                   </button>
                 </form>
               </div>
@@ -795,42 +928,78 @@
 
           <!-- Semifinales N2 -->
           <div class="flex flex-col justify-center space-y-12">
-            <h4 class="text-lg font-bold text-gray-700 text-center mb-4 bg-gradient-to-r from-purple-100 to-purple-200 py-3 rounded-xl">
+            <h4
+              class="text-lg font-bold text-gray-700 text-center mb-4 bg-gradient-to-r from-purple-100 to-purple-200 py-3 rounded-xl"
+            >
               <i class="fas fa-trophy mr-2"></i>Semifinales
             </h4>
 
             <!-- Semi 1 -->
             {% if bracket_n2_semis|length >= 2 %}
-            <div class="match-card bg-white rounded-2xl shadow-lg border-2 border-purple-200 p-4">
+            <div
+              class="match-card bg-white rounded-2xl shadow-lg border-2 border-purple-200 p-4"
+            >
               <div class="text-center mb-2">
-                <span class="bg-purple-100 text-purple-700 text-xs font-bold px-3 py-1 rounded-full">Semi 1</span>
+                <span
+                  class="bg-purple-100 text-purple-700 text-xs font-bold px-3 py-1 rounded-full"
+                  >Semi 1</span
+                >
               </div>
               <div class="space-y-2">
-                <form action="{{ url_for('bracket.advance_team') }}" method="POST">
+                <form
+                  action="{{ url_for('bracket.advance_team') }}"
+                  method="POST"
+                >
                   <input type="hidden" name="level" value="nivel2" />
                   <input type="hidden" name="phase" value="semis" />
                   <input type="hidden" name="match_id" value="s1" />
-                  <input type="hidden" name="winner" value="{{ bracket_n2_semis[0] }}" />
-                  <button type="submit" class="team-btn w-full bg-gradient-to-r from-purple-50 to-purple-100 p-3 rounded-xl border-2 border-purple-300 hover:border-purple-500 text-left">
-                    <p class="font-bold text-gray-800 text-sm">{{ bracket_n2_semis[0] }}</p>
+                  <input
+                    type="hidden"
+                    name="winner"
+                    value="{{ bracket_n2_semis[0] }}"
+                  />
+                  <button
+                    type="submit"
+                    class="team-btn w-full bg-gradient-to-r from-purple-50 to-purple-100 p-3 rounded-xl border-2 border-purple-300 hover:border-purple-500 text-left"
+                  >
+                    <p class="font-bold text-gray-800 text-sm">
+                      {{ bracket_n2_semis[0] }}
+                    </p>
                   </button>
                 </form>
                 <div class="text-center">
-                  <span class="inline-block bg-gray-200 text-gray-600 font-bold px-3 py-1 rounded-full text-xs">VS</span>
+                  <span
+                    class="inline-block bg-gray-200 text-gray-600 font-bold px-3 py-1 rounded-full text-xs"
+                    >VS</span
+                  >
                 </div>
-                <form action="{{ url_for('bracket.advance_team') }}" method="POST">
+                <form
+                  action="{{ url_for('bracket.advance_team') }}"
+                  method="POST"
+                >
                   <input type="hidden" name="level" value="nivel2" />
                   <input type="hidden" name="phase" value="semis" />
                   <input type="hidden" name="match_id" value="s1" />
-                  <input type="hidden" name="winner" value="{{ bracket_n2_semis[1] }}" />
-                  <button type="submit" class="team-btn w-full bg-gradient-to-r from-purple-50 to-purple-100 p-3 rounded-xl border-2 border-purple-300 hover:border-purple-500 text-left">
-                    <p class="font-bold text-gray-800 text-sm">{{ bracket_n2_semis[1] }}</p>
+                  <input
+                    type="hidden"
+                    name="winner"
+                    value="{{ bracket_n2_semis[1] }}"
+                  />
+                  <button
+                    type="submit"
+                    class="team-btn w-full bg-gradient-to-r from-purple-50 to-purple-100 p-3 rounded-xl border-2 border-purple-300 hover:border-purple-500 text-left"
+                  >
+                    <p class="font-bold text-gray-800 text-sm">
+                      {{ bracket_n2_semis[1] }}
+                    </p>
                   </button>
                 </form>
               </div>
             </div>
             {% else %}
-            <div class="bg-gray-100 p-4 rounded-xl text-center text-gray-500 text-sm">
+            <div
+              class="bg-gray-100 p-4 rounded-xl text-center text-gray-500 text-sm"
+            >
               <i class="fas fa-hourglass-half mb-2"></i>
               <p>Esperando ganadores...</p>
             </div>
@@ -838,36 +1007,70 @@
 
             <!-- Semi 2 -->
             {% if bracket_n2_semis|length == 4 %}
-            <div class="match-card bg-white rounded-2xl shadow-lg border-2 border-purple-200 p-4">
+            <div
+              class="match-card bg-white rounded-2xl shadow-lg border-2 border-purple-200 p-4"
+            >
               <div class="text-center mb-2">
-                <span class="bg-purple-100 text-purple-700 text-xs font-bold px-3 py-1 rounded-full">Semi 2</span>
+                <span
+                  class="bg-purple-100 text-purple-700 text-xs font-bold px-3 py-1 rounded-full"
+                  >Semi 2</span
+                >
               </div>
               <div class="space-y-2">
-                <form action="{{ url_for('bracket.advance_team') }}" method="POST">
+                <form
+                  action="{{ url_for('bracket.advance_team') }}"
+                  method="POST"
+                >
                   <input type="hidden" name="level" value="nivel2" />
                   <input type="hidden" name="phase" value="semis" />
                   <input type="hidden" name="match_id" value="s2" />
-                  <input type="hidden" name="winner" value="{{ bracket_n2_semis[2] }}" />
-                  <button type="submit" class="team-btn w-full bg-gradient-to-r from-purple-50 to-purple-100 p-3 rounded-xl border-2 border-purple-300 hover:border-purple-500 text-left">
-                    <p class="font-bold text-gray-800 text-sm">{{ bracket_n2_semis[2] }}</p>
+                  <input
+                    type="hidden"
+                    name="winner"
+                    value="{{ bracket_n2_semis[2] }}"
+                  />
+                  <button
+                    type="submit"
+                    class="team-btn w-full bg-gradient-to-r from-purple-50 to-purple-100 p-3 rounded-xl border-2 border-purple-300 hover:border-purple-500 text-left"
+                  >
+                    <p class="font-bold text-gray-800 text-sm">
+                      {{ bracket_n2_semis[2] }}
+                    </p>
                   </button>
                 </form>
                 <div class="text-center">
-                  <span class="inline-block bg-gray-200 text-gray-600 font-bold px-3 py-1 rounded-full text-xs">VS</span>
+                  <span
+                    class="inline-block bg-gray-200 text-gray-600 font-bold px-3 py-1 rounded-full text-xs"
+                    >VS</span
+                  >
                 </div>
-                <form action="{{ url_for('bracket.advance_team') }}" method="POST">
+                <form
+                  action="{{ url_for('bracket.advance_team') }}"
+                  method="POST"
+                >
                   <input type="hidden" name="level" value="nivel2" />
                   <input type="hidden" name="phase" value="semis" />
                   <input type="hidden" name="match_id" value="s2" />
-                  <input type="hidden" name="winner" value="{{ bracket_n2_semis[3] }}" />
-                  <button type="submit" class="team-btn w-full bg-gradient-to-r from-purple-50 to-purple-100 p-3 rounded-xl border-2 border-purple-300 hover:border-purple-500 text-left">
-                    <p class="font-bold text-gray-800 text-sm">{{ bracket_n2_semis[3] }}</p>
+                  <input
+                    type="hidden"
+                    name="winner"
+                    value="{{ bracket_n2_semis[3] }}"
+                  />
+                  <button
+                    type="submit"
+                    class="team-btn w-full bg-gradient-to-r from-purple-50 to-purple-100 p-3 rounded-xl border-2 border-purple-300 hover:border-purple-500 text-left"
+                  >
+                    <p class="font-bold text-gray-800 text-sm">
+                      {{ bracket_n2_semis[3] }}
+                    </p>
                   </button>
                 </form>
               </div>
             </div>
             {% else %}
-            <div class="bg-gray-100 p-4 rounded-xl text-center text-gray-500 text-sm">
+            <div
+              class="bg-gray-100 p-4 rounded-xl text-center text-gray-500 text-sm"
+            >
               <i class="fas fa-hourglass-half mb-2"></i>
               <p>Esperando ganadores...</p>
             </div>
@@ -877,39 +1080,75 @@
           <!-- Final N2 -->
           <div class="flex items-center justify-center">
             <div class="w-full">
-              <h4 class="text-lg font-bold text-gray-700 text-center mb-4 bg-gradient-to-r from-purple-100 to-purple-200 py-3 rounded-xl">
+              <h4
+                class="text-lg font-bold text-gray-700 text-center mb-4 bg-gradient-to-r from-purple-100 to-purple-200 py-3 rounded-xl"
+              >
                 <i class="fas fa-crown mr-2"></i>Final
               </h4>
 
               {% if bracket_n2_final|length == 2 %}
-              <div class="match-card bg-white rounded-2xl shadow-lg border-2 border-purple-200 p-4">
+              <div
+                class="match-card bg-white rounded-2xl shadow-lg border-2 border-purple-200 p-4"
+              >
                 <div class="text-center mb-2">
-                  <span class="bg-purple-100 text-purple-700 text-xs font-bold px-3 py-1 rounded-full">Final</span>
+                  <span
+                    class="bg-purple-100 text-purple-700 text-xs font-bold px-3 py-1 rounded-full"
+                    >Final</span
+                  >
                 </div>
                 <div class="space-y-2">
-                  <form action="{{ url_for('bracket.advance_team') }}" method="POST">
+                  <form
+                    action="{{ url_for('bracket.advance_team') }}"
+                    method="POST"
+                  >
                     <input type="hidden" name="level" value="nivel2" />
                     <input type="hidden" name="phase" value="final" />
-                    <input type="hidden" name="winner" value="{{ bracket_n2_final[0] }}" />
-                    <button type="submit" class="team-btn w-full bg-gradient-to-r from-purple-50 to-purple-100 p-3 rounded-xl border-2 border-purple-300 hover:border-purple-500 text-left">
-                      <p class="font-bold text-gray-800 text-sm">{{ bracket_n2_final[0] }}</p>
+                    <input
+                      type="hidden"
+                      name="winner"
+                      value="{{ bracket_n2_final[0] }}"
+                    />
+                    <button
+                      type="submit"
+                      class="team-btn w-full bg-gradient-to-r from-purple-50 to-purple-100 p-3 rounded-xl border-2 border-purple-300 hover:border-purple-500 text-left"
+                    >
+                      <p class="font-bold text-gray-800 text-sm">
+                        {{ bracket_n2_final[0] }}
+                      </p>
                     </button>
                   </form>
                   <div class="text-center">
-                    <span class="inline-block bg-gray-200 text-gray-600 font-bold px-3 py-1 rounded-full text-xs">VS</span>
+                    <span
+                      class="inline-block bg-gray-200 text-gray-600 font-bold px-3 py-1 rounded-full text-xs"
+                      >VS</span
+                    >
                   </div>
-                  <form action="{{ url_for('bracket.advance_team') }}" method="POST">
+                  <form
+                    action="{{ url_for('bracket.advance_team') }}"
+                    method="POST"
+                  >
                     <input type="hidden" name="level" value="nivel2" />
                     <input type="hidden" name="phase" value="final" />
-                    <input type="hidden" name="winner" value="{{ bracket_n2_final[1] }}" />
-                    <button type="submit" class="team-btn w-full bg-gradient-to-r from-purple-50 to-purple-100 p-3 rounded-xl border-2 border-purple-300 hover:border-purple-500 text-left">
-                      <p class="font-bold text-gray-800 text-sm">{{ bracket_n2_final[1] }}</p>
+                    <input
+                      type="hidden"
+                      name="winner"
+                      value="{{ bracket_n2_final[1] }}"
+                    />
+                    <button
+                      type="submit"
+                      class="team-btn w-full bg-gradient-to-r from-purple-50 to-purple-100 p-3 rounded-xl border-2 border-purple-300 hover:border-purple-500 text-left"
+                    >
+                      <p class="font-bold text-gray-800 text-sm">
+                        {{ bracket_n2_final[1] }}
+                      </p>
                     </button>
                   </form>
                 </div>
               </div>
               {% else %}
-              <div class="bg-gray-100 p-4 rounded-xl text-center text-gray-500 text-sm">
+              <div
+                class="bg-gray-100 p-4 rounded-xl text-center text-gray-500 text-sm"
+              >
                 <i class="fas fa-hourglass-half mb-2"></i>
                 <p>Esperando finalistas...</p>
               </div>
@@ -922,13 +1161,19 @@
             <div class="text-center">
               <h4 class="text-lg font-bold text-gray-700 mb-6">Campeón</h4>
               {% if bracket_n2_champion %}
-              <div class="bg-gradient-to-br from-yellow-400 to-yellow-600 p-8 rounded-3xl shadow-2xl border-4 border-yellow-300">
+              <div
+                class="bg-gradient-to-br from-yellow-400 to-yellow-600 p-8 rounded-3xl shadow-2xl border-4 border-yellow-300"
+              >
                 <i class="fas fa-crown text-6xl text-white mb-3"></i>
-                <p class="text-white font-black text-xl">{{ bracket_n2_champion }}</p>
+                <p class="text-white font-black text-xl">
+                  {{ bracket_n2_champion }}
+                </p>
                 <p class="text-yellow-100 text-xs mt-2">¡Campeón Nivel II!</p>
               </div>
               {% else %}
-              <div class="bg-gray-200 p-8 rounded-3xl shadow-xl border-4 border-gray-300">
+              <div
+                class="bg-gray-200 p-8 rounded-3xl shadow-xl border-4 border-gray-300"
+              >
                 <i class="fas fa-crown text-6xl text-gray-400 mb-3"></i>
                 <p class="text-gray-600 font-black text-xl">¡TBD!</p>
                 <p class="text-gray-500 text-xs mt-2">A determinar</p>
@@ -941,13 +1186,22 @@
       {% endif %}
 
       <!-- Mensaje si no hay brackets -->
-      {% if (not bracket_n1_quarters or bracket_n1_quarters|length != 8) and (not bracket_n2_quarters or bracket_n2_quarters|length != 8) %}
-      <div class="bg-white rounded-3xl shadow-2xl p-12 text-center animate-fade-in-up">
-        <div class="bg-gray-100 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6">
+      {% if (not bracket_n1_quarters or bracket_n1_quarters|length != 8) and
+      (not bracket_n2_quarters or bracket_n2_quarters|length != 8) %}
+      <div
+        class="bg-white rounded-3xl shadow-2xl p-12 text-center animate-fade-in-up"
+      >
+        <div
+          class="bg-gray-100 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6"
+        >
           <i class="fas fa-info-circle text-5xl text-gray-400"></i>
         </div>
-        <h3 class="text-2xl font-bold text-gray-800 mb-3">No hay brackets generados</h3>
-        <p class="text-gray-600 mb-6">Ve a "Administrar Finales" y selecciona 8 equipos para cada nivel.</p>
+        <h3 class="text-2xl font-bold text-gray-800 mb-3">
+          No hay brackets generados
+        </h3>
+        <p class="text-gray-600 mb-6">
+          Ve a "Administrar Finales" y selecciona 8 equipos para cada nivel.
+        </p>
         <a
           href="{{ url_for('bracket.manage_brackets') }}"
           class="inline-flex items-center space-x-2 bg-gradient-to-r from-purple-500 to-purple-700 text-white font-bold py-3 px-8 rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
@@ -957,10 +1211,6 @@
         </a>
       </div>
       {% endif %}
-    </div>
-  </body>
-</html>
-
     </div>
   </body>
 </html>
