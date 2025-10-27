@@ -37,7 +37,7 @@ def manage_brackets():
         session.modified = True
 
         flash('Bracket creado exitosamente', 'success')
-        return redirect(url_for('bracket.view_brackets'))
+        return redirect(url_for('bracket.manage_brackets'))
 
     # GET: Mostrar formulario
     all_teams = team_service.get_all_teams(use_cache=False)
