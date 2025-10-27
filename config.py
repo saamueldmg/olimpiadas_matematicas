@@ -13,11 +13,11 @@ class Config:
 
     # Seguridad
     SECRET_KEY = os.environ.get(
-        'SECRET_KEY', 'alejandro-diego-gerardo-bosco-tech-2024')
+        'SECRET_KEY', 'B0sc0_T3ch!2024#SafeKey$@93')
 
     # Firebase
     FIREBASE_CREDENTIALS = os.environ.get(
-        'FIREBASE_CREDENTIALS', 'serviceAccountKey.json')
+        'FIREBASE_CREDENTIALS', 'firebase_credentials.json')
 
     # ✅✅✅ BUCKET CORRECTO (NUEVO)
     STORAGE_BUCKET = 'olympic-math.firebasestorage.app'

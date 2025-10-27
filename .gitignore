@@ -1,20 +1,24 @@
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-env/
-venv/
-.venv
-
-# Credenciales
+# Archivos sensibles
 .env
+firebase_credentials.json
 serviceAccountKey.json
 
-# Flask
-instance/
-.webassets-cache
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+
+# Virtual environment
+venv/
+.venv/
+ENV/
 
 # IDE
 .vscode/
@@ -25,3 +29,4 @@ instance/
 # OS
 .DS_Store
 Thumbs.db
+

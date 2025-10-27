@@ -4,6 +4,7 @@ from whitenoise import WhiteNoise
 import firebase_admin
 from firebase_admin import credentials, firestore
 import os
+import json
 
 from config import config
 from models.user import User
@@ -29,7 +30,7 @@ def create_app(config_name=None):
     initialize_firebase(app)
     setup_login_manager(app)
     register_blueprints(app)
-    setup_context_processors(app)  # Nuevo: registrar context processors
+    setup_context_processors(app)
     setup_error_handlers(app)
 
     @app.route('/')
@@ -42,49 +43,72 @@ def create_app(config_name=None):
 
 
 def initialize_firebase(app):
+    """
+    Inicializa Firebase Admin SDK
+    Soporta:
+    - Variable de entorno FIREBASE_CREDENTIALS (JSON string) para producción (Render.com)
+    - Archivo local firebase_credentials.json para desarrollo local
+    """
     try:
-        if not firebase_admin._apps:
-            cred_path = app.config['FIREBASE_CREDENTIALS']
+        # Verificar si ya está inicializado
+        if firebase_admin._apps:
+            app.logger.info("Firebase ya estaba inicializado")
+            return
+
+        # OPCIÓN 1: Variable de entorno (PRODUCCIÓN - Render.com)
+        firebase_creds_json = os.getenv('FIREBASE_CREDENTIALS')
+
+        if firebase_creds_json:
+            app.logger.info(
+                "Usando credenciales de Firebase desde variable de entorno")
+            try:
+                cred_dict = json.loads(firebase_creds_json)
+                cred = credentials.Certificate(cred_dict)
+
+                # Inicializar con bucket
+                firebase_admin.initialize_app(cred, {
+                    'storageBucket': 'olympic-math.firebasestorage.app'
+                })
+
+                print("=" * 60)
+                print("Firebase inicializado desde VARIABLE DE ENTORNO")
+                print(f"Bucket: olympic-math.firebasestorage.app")
+                print("=" * 60)
+
+            except json.JSONDecodeError as e:
+                app.logger.error(
+                    f"Error al parsear JSON de credenciales: {e}")
+                raise
+        else:
+            # OPCIÓN 2: Archivo local (DESARROLLO)
+            app.logger.info(
+                "Usando credenciales de Firebase desde archivo local")
+            cred_path = app.config.get('FIREBASE_CREDENTIALS',
+                                       os.path.join(os.path.dirname(__file__), 'firebase_credentials.json'))
 
             if not os.path.exists(cred_path):
                 raise FileNotFoundError(
-                    f"No se encontró el archivo de credenciales: {cred_path}")
+                    f"No se encontró el archivo de credenciales: {cred_path}\n"
+                    f"Tampoco está configurada la variable de entorno FIREBASE_CREDENTIALS"
+                )
 
             cred = credentials.Certificate(cred_path)
 
-            # ✅✅✅ FORZAR EL BUCKET CORRECTO
+            # Inicializar con bucket
             firebase_admin.initialize_app(cred, {
                 'storageBucket': 'olympic-math.firebasestorage.app'
             })
 
             print("=" * 60)
-            print("🔥 Firebase inicializado correctamente")
-            print(f"📦 Bucket: olympic-math.firebasestorage.app")
+            print("Firebase inicializado desde ARCHIVO LOCAL")
+            print(f"Archivo: {cred_path}")
+            print(f"Bucket: olympic-math.firebasestorage.app")
             print("=" * 60)
 
-            app.logger.info("Firebase inicializado correctamente")
+        app.logger.info("Firebase inicializado correctamente")
 
     except Exception as e:
-        app.logger.error(f"Error crítico al inicializar Firebase: {e}")
-        raise
-
-    try:
-        if not firebase_admin._apps:
-            cred_path = app.config['FIREBASE_CREDENTIALS']
-
-            if not os.path.exists(cred_path):
-                raise FileNotFoundError(
-                    f"No se encontró el archivo de credenciales: {cred_path}")
-
-            cred = credentials.Certificate(cred_path)
-            firebase_admin.initialize_app(cred, {
-                'storageBucket': app.config['STORAGE_BUCKET']
-            })
-
-            app.logger.info("Firebase inicializado correctamente")
-
-    except Exception as e:
-        app.logger.error(f"Error crítico al inicializar Firebase: {e}")
+        app.logger.error(f"Error crítico al inicializar Firebase: {str(e)}")
         raise
 
 
