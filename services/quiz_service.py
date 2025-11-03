@@ -1,58 +1,24 @@
 """
-Servicio para gestión de quizzes
-Olimpiadas Matemáticas - Tuluá
+Servicio para gestión de quiz
 """
 from flask import session
+from services.question_service import QuestionService
+from services.team_service import TeamService
 from firebase_admin import firestore
-import time
 import random
+import time
 
 
 class QuizService:
-    """Servicio para operaciones de quiz"""
-
-    def __init__(self, question_service, team_service):
-        self.question_service = question_service
-        self.team_service = team_service
+    def __init__(self):
         self.db = firestore.client()
-        self._rng = random.SystemRandom()
+        self.question_service = QuestionService()  # ← SIN db (se auto-inicializa)
+        self.team_service = TeamService(self.db)  # ← CON db (lo requiere)
+        self._rng = random.Random()
+        self._rng.seed(int(time.time()))
 
-    def _get_available_questions(self, level):
-        """Obtener preguntas disponibles (NO usadas) del ciclo vigente"""
-        tracking_ref = self.db.collection('question_tracking').document(level)
-        tracking_doc = tracking_ref.get()
-
-        all_questions = self.question_service.get_questions_by_level(level)
-        all_question_ids = [q['id'] for q in all_questions]
-
-        if not all_question_ids:
-            return []
-
-        used_ids = tracking_doc.to_dict().get(
-            'used_questions', []) if tracking_doc.exists else []
-        used_set = set(used_ids)
-
-        available_ids = [
-            qid for qid in all_question_ids if qid not in used_set]
-        return available_ids
-
-    def _mark_questions_as_used(self, level, question_ids):
-        """Marcar preguntas como usadas"""
-        tracking_ref = self.db.collection('question_tracking').document(level)
-        tracking_doc = tracking_ref.get()
-
-        used_ids = tracking_doc.to_dict().get(
-            'used_questions', []) if tracking_doc.exists else []
-        seen = set(used_ids)
-        for qid in question_ids:
-            if qid not in seen:
-                used_ids.append(qid)
-                seen.add(qid)
-
-        tracking_ref.set({'used_questions': used_ids})
-
-    def initialize_quiz(self, level, team1, team2, questions_count=10):
-        """Inicializa sesión con doble aleatoriedad + fill garantizado"""
+    def initialize_quiz(self, level, team1, team2, questions_count=10, round_type='octavos'):
+        """Inicializa sesión con preguntas filtradas POR RONDA (sin tracking)"""
         try:
             level_map = {
                 "Nivel I": "nivel1",
@@ -63,60 +29,27 @@ class QuizService:
             if not firestore_level:
                 return False, "Nivel no válido", None
 
-            K = questions_count
+            # Obtener preguntas de la ronda específica
+            all_questions = self.question_service.get_questions_by_level_and_round(
+                firestore_level, round_type
+            )
 
-            all_questions = self.question_service.get_questions_by_level(
-                firestore_level)
+            if not all_questions:
+                return False, f"No hay preguntas disponibles para {level} en ronda {round_type}", None
+
             all_question_ids = [q['id'] for q in all_questions]
-            if not all_question_ids:
-                return False, f"No hay preguntas disponibles para {level}", None
 
-            if len(all_question_ids) < K:
-                return False, f"No se puede completar {K} sin repetir (total={len(all_question_ids)}).", None
+            if len(all_question_ids) < questions_count:
+                return False, f"Solo hay {len(all_question_ids)} preguntas para esta ronda. Se necesitan {questions_count}.", None
 
-            available_ids = self._get_available_questions(firestore_level)
-
-            tracking_ref = self.db.collection(
-                'question_tracking').document(firestore_level)
-            tracking_doc = tracking_ref.get()
-            used_ids_cycle = tracking_doc.to_dict().get(
-                'used_questions', []) if tracking_doc.exists else []
-
-            if len(available_ids) >= K:
-                selected_ids = self._rng.sample(available_ids, K)
-                self._mark_questions_as_used(firestore_level, selected_ids)
-            else:
-                restante = available_ids[:]
-                self._rng.shuffle(restante)
-                faltan = K - len(restante)
-
-                tracking_ref.set({'used_questions': []})
-
-                avoid_set = set(restante)
-                prefer_pool = [qid for qid in all_question_ids
-                               if qid not in avoid_set and qid not in set(used_ids_cycle)]
-
-                fill_ids = []
-                if len(prefer_pool) >= faltan:
-                    fill_ids = self._rng.sample(prefer_pool, faltan)
-                else:
-                    if prefer_pool:
-                        self._rng.shuffle(prefer_pool)
-                        take = min(len(prefer_pool), faltan)
-                        fill_ids.extend(prefer_pool[:take])
-
-                    faltan2 = faltan - len(fill_ids)
-                    fallback_pool = [qid for qid in all_question_ids
-                                     if qid not in avoid_set and qid not in set(fill_ids)]
-                    fill_ids.extend(self._rng.sample(fallback_pool, faltan2))
-
-                selected_ids = restante + fill_ids
-                tracking_ref.set({'used_questions': fill_ids})
-
+            # Selección aleatoria simple (sin tracking)
+            selected_ids = self._rng.sample(all_question_ids, questions_count)
             self._rng.shuffle(selected_ids)
 
+            # Guardar en sesión
             session['quiz_level'] = level
             session['quiz_teams'] = [team1, team2]
+            session['quiz_round'] = round_type
             session['quiz_question_ids'] = selected_ids
             session['current_question_index'] = 0
             session['quiz_scores'] = {team1: 0, team2: 0}
@@ -130,109 +63,149 @@ class QuizService:
 
     def get_current_question(self):
         """Obtiene la pregunta actual del quiz"""
-        question_ids = session.get('quiz_question_ids', [])
-        index = session.get('current_question_index', 0)
+        try:
+            question_ids = session.get('quiz_question_ids', [])
+            current_index = session.get('current_question_index', 0)
 
-        if index >= len(question_ids):
+            if current_index >= len(question_ids):
+                return None
+
+            question_id = question_ids[current_index]
+            question = self.question_service.get_question_by_id(question_id)
+
+            if not question:
+                return None
+
+            # Mezclar opciones
+            options = question.get('options', {})
+            options_list = list(options.items())
+            self._rng.shuffle(options_list)
+            question['shuffled_options'] = options_list
+
+            # Guardar tiempo de inicio
+            if session.get('question_start_time') is None:
+                session['question_start_time'] = time.time()
+                session.modified = True
+
+            return question
+
+        except Exception as e:
+            print(f"Error al obtener pregunta actual: {e}")
             return None
-
-        question_id = question_ids[index]
-        return self.question_service.get_question_by_id(question_id)
-
-    def start_question_timer(self):
-        """Inicia el temporizador para la pregunta actual"""
-        if 'question_start_time' not in session or session['question_start_time'] is None:
-            session['question_start_time'] = time.time()
-            session.modified = True
-
-    def get_remaining_time(self, max_time=300):
-        """Calcula el tiempo restante en segundos"""
-        start_time = session.get('question_start_time')
-        if not start_time:
-            return max_time
-
-        elapsed = time.time() - start_time
-        remaining = max(0, max_time - int(elapsed))
-        return remaining
 
     def check_answer(self, user_answer):
         """Verifica si la respuesta es correcta"""
-        question = self.get_current_question()
-        if not question:
-            return False, None
-        correct_answer = question.get('correct')
-        is_correct = (user_answer == correct_answer)
-        return is_correct, correct_answer
+        try:
+            question_ids = session.get('quiz_question_ids', [])
+            current_index = session.get('current_question_index', 0)
 
-    def assign_points(self, team_name, points):
+            if current_index >= len(question_ids):
+                return False, None
+
+            question_id = question_ids[current_index]
+            question = self.question_service.get_question_by_id(question_id)
+
+            if not question:
+                return False, None
+
+            correct_answer = question.get('correct')
+            is_correct = user_answer == correct_answer
+
+            return is_correct, correct_answer
+
+        except Exception as e:
+            print(f"Error al verificar respuesta: {e}")
+            return False, None
+
+    def assign_points(self, team_name, points=1):
         """Asigna puntos a un equipo"""
-        if 'quiz_scores' not in session or team_name not in session['quiz_scores']:
+        try:
+            if 'quiz_scores' not in session or team_name not in session['quiz_scores']:
+                return False
+
+            points = int(points)
+            session['quiz_scores'][team_name] += points
+            session.modified = True
+
+            # Actualizar puntos en Firebase
+            self.team_service.update_team_score(team_name, points)
+
+            return True
+        except Exception as e:
+            print(f"Error al asignar puntos: {e}")
             return False
-        session['quiz_scores'][team_name] += points
-        session.modified = True
-        self.team_service.update_team_score(team_name, points)
-        return True
 
     def next_question(self):
         """Avanza a la siguiente pregunta"""
-        session['current_question_index'] = session.get(
-            'current_question_index', 0) + 1
-        session['question_start_time'] = None
-        session.modified = True
+        try:
+            session['current_question_index'] = session.get(
+                'current_question_index', 0) + 1
+            session['question_start_time'] = None
+            session.modified = True
+            return True
+        except Exception as e:
+            print(f"Error al avanzar pregunta: {e}")
+            return False
 
     def is_quiz_finished(self):
         """Verifica si el quiz ha terminado"""
-        question_ids = session.get('quiz_question_ids', [])
-        index = session.get('current_question_index', 0)
-        return index >= len(question_ids)
+        try:
+            question_ids = session.get('quiz_question_ids', [])
+            current_index = session.get('current_question_index', 0)
+            return current_index >= len(question_ids)
+        except Exception as e:
+            print(f"Error al verificar fin de quiz: {e}")
+            return True
 
     def get_quiz_results(self):
-        """Obtener resultados finales del quiz"""
-        scores = session.get('quiz_scores', {})
-        teams = session.get('quiz_teams', [])
-        if not scores or not teams:
-            return {}, None, "No hay resultados disponibles"
-
-        team1, team2 = teams[0], teams[1]
-        score1 = scores.get(team1, 0)
-        score2 = scores.get(team2, 0)
-
-        if score1 == score2:
-            winner = "Empate"
-            message = f"¡Empate! Ambos equipos terminaron con {score1} puntos"
-        elif score1 > score2:
-            winner = team1
-            message = f"¡{team1} es el ganador con {score1} puntos!"
-        else:
-            winner = team2
-            message = f"¡{team2} es el ganador con {score2} puntos!"
-
-        return scores, winner, message
-
-    def break_tie(self, winner_team):
-        """Romper empate asignando +1 punto al equipo ganador"""
+        """Obtiene los resultados del quiz"""
         try:
-            # Asignar punto adicional
-            success = self.team_service.update_team_score(winner_team, 1)
+            teams = session.get('quiz_teams', [])
+            scores = session.get('quiz_scores', {})
 
-            if success:
-                # Actualizar scores en sesión si aún existe
-                if 'quiz_scores' in session and winner_team in session['quiz_scores']:
-                    session['quiz_scores'][winner_team] += 1
-                    session.modified = True
+            results = []
+            for team in teams:
+                results.append({
+                    'team': team,
+                    'score': scores.get(team, 0)
+                })
 
-                return True, f"{winner_team} gana el duelo por desempate! (+1 punto)"
-            else:
-                return False, "Error al asignar punto de desempate"
+            results.sort(key=lambda x: x['score'], reverse=True)
+
+            return results
         except Exception as e:
-            return False, f"❌ Error: {str(e)}"
+            print(f"Error al obtener resultados: {e}")
+            return []
 
     def clear_quiz_session(self):
         """Limpia la sesión del quiz"""
-        keys_to_clear = [
-            'quiz_level', 'quiz_teams', 'quiz_question_ids',
-            'current_question_index', 'quiz_scores', 'question_start_time'
-        ]
-        for key in keys_to_clear:
-            session.pop(key, None)
-        session.modified = True
+        try:
+            quiz_keys = [
+                'quiz_level',
+                'quiz_teams',
+                'quiz_round',
+                'quiz_question_ids',
+                'current_question_index',
+                'quiz_scores',
+                'question_start_time'
+            ]
+
+            for key in quiz_keys:
+                session.pop(key, None)
+
+            session.modified = True
+            return True
+        except Exception as e:
+            print(f"Error al limpiar sesión: {e}")
+            return False
+
+    def get_elapsed_time(self):
+        """Obtiene el tiempo transcurrido de la pregunta actual"""
+        try:
+            start_time = session.get('question_start_time')
+            if start_time is None:
+                return 0
+            return int(time.time() - start_time)
+        except Exception as e:
+            print(f"Error al obtener tiempo: {e}")
+            return 0

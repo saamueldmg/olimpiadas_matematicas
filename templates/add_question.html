@@ -110,8 +110,8 @@
           enctype="multipart/form-data"
           class="p-8 space-y-8"
         >
-          <!-- Paso 1 y 2: Nivel e Imagen -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Paso 1, 2 y 3: Nivel, Ronda e Imagen -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <!-- Nivel -->
             <div>
               <label
@@ -137,6 +137,32 @@
               </select>
             </div>
 
+            <!-- Ronda del Torneo (CAMBIADO: "octavos" en lugar de "general") -->
+            <div>
+              <label
+                for="round"
+                class="flex items-center text-lg font-bold text-gray-700 mb-3"
+              >
+                <div
+                  class="bg-orange-100 text-orange-600 w-10 h-10 rounded-full flex items-center justify-center mr-3 font-bold shadow-sm"
+                >
+                  2
+                </div>
+                Ronda del Torneo
+              </label>
+              <select
+                name="round"
+                id="round"
+                required
+                class="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-orange-200 focus:border-orange-500 text-base bg-white transition shadow-sm font-semibold"
+              >
+                <option value="octavos">Octavos de Final</option>
+                <option value="quarters">Cuartos de Final</option>
+                <option value="semis">Semifinales</option>
+                <option value="final">Final</option>
+              </select>
+            </div>
+
             <!-- Imagen -->
             <div>
               <label
@@ -146,7 +172,7 @@
                 <div
                   class="bg-purple-100 text-purple-600 w-10 h-10 rounded-full flex items-center justify-center mr-3 font-bold shadow-sm"
                 >
-                  2
+                  3
                 </div>
                 Imagen de la Pregunta
               </label>
@@ -175,7 +201,7 @@
             </div>
           </div>
 
-          <!-- Paso 3: Opciones -->
+          <!-- Paso 4: Opciones -->
           <div>
             <label
               class="flex items-center text-lg font-bold text-gray-700 mb-4"
@@ -183,7 +209,7 @@
               <div
                 class="bg-green-100 text-green-600 w-10 h-10 rounded-full flex items-center justify-center mr-3 font-bold shadow-sm"
               >
-                3
+                4
               </div>
               Opciones de Respuesta
             </label>

@@ -16,39 +16,142 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
     <style>
+      :root {
+        --brand-700: #1f3a8a;
+        --brand-600: #2563eb;
+        --brand-500: #3b82f6;
+        --accent-rose: #f43f5e;
+        --accent-indigo: #7c3aed;
+        --accent-sky: #0ea5e9;
+        --accent-emerald: #22c55e;
+        --accent-amber: #f59e0b;
+        --surface: #ffffff;
+        --bg: #f8fafc;
+        --muted: #64748b;
+        --shadow-sm: 0 8px 18px rgba(2, 6, 23, 0.08);
+        --shadow-md: 0 14px 28px rgba(2, 6, 23, 0.1);
+        --shadow-lg: 0 22px 44px rgba(2, 6, 23, 0.14);
+        --radius: 1.25rem;
+      }
+
       body {
         font-family: "Inter", sans-serif;
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         min-height: 100vh;
       }
+
+      /* Animaciones unificadas del dashboard */
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(24px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .animate-fade-in-up {
+        animation: fadeInUp 0.6s ease-out;
+      }
+
+      /* Botones de nivel con animaciones del dashboard */
       .level-button {
-        transition: all 0.3s ease;
-        opacity: 0.6;
-        cursor: pointer;
         position: relative;
         overflow: hidden;
+        border-radius: var(--radius);
+        box-shadow: var(--shadow-sm);
+        transition: transform 0.16s ease, box-shadow 0.16s ease,
+          opacity 0.16s ease;
+        will-change: transform, box-shadow;
+        opacity: 0.75;
+        cursor: pointer;
       }
-      .level-button::before {
-        content: "";
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        width: 0;
-        height: 0;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, 0.2);
-        transform: translate(-50%, -50%);
-        transition: width 0.6s, height 0.6s;
+
+      .level-button:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-lg);
+        opacity: 0.9;
       }
-      .level-button:hover::before {
-        width: 300px;
-        height: 300px;
-      }
+
       .level-button.active {
         opacity: 1;
-        transform: translateY(-8px) scale(1.05);
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        transform: translateY(-6px) scale(1.02);
+        box-shadow: var(--shadow-lg);
       }
+
+      /* Efecto de brillo del dashboard */
+      .level-button::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          120deg,
+          rgba(255, 255, 255, 0) 25%,
+          rgba(255, 255, 255, 0.28) 50%,
+          rgba(255, 255, 255, 0) 75%
+        );
+        transform: translateX(-120%);
+        opacity: 0;
+        transition: transform 0.8s ease, opacity 0.8s ease;
+        pointer-events: none;
+      }
+
+      .level-button:hover::after {
+        transform: translateX(0);
+        opacity: 1;
+      }
+
+      /* Botones de ronda con animaciones del dashboard */
+      .round-button {
+        position: relative;
+        overflow: hidden;
+        border-radius: 0.9rem;
+        box-shadow: var(--shadow-sm);
+        transition: transform 0.16s ease, box-shadow 0.16s ease,
+          opacity 0.16s ease, border-color 0.16s ease;
+        will-change: transform, box-shadow;
+        opacity: 0.75;
+        cursor: pointer;
+        border: 3px solid transparent;
+      }
+
+      .round-button:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-md);
+        opacity: 0.9;
+      }
+
+      .round-button.active {
+        opacity: 1;
+        border-color: white;
+        transform: scale(1.05) translateY(-4px);
+        box-shadow: var(--shadow-lg);
+      }
+
+      .round-button::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          120deg,
+          rgba(255, 255, 255, 0) 25%,
+          rgba(255, 255, 255, 0.28) 50%,
+          rgba(255, 255, 255, 0) 75%
+        );
+        transform: translateX(-120%);
+        opacity: 0;
+        transition: transform 0.8s ease, opacity 0.8s ease;
+        pointer-events: none;
+      }
+
+      .round-button:hover::after {
+        transform: translateX(0);
+        opacity: 1;
+      }
+
+      /* Selectores personalizados */
       .custom-select {
         appearance: none;
         background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
@@ -57,54 +160,50 @@
         background-size: 1.5em 1.5em;
         padding-right: 2.5rem;
         cursor: pointer;
+        transition: border-color 0.16s ease, box-shadow 0.16s ease;
       }
-      .custom-select::-webkit-scrollbar {
-        width: 10px;
-      }
-      .custom-select::-webkit-scrollbar-track {
-        background: #f1f5f9;
-        border-radius: 10px;
-        margin: 4px;
-      }
-      .custom-select::-webkit-scrollbar-thumb {
-        background: linear-gradient(135deg, #9333ea 0%, #7c3aed 100%);
-        border-radius: 10px;
-        border: 2px solid #f1f5f9;
-      }
-      .custom-select::-webkit-scrollbar-thumb:hover {
-        background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
-      }
+
       .custom-select:disabled {
         background-color: #f3f4f6;
         cursor: not-allowed;
         opacity: 0.6;
       }
-      @keyframes fadeInUp {
-        from {
-          opacity: 0;
-          transform: translateY(30px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
+
+      /* Fondo con créditos */
+      .background-credits {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        opacity: 0.4;
+        pointer-events: none;
       }
-      .animate-fade-in-up {
-        animation: fadeInUp 0.6s ease-out;
+
+      .credits-card {
+        position: absolute;
+        bottom: 2rem;
+        left: 2rem;
+        right: 2rem;
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(15px);
+        border: 1.5px solid rgba(255, 255, 255, 0.15);
+        border-radius: 2rem;
+        padding: 2.5rem;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      }
+
+      .logo-item {
+        transition: transform 0.16s ease;
+      }
+
+      .logo-item:hover {
+        transform: scale(1.1);
       }
     </style>
   </head>
-  <body class="min-h-screen p-4 sm:p-6 md:p-8">
-    <script>
-      const teamsData = {
-          nivel1: {{ teams_n1 | tojson }},
-          nivel2: {{ teams_n2 | tojson }}
-      };
-    </script>
-
-    <div class="container mx-auto max-w-5xl animate-fade-in-up">
+    <!-- CONTENIDO PRINCIPAL (FRENTE) -->
+    <div class="container mx-auto max-w-5xl animate-fade-in-up relative z-10">
       <header
-        class="bg-white rounded-2xl shadow-xl p-6 mb-8 flex flex-col sm:flex-row justify-between items-center"
+        class="bg-white rounded-2xl shadow-md p-6 mb-8 flex flex-col sm:flex-row justify-between items-center"
       >
         <div class="flex items-center space-x-4">
           <div
@@ -113,7 +212,7 @@
             <i class="fas fa-rocket text-3xl"></i>
           </div>
           <div>
-            <h1 class="text-3xl font-bold text-gray-800">Iniciar Concurso</h1>
+            <h1 class="text-3xl font-black text-gray-900">Iniciar Concurso</h1>
             <p class="text-gray-500">
               Prepara la competencia seleccionando los equipos y el nivel
             </p>
@@ -128,7 +227,7 @@
         </a>
       </header>
 
-      <main class="bg-white p-8 rounded-3xl shadow-2xl">
+      <main class="bg-white p-8 rounded-3xl shadow-md">
         {% if error %}
         <div
           class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-lg mb-6 animate-fade-in-up"
@@ -151,7 +250,9 @@
           class="space-y-10"
         >
           <input type="hidden" name="level" id="selected-level" value="" />
+          <input type="hidden" name="round" id="selected-round" value="" />
 
+          <!-- PASO 1: NIVEL -->
           <section>
             <div class="flex items-center mb-6">
               <div
@@ -159,7 +260,7 @@
               >
                 1
               </div>
-              <h2 class="text-2xl font-bold text-gray-800">
+              <h2 class="text-2xl font-black text-gray-900">
                 Elige el Nivel del Desafío
               </h2>
             </div>
@@ -168,7 +269,7 @@
                 id="btn-nivel1"
                 data-level="Nivel I"
                 data-key="nivel1"
-                class="level-button bg-gradient-to-br from-blue-500 to-blue-600 text-white font-bold py-8 px-6 rounded-2xl shadow-lg text-center hover:shadow-2xl"
+                class="level-button bg-gradient-to-br from-blue-500 to-blue-600 text-white font-bold py-8 px-6 rounded-2xl shadow-lg text-center"
               >
                 <i class="fas fa-award text-4xl mb-3 block"></i>
                 <span class="text-2xl block">Nivel I</span>
@@ -178,7 +279,7 @@
                 id="btn-nivel2"
                 data-level="Nivel II"
                 data-key="nivel2"
-                class="level-button bg-gradient-to-br from-purple-500 to-purple-600 text-white font-bold py-8 px-6 rounded-2xl shadow-lg text-center hover:shadow-2xl"
+                class="level-button bg-gradient-to-br from-purple-500 to-purple-600 text-white font-bold py-8 px-6 rounded-2xl shadow-lg text-center"
               >
                 <i class="fas fa-medal text-4xl mb-3 block"></i>
                 <span class="text-2xl block">Nivel II</span>
@@ -188,7 +289,7 @@
                 id="btn-nivel3"
                 data-level="Nivel III"
                 data-key="nivel3"
-                class="level-button bg-gradient-to-br from-red-500 to-red-600 text-white font-bold py-8 px-6 rounded-2xl shadow-lg text-center hover:shadow-2xl"
+                class="level-button bg-gradient-to-br from-red-500 to-red-600 text-white font-bold py-8 px-6 rounded-2xl shadow-lg text-center"
               >
                 <i class="fas fa-trophy text-4xl mb-3 block"></i>
                 <span class="text-2xl block">Nivel III</span>
@@ -208,14 +309,78 @@
             </div>
           </div>
 
+          <!-- PASO 2: RONDA -->
+          <section>
+            <div class="flex items-center mb-6">
+              <div
+                class="bg-purple-100 text-purple-600 w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg mr-4"
+              >
+                2
+              </div>
+              <h2 class="text-2xl font-black text-gray-900">
+                Selecciona la Ronda del Torneo
+              </h2>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div
+                id="btn-octavos"
+                data-round="octavos"
+                class="round-button bg-gradient-to-br from-blue-400 to-indigo-500 text-white font-bold py-6 px-4 rounded-xl shadow-lg text-center"
+              >
+                <div class="text-3xl mb-2 font-bold">1/8</div>
+                <span class="text-sm block font-semibold">Octavos</span>
+              </div>
+
+              <div
+                id="btn-quarters"
+                data-round="quarters"
+                class="round-button bg-gradient-to-br from-indigo-400 to-purple-500 text-white font-bold py-6 px-4 rounded-xl shadow-lg text-center"
+              >
+                <div class="text-3xl mb-2 font-bold">1/4</div>
+                <span class="text-sm block font-semibold">Cuartos</span>
+              </div>
+
+              <div
+                id="btn-semis"
+                data-round="semis"
+                class="round-button bg-gradient-to-br from-purple-400 to-violet-500 text-white font-bold py-6 px-4 rounded-xl shadow-lg text-center"
+              >
+                <div class="text-3xl mb-2 font-bold">1/2</div>
+                <span class="text-sm block font-semibold">Semifinales</span>
+              </div>
+
+              <div
+                id="btn-final"
+                data-round="final"
+                class="round-button bg-gradient-to-br from-violet-500 to-fuchsia-500 text-white font-bold py-6 px-4 rounded-xl shadow-lg text-center"
+              >
+                <div class="text-3xl mb-2">🏆</div>
+                <span class="text-sm block font-semibold">Final</span>
+              </div>
+            </div>
+          </section>
+
+          <div class="relative">
+            <div class="absolute inset-0 flex items-center">
+              <div class="w-full border-t-2 border-gray-200"></div>
+            </div>
+            <div class="relative flex justify-center">
+              <span class="bg-white px-4 text-gray-400">
+                <i class="fas fa-arrow-down"></i>
+              </span>
+            </div>
+          </div>
+
+          <!-- PASO 3: EQUIPOS -->
           <section>
             <div class="flex items-center mb-6">
               <div
                 class="bg-indigo-100 text-indigo-600 w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg mr-4"
               >
-                2
+                3
               </div>
-              <h2 class="text-2xl font-bold text-gray-800">
+              <h2 class="text-2xl font-black text-gray-900">
                 Selecciona los Contendientes
               </h2>
             </div>
@@ -270,7 +435,8 @@
             </div>
           </section>
 
-          <div class="text-center pt-6">
+          <!-- BOTONES DE CONTROL -->
+          <div class="pt-6 flex gap-4 justify-center">
             <button
               id="submit-button"
               type="submit"
@@ -278,7 +444,7 @@
               disabled
             >
               <i class="fas fa-lock mr-2"></i>
-              Selecciona un Nivel
+              Selecciona Nivel y Ronda
             </button>
           </div>
         </form>
@@ -290,6 +456,7 @@
         const team1Select = document.getElementById("team1");
         const team2Select = document.getElementById("team2");
         const selectedLevelInput = document.getElementById("selected-level");
+        const selectedRoundInput = document.getElementById("selected-round");
         const submitButton = document.getElementById("submit-button");
         const form = document.getElementById("quiz-form");
 
@@ -299,20 +466,33 @@
           document.getElementById("btn-nivel3"),
         ];
 
+        const roundButtons = [
+          document.getElementById("btn-octavos"),
+          document.getElementById("btn-quarters"),
+          document.getElementById("btn-semis"),
+          document.getElementById("btn-final"),
+        ];
+
+        const teamsData = {
+          nivel1: {{ teams_n1 | tojson }},
+          nivel2: {{ teams_n2 | tojson }},
+          nivel3: {{ teams_n3 | tojson }},
+        };
+
+        let selectedLevel = null;
+        let selectedRound = null;
+
         function populateSelect(selectElement, teams) {
           selectElement.innerHTML = "";
-
           if (!teams || teams.length === 0) {
             selectElement.disabled = true;
             selectElement.innerHTML =
               '<option value="">No hay equipos para este nivel</option>';
             return;
           }
-
           selectElement.disabled = false;
           selectElement.innerHTML =
             '<option value="" disabled selected>Selecciona un equipo...</option>';
-
           teams.forEach((team) => {
             const option = document.createElement("option");
             option.value = team;
@@ -321,58 +501,68 @@
           });
         }
 
+        function updateSubmitButton() {
+          if (selectedLevel && selectedRound) {
+            submitButton.disabled = false;
+            submitButton.innerHTML =
+              '<i class="fas fa-play-circle mr-2"></i> Iniciar Duelo';
+            submitButton.classList.remove("bg-gray-400", "cursor-not-allowed");
+            submitButton.classList.add(
+              "bg-gradient-to-r",
+              "from-purple-600",
+              "to-indigo-600",
+              "hover:from-purple-700",
+              "hover:to-indigo-700",
+              "transform",
+              "hover:scale-105",
+              "hover:shadow-2xl"
+            );
+          } else {
+            submitButton.disabled = true;
+            let missing = [];
+            if (!selectedLevel) missing.push("Nivel");
+            if (!selectedRound) missing.push("Ronda");
+            submitButton.innerHTML =
+              '<i class="fas fa-lock mr-2"></i> Selecciona ' + missing.join(" y ");
+            submitButton.classList.add("bg-gray-400", "cursor-not-allowed");
+            submitButton.classList.remove(
+              "bg-gradient-to-r",
+              "from-purple-600",
+              "to-indigo-600",
+              "hover:from-purple-700",
+              "hover:to-indigo-700",
+              "transform",
+              "hover:scale-105",
+              "hover:shadow-2xl"
+            );
+          }
+        }
+
         levelButtons.forEach((button) => {
           button.addEventListener("click", (e) => {
             e.preventDefault();
-
             levelButtons.forEach((btn) => btn.classList.remove("active"));
             button.classList.add("active");
-
             const levelName = button.dataset.level;
             const levelKey = button.dataset.key;
-
+            selectedLevel = levelName;
             selectedLevelInput.value = levelName;
-
             const teamsForLevel = teamsData[levelKey] || [];
             populateSelect(team1Select, teamsForLevel);
             populateSelect(team2Select, teamsForLevel);
+            updateSubmitButton();
+          });
+        });
 
-            if (teamsForLevel.length > 0) {
-              submitButton.disabled = false;
-              submitButton.innerHTML =
-                '<i class="fas fa-play-circle mr-2"></i> Iniciar Duelo - ' +
-                levelName;
-              submitButton.classList.remove(
-                "bg-gray-400",
-                "cursor-not-allowed"
-              );
-              submitButton.classList.add(
-                "bg-gradient-to-r",
-                "from-purple-600",
-                "to-indigo-600",
-                "hover:from-purple-700",
-                "hover:to-indigo-700",
-                "transform",
-                "hover:scale-105",
-                "hover:shadow-2xl"
-              );
-            } else {
-              submitButton.disabled = true;
-              submitButton.innerHTML =
-                '<i class="fas fa-exclamation-circle mr-2"></i> No hay equipos para ' +
-                levelName;
-              submitButton.classList.add("bg-gray-400", "cursor-not-allowed");
-              submitButton.classList.remove(
-                "bg-gradient-to-r",
-                "from-purple-600",
-                "to-indigo-600",
-                "hover:from-purple-700",
-                "hover:to-indigo-700",
-                "transform",
-                "hover:scale-105",
-                "hover:shadow-2xl"
-              );
-            }
+        roundButtons.forEach((button) => {
+          button.addEventListener("click", (e) => {
+            e.preventDefault();
+            roundButtons.forEach((btn) => btn.classList.remove("active"));
+            button.classList.add("active");
+            const roundValue = button.dataset.round;
+            selectedRound = roundValue;
+            selectedRoundInput.value = roundValue;
+            updateSubmitButton();
           });
         });
 
@@ -393,10 +583,10 @@
         );
 
         form.addEventListener("submit", (e) => {
-          if (!selectedLevelInput.value) {
+          if (!selectedLevelInput.value || !selectedRoundInput.value) {
             e.preventDefault();
             alert(
-              "Por favor, selecciona un nivel haciendo clic en uno de los botones."
+              "Por favor, selecciona un nivel y una ronda antes de continuar."
             );
           }
         });

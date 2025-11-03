@@ -1,16 +1,14 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
 from flask_login import login_required
-from firebase_admin import firestore
-
 from services.question_service import QuestionService
 from utils.decorators import handle_errors
 
-question_bp = Blueprint('question', __name__)
+question_bp = Blueprint('question', __name__, url_prefix='/question')
 
 
 def get_question_service():
-    db = firestore.client()
-    return QuestionService(db)
+    """Helper para obtener instancia de QuestionService"""
+    return QuestionService()
 
 
 @question_bp.route('/manage-questions')
@@ -18,15 +16,16 @@ def get_question_service():
 @handle_errors
 def manage_questions():
     question_service = get_question_service()
+    questions = question_service.get_all_questions()
 
-    nivel1 = question_service.get_questions_by_level('nivel1')
-    nivel2 = question_service.get_questions_by_level('nivel2')
-    nivel3 = question_service.get_questions_by_level('nivel3')
+    questions_n1 = [q for q in questions if q.get('level') == 'nivel1']
+    questions_n2 = [q for q in questions if q.get('level') == 'nivel2']
+    questions_n3 = [q for q in questions if q.get('level') == 'nivel3']
 
     return render_template('manage_questions.html',
-                           questions_n1=nivel1,
-                           questions_n2=nivel2,
-                           questions_n3=nivel3)
+                           questions_n1=questions_n1,
+                           questions_n2=questions_n2,
+                           questions_n3=questions_n3)
 
 
 @question_bp.route('/add-question', methods=['GET', 'POST'])
@@ -37,6 +36,7 @@ def add_question():
         question_service = get_question_service()
 
         level = request.form.get('level')
+        round_type = request.form.get('round')  # NUEVO: Obtener ronda
         image_file = request.files.get('question_image')
         option_a = request.form.get('option_a')
         option_b = request.form.get('option_b')
@@ -45,7 +45,7 @@ def add_question():
         correct = request.form.get('correct')
 
         # Validaciones
-        if not all([level, image_file, option_a, option_b, option_c, option_d, correct]):
+        if not all([level, round_type, image_file, option_a, option_b, option_c, option_d, correct]):
             flash('Debes completar todos los campos', 'error')
             return redirect(url_for('question.add_question'))
 
@@ -63,9 +63,9 @@ def add_question():
             'd': option_d
         }
 
-        # Agregar pregunta
+        # Agregar pregunta CON RONDA
         success, message = question_service.add_question(
-            level, image_url, options, correct)
+            level, round_type, image_url, options, correct)
 
         flash(message, 'success' if success else 'error')
         return redirect(url_for('question.manage_questions'))
@@ -78,8 +78,19 @@ def add_question():
 @handle_errors
 def delete_question(question_id):
     question_service = get_question_service()
-
     success, message = question_service.delete_question(question_id)
-    flash(message, 'success' if success else 'error')
 
+    flash(message, 'success' if success else 'error')
     return redirect(url_for('question.manage_questions'))
+
+
+@question_bp.route('/get-question/<question_id>')
+@login_required
+@handle_errors
+def get_question(question_id):
+    question_service = get_question_service()
+    question = question_service.get_question_by_id(question_id)
+
+    if question:
+        return jsonify(question)
+    return jsonify({'error': 'Pregunta no encontrada'}), 404

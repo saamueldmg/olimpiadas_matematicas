@@ -39,13 +39,16 @@
         transition: max-height 0.5s ease-in-out;
       }
       .accordion-content.open {
-        max-height: 2000px;
+        max-height: 5000px;
       }
       .accordion-header i {
         transition: transform 0.3s ease-in-out;
       }
       .accordion-header.open i {
         transform: rotate(180deg);
+      }
+      .round-section {
+        transition: all 0.3s ease;
       }
       .thumbnail {
         transition: all 0.2s ease-in-out;
@@ -81,7 +84,7 @@
                 Administrar Preguntas
               </h1>
               <p class="text-gray-500 mt-1 text-lg">
-                Selecciona una pregunta de la galería para ver sus detalles
+                Organizado por nivel y ronda del torneo
               </p>
             </div>
           </div>
@@ -95,8 +98,25 @@
         </div>
       </header>
 
-      <!-- Contenido Principal con Acordeones -->
+      <!-- Contenido Principal -->
       <main class="space-y-6">
+        {% set rounds = {'octavos': 'Octavos', 'quarters': 'Cuartos', 'semis':
+        'Semifinales', 'final': 'Final'} %} {% set round_colors = { 'octavos':
+        {'bg': 'from-blue-50 to-indigo-50', 'border': 'border-blue-200', 'text':
+        'text-blue-700', 'badge_bg': 'bg-blue-100', 'badge_text':
+        'text-blue-700', 'icon_bg': 'bg-blue-100', 'icon_text':
+        'text-blue-600'}, 'quarters': {'bg': 'from-indigo-50 to-purple-50',
+        'border': 'border-indigo-200', 'text': 'text-indigo-700', 'badge_bg':
+        'bg-indigo-100', 'badge_text': 'text-indigo-700', 'icon_bg':
+        'bg-indigo-100', 'icon_text': 'text-indigo-600'}, 'semis': {'bg':
+        'from-purple-50 to-violet-50', 'border': 'border-purple-200', 'text':
+        'text-purple-700', 'badge_bg': 'bg-purple-100', 'badge_text':
+        'text-purple-700', 'icon_bg': 'bg-purple-100', 'icon_text':
+        'text-purple-600'}, 'final': {'bg': 'from-violet-50 to-fuchsia-50',
+        'border': 'border-violet-200', 'text': 'text-violet-700', 'badge_bg':
+        'bg-violet-100', 'badge_text': 'text-violet-700', 'icon_bg':
+        'bg-violet-100', 'icon_text': 'text-violet-600'} } %}
+
         <!-- Nivel I -->
         <div
           class="accordion-item bg-white rounded-3xl shadow-2xl overflow-hidden animate-fade-in-up"
@@ -124,95 +144,130 @@
             <i class="fas fa-chevron-down text-gray-500 text-2xl"></i>
           </div>
           <div class="accordion-content">
-            <div
-              class="p-6 border-t-2 border-gray-100 grid grid-cols-1 md:grid-cols-3 gap-6"
-            >
-              <!-- Columna de Galería -->
+            <div class="p-6 border-t-2 border-gray-100 space-y-6">
+              {% for round_key, round_name in rounds.items() %} {% set
+              round_questions = questions_n1 | selectattr('round', 'equalto',
+              round_key) | list %} {% set colors = round_colors[round_key] %}
               <div
-                class="md:col-span-1 h-96 overflow-y-auto space-y-4 pr-4 custom-scrollbar"
+                class="round-section bg-gradient-to-r {{ colors.bg }} p-4 rounded-2xl border-2 {{ colors.border }}"
               >
-                {% if questions_n1 %} {% for question in questions_n1 %}
-                <div
-                  class="thumbnail rounded-xl p-2 bg-gray-50"
-                  onclick="showDetails('nivel1', '{{ question.id }}')"
-                >
-                  <img
-                    src="{{ question.question_image }}"
-                    class="w-full h-auto object-cover rounded-lg"
-                    alt="Pregunta {{ loop.index }}"
-                  />
-                </div>
-                {% endfor %} {% else %}
-                <div class="text-center py-12 text-gray-400">
-                  <i class="fas fa-inbox text-4xl mb-3"></i>
-                  <p class="font-semibold">No hay preguntas en Nivel I</p>
-                </div>
-                {% endif %}
-              </div>
-
-              <!-- Columna de Detalles -->
-              <div class="md:col-span-2">
-                <div id="details-container-nivel1" class="h-full">
-                  <div
-                    class="placeholder-nivel1 flex flex-col items-center justify-center h-full text-gray-400"
-                  >
+                <div class="flex items-center justify-between mb-4">
+                  <div class="flex items-center space-x-3">
                     <div
-                      class="bg-gray-100 w-24 h-24 rounded-full flex items-center justify-center mb-4"
+                      class="{{ colors.icon_bg }} {{ colors.icon_text }} w-10 h-10 rounded-xl flex items-center justify-center font-bold shadow-sm"
                     >
-                      <i class="fas fa-eye text-5xl text-gray-400"></i>
+                      {% if round_key == 'octavos' %}1/8{% elif round_key ==
+                      'quarters' %}1/4{% elif round_key == 'semis' %}1/2{% else
+                      %}🏆{% endif %}
                     </div>
-                    <p class="text-xl font-semibold">
-                      Selecciona una pregunta para verla aquí
-                    </p>
+                    <h3 class="text-xl font-bold {{ colors.text }}">
+                      {{ round_name }}
+                    </h3>
+                    <span
+                      class="{{ colors.badge_bg }} {{ colors.badge_text }} text-sm font-bold px-3 py-1 rounded-full"
+                    >
+                      {{ round_questions|length }} Preguntas
+                    </span>
                   </div>
+                </div>
 
-                  {% for question in questions_n1 %}
+                {% if round_questions %}
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <!-- Galería -->
                   <div
-                    id="detail-{{ question.id }}"
-                    class="question-detail-nivel1 hidden"
+                    class="md:col-span-1 h-72 overflow-y-auto space-y-3 pr-2"
                   >
+                    {% for question in round_questions %}
                     <div
-                      class="w-full h-80 bg-gradient-to-br from-gray-50 to-gray-100 border-2 border-gray-200 rounded-2xl flex items-center justify-center overflow-hidden mx-auto mb-6 shadow-inner"
+                      class="thumbnail rounded-xl p-2 bg-white"
+                      onclick="showDetails('nivel1-{{ round_key }}', '{{ question.id }}')"
                     >
                       <img
                         src="{{ question.question_image }}"
-                        class="max-w-full max-h-full object-contain"
-                        alt="Pregunta completa"
+                        class="w-full h-auto object-cover rounded-lg"
+                        alt="Pregunta {{ loop.index }}"
                       />
                     </div>
-                    <ul class="space-y-3 mb-6">
-                      {% for key, value in question.options.items() %}
-                      <li
-                        class="flex items-center text-gray-700 text-base p-3 rounded-xl transition {% if key == question.correct %}bg-green-50 border-2 border-green-300 font-bold text-green-700{% else %}bg-gray-50 border-2 border-gray-200{% endif %}"
+                    {% endfor %}
+                  </div>
+
+                  <!-- Detalles -->
+                  <div class="md:col-span-2">
+                    <div
+                      id="details-container-nivel1-{{ round_key }}"
+                      class="h-full"
+                    >
+                      <div
+                        class="placeholder-nivel1-{{ round_key }} flex flex-col items-center justify-center h-full text-gray-400"
                       >
-                        <i
-                          class="{% if key == question.correct %}fas fa-check-circle text-green-600{% else %}far fa-circle text-gray-400{% endif %} mr-3 text-xl"
-                        ></i>
-                        <span class="font-black mr-2 text-lg"
-                          >{{ key.upper() }})</span
+                        <div
+                          class="bg-gray-100 w-20 h-20 rounded-full flex items-center justify-center mb-3"
                         >
-                        {{ value }}
-                      </li>
+                          <i class="fas fa-eye text-4xl text-gray-400"></i>
+                        </div>
+                        <p class="text-lg font-semibold">
+                          Selecciona una pregunta
+                        </p>
+                      </div>
+
+                      {% for question in round_questions %}
+                      <div
+                        id="detail-{{ question.id }}"
+                        class="question-detail-nivel1-{{ round_key }} hidden"
+                      >
+                        <div
+                          class="w-full h-64 bg-white border-2 border-gray-200 rounded-xl flex items-center justify-center overflow-hidden mb-4 shadow-sm"
+                        >
+                          <img
+                            src="{{ question.question_image }}"
+                            class="max-w-full max-h-full object-contain"
+                            alt="Pregunta completa"
+                          />
+                        </div>
+                        <ul class="space-y-2 mb-4">
+                          {% for key, value in question.options.items() %}
+                          <li
+                            class="flex items-center text-sm p-2 rounded-lg transition {% if key == question.correct %}bg-green-50 border-2 border-green-300 font-bold text-green-700{% else %}bg-white border border-gray-200{% endif %}"
+                          >
+                            <i
+                              class="{% if key == question.correct %}fas fa-check-circle text-green-600{% else %}far fa-circle text-gray-400{% endif %} mr-2"
+                            ></i>
+                            <span class="font-black mr-2"
+                              >{{ key.upper() }})</span
+                            >
+                            {{ value }}
+                          </li>
+                          {% endfor %}
+                        </ul>
+                        <div class="text-right">
+                          <form
+                            action="{{ url_for('question.delete_question', question_id=question.id) }}"
+                            method="POST"
+                            onsubmit="return confirm('¿Estás seguro de eliminar esta pregunta?');"
+                          >
+                            <button
+                              type="submit"
+                              class="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition transform hover:scale-105 text-sm"
+                            >
+                              <i class="fas fa-trash-alt mr-1"></i>Eliminar
+                            </button>
+                          </form>
+                        </div>
+                      </div>
                       {% endfor %}
-                    </ul>
-                    <div class="text-right mt-6">
-                      <form
-                        action="{{ url_for('question.delete_question', question_id=question.id) }}"
-                        method="POST"
-                        onsubmit="return confirm('¿Estás seguro de eliminar esta pregunta?');"
-                      >
-                        <button
-                          type="submit"
-                          class="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-bold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transition transform hover:scale-105"
-                        >
-                          <i class="fas fa-trash-alt mr-2"></i>Eliminar Pregunta
-                        </button>
-                      </form>
                     </div>
                   </div>
-                  {% endfor %}
                 </div>
+                {% else %}
+                <div class="text-center py-8 {{ colors.text }} opacity-60">
+                  <i class="fas fa-inbox text-3xl mb-2"></i>
+                  <p class="font-semibold">
+                    No hay preguntas para {{ round_name }}
+                  </p>
+                </div>
+                {% endif %}
               </div>
+              {% endfor %}
             </div>
           </div>
         </div>
@@ -244,95 +299,131 @@
             <i class="fas fa-chevron-down text-gray-500 text-2xl"></i>
           </div>
           <div class="accordion-content">
-            <div
-              class="p-6 border-t-2 border-gray-100 grid grid-cols-1 md:grid-cols-3 gap-6"
-            >
-              <div class="md:col-span-1 h-96 overflow-y-auto space-y-4 pr-4">
-                {% if questions_n2 %} {% for question in questions_n2 %}
-                <div
-                  class="thumbnail rounded-xl p-2 bg-gray-50"
-                  onclick="showDetails('nivel2', '{{ question.id }}')"
-                >
-                  <img
-                    src="{{ question.question_image }}"
-                    class="w-full h-auto object-cover rounded-lg"
-                    alt="Pregunta {{ loop.index }}"
-                  />
-                </div>
-                {% endfor %} {% else %}
-                <div class="text-center py-12 text-gray-400">
-                  <i class="fas fa-inbox text-4xl mb-3"></i>
-                  <p class="font-semibold">No hay preguntas en Nivel II</p>
-                </div>
-                {% endif %}
-              </div>
-
-              <div class="md:col-span-2">
-                <div id="details-container-nivel2" class="h-full">
-                  <div
-                    class="placeholder-nivel2 flex flex-col items-center justify-center h-full text-gray-400"
-                  >
+            <div class="p-6 border-t-2 border-gray-100 space-y-6">
+              {% for round_key, round_name in rounds.items() %} {% set
+              round_questions = questions_n2 | selectattr('round', 'equalto',
+              round_key) | list %} {% set colors = round_colors[round_key] %}
+              <div
+                class="round-section bg-gradient-to-r {{ colors.bg }} p-4 rounded-2xl border-2 {{ colors.border }}"
+              >
+                <div class="flex items-center justify-between mb-4">
+                  <div class="flex items-center space-x-3">
                     <div
-                      class="bg-gray-100 w-24 h-24 rounded-full flex items-center justify-center mb-4"
+                      class="{{ colors.icon_bg }} {{ colors.icon_text }} w-10 h-10 rounded-xl flex items-center justify-center font-bold shadow-sm"
                     >
-                      <i class="fas fa-eye text-5xl text-gray-400"></i>
+                      {% if round_key == 'octavos' %}1/8{% elif round_key ==
+                      'quarters' %}1/4{% elif round_key == 'semis' %}1/2{% else
+                      %}🏆{% endif %}
                     </div>
-                    <p class="text-xl font-semibold">
-                      Selecciona una pregunta para verla aquí
-                    </p>
+                    <h3 class="text-xl font-bold {{ colors.text }}">
+                      {{ round_name }}
+                    </h3>
+                    <span
+                      class="{{ colors.badge_bg }} {{ colors.badge_text }} text-sm font-bold px-3 py-1 rounded-full"
+                    >
+                      {{ round_questions|length }} Preguntas
+                    </span>
                   </div>
+                </div>
 
-                  {% for question in questions_n2 %}
+                {% if round_questions %}
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div
-                    id="detail-{{ question.id }}"
-                    class="question-detail-nivel2 hidden"
+                    class="md:col-span-1 h-72 overflow-y-auto space-y-3 pr-2"
                   >
+                    {% for question in round_questions %}
                     <div
-                      class="w-full h-80 bg-gradient-to-br from-gray-50 to-gray-100 border-2 border-gray-200 rounded-2xl flex items-center justify-center overflow-hidden mx-auto mb-6 shadow-inner"
+                      class="thumbnail rounded-xl p-2 bg-white"
+                      onclick="showDetails('nivel2-{{ round_key }}', '{{ question.id }}')"
                     >
                       <img
                         src="{{ question.question_image }}"
-                        class="max-w-full max-h-full object-contain"
+                        class="w-full h-auto object-cover rounded-lg"
                       />
                     </div>
-                    <ul class="space-y-3 mb-6">
-                      {% for key, value in question.options.items() %}
-                      <li
-                        class="flex items-center text-gray-700 text-base p-3 rounded-xl transition {% if key == question.correct %}bg-green-50 border-2 border-green-300 font-bold text-green-700{% else %}bg-gray-50 border-2 border-gray-200{% endif %}"
+                    {% endfor %}
+                  </div>
+
+                  <div class="md:col-span-2">
+                    <div
+                      id="details-container-nivel2-{{ round_key }}"
+                      class="h-full"
+                    >
+                      <div
+                        class="placeholder-nivel2-{{ round_key }} flex flex-col items-center justify-center h-full text-gray-400"
                       >
-                        <i
-                          class="{% if key == question.correct %}fas fa-check-circle text-green-600{% else %}far fa-circle text-gray-400{% endif %} mr-3 text-xl"
-                        ></i>
-                        <span class="font-black mr-2 text-lg"
-                          >{{ key.upper() }})</span
+                        <div
+                          class="bg-gray-100 w-20 h-20 rounded-full flex items-center justify-center mb-3"
                         >
-                        {{ value }}
-                      </li>
+                          <i class="fas fa-eye text-4xl text-gray-400"></i>
+                        </div>
+                        <p class="text-lg font-semibold">
+                          Selecciona una pregunta
+                        </p>
+                      </div>
+
+                      {% for question in round_questions %}
+                      <div
+                        id="detail-{{ question.id }}"
+                        class="question-detail-nivel2-{{ round_key }} hidden"
+                      >
+                        <div
+                          class="w-full h-64 bg-white border-2 border-gray-200 rounded-xl flex items-center justify-center overflow-hidden mb-4 shadow-sm"
+                        >
+                          <img
+                            src="{{ question.question_image }}"
+                            class="max-w-full max-h-full object-contain"
+                          />
+                        </div>
+                        <ul class="space-y-2 mb-4">
+                          {% for key, value in question.options.items() %}
+                          <li
+                            class="flex items-center text-sm p-2 rounded-lg transition {% if key == question.correct %}bg-green-50 border-2 border-green-300 font-bold text-green-700{% else %}bg-white border border-gray-200{% endif %}"
+                          >
+                            <i
+                              class="{% if key == question.correct %}fas fa-check-circle text-green-600{% else %}far fa-circle text-gray-400{% endif %} mr-2"
+                            ></i>
+                            <span class="font-black mr-2"
+                              >{{ key.upper() }})</span
+                            >
+                            {{ value }}
+                          </li>
+                          {% endfor %}
+                        </ul>
+                        <div class="text-right">
+                          <form
+                            action="{{ url_for('question.delete_question', question_id=question.id) }}"
+                            method="POST"
+                            onsubmit="return confirm('¿Estás seguro de eliminar esta pregunta?');"
+                          >
+                            <button
+                              type="submit"
+                              class="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition transform hover:scale-105 text-sm"
+                            >
+                              <i class="fas fa-trash-alt mr-1"></i>Eliminar
+                            </button>
+                          </form>
+                        </div>
+                      </div>
                       {% endfor %}
-                    </ul>
-                    <div class="text-right mt-6">
-                      <form
-                        action="{{ url_for('question.delete_question', question_id=question.id) }}"
-                        method="POST"
-                        onsubmit="return confirm('¿Estás seguro de eliminar esta pregunta?');"
-                      >
-                        <button
-                          type="submit"
-                          class="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-bold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transition transform hover:scale-105"
-                        >
-                          <i class="fas fa-trash-alt mr-2"></i>Eliminar Pregunta
-                        </button>
-                      </form>
                     </div>
                   </div>
-                  {% endfor %}
                 </div>
+                {% else %}
+                <div class="text-center py-8 {{ colors.text }} opacity-60">
+                  <i class="fas fa-inbox text-3xl mb-2"></i>
+                  <p class="font-semibold">
+                    No hay preguntas para {{ round_name }}
+                  </p>
+                </div>
+                {% endif %}
               </div>
+              {% endfor %}
             </div>
           </div>
         </div>
 
-        <!-- Nivel III (Solo si lo necesitas en el futuro) -->
+        <!-- Nivel III -->
         <div
           class="accordion-item bg-white rounded-3xl shadow-2xl overflow-hidden animate-fade-in-up"
           style="animation-delay: 0.3s"
@@ -359,89 +450,126 @@
             <i class="fas fa-chevron-down text-gray-500 text-2xl"></i>
           </div>
           <div class="accordion-content">
-            <div
-              class="p-6 border-t-2 border-gray-100 grid grid-cols-1 md:grid-cols-3 gap-6"
-            >
-              <div class="md:col-span-1 h-96 overflow-y-auto space-y-4 pr-4">
-                {% if questions_n3 %} {% for question in questions_n3 %}
-                <div
-                  class="thumbnail rounded-xl p-2 bg-gray-50"
-                  onclick="showDetails('nivel3', '{{ question.id }}')"
-                >
-                  <img
-                    src="{{ question.question_image }}"
-                    class="w-full h-auto object-cover rounded-lg"
-                  />
-                </div>
-                {% endfor %} {% else %}
-                <div class="text-center py-12 text-gray-400">
-                  <i class="fas fa-inbox text-4xl mb-3"></i>
-                  <p class="font-semibold">No hay preguntas en Nivel III</p>
-                </div>
-                {% endif %}
-              </div>
-
-              <div class="md:col-span-2">
-                <div id="details-container-nivel3" class="h-full">
-                  <div
-                    class="placeholder-nivel3 flex flex-col items-center justify-center h-full text-gray-400"
-                  >
+            <div class="p-6 border-t-2 border-gray-100 space-y-6">
+              {% for round_key, round_name in rounds.items() %} {% set
+              round_questions = questions_n3 | selectattr('round', 'equalto',
+              round_key) | list %} {% set colors = round_colors[round_key] %}
+              <div
+                class="round-section bg-gradient-to-r {{ colors.bg }} p-4 rounded-2xl border-2 {{ colors.border }}"
+              >
+                <div class="flex items-center justify-between mb-4">
+                  <div class="flex items-center space-x-3">
                     <div
-                      class="bg-gray-100 w-24 h-24 rounded-full flex items-center justify-center mb-4"
+                      class="{{ colors.icon_bg }} {{ colors.icon_text }} w-10 h-10 rounded-xl flex items-center justify-center font-bold shadow-sm"
                     >
-                      <i class="fas fa-eye text-5xl text-gray-400"></i>
+                      {% if round_key == 'octavos' %}1/8{% elif round_key ==
+                      'quarters' %}1/4{% elif round_key == 'semis' %}1/2{% else
+                      %}🏆{% endif %}
                     </div>
-                    <p class="text-xl font-semibold">
-                      Selecciona una pregunta para verla aquí
-                    </p>
+                    <h3 class="text-xl font-bold {{ colors.text }}">
+                      {{ round_name }}
+                    </h3>
+                    <span
+                      class="{{ colors.badge_bg }} {{ colors.badge_text }} text-sm font-bold px-3 py-1 rounded-full"
+                    >
+                      {{ round_questions|length }} Preguntas
+                    </span>
                   </div>
+                </div>
 
-                  {% for question in questions_n3 %}
+                {% if round_questions %}
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div
-                    id="detail-{{ question.id }}"
-                    class="question-detail-nivel3 hidden"
+                    class="md:col-span-1 h-72 overflow-y-auto space-y-3 pr-2"
                   >
+                    {% for question in round_questions %}
                     <div
-                      class="w-full h-80 bg-gradient-to-br from-gray-50 to-gray-100 border-2 border-gray-200 rounded-2xl flex items-center justify-center overflow-hidden mx-auto mb-6 shadow-inner"
+                      class="thumbnail rounded-xl p-2 bg-white"
+                      onclick="showDetails('nivel3-{{ round_key }}', '{{ question.id }}')"
                     >
                       <img
                         src="{{ question.question_image }}"
-                        class="max-w-full max-h-full object-contain"
+                        class="w-full h-auto object-cover rounded-lg"
                       />
                     </div>
-                    <ul class="space-y-3 mb-6">
-                      {% for key, value in question.options.items() %}
-                      <li
-                        class="flex items-center text-gray-700 text-base p-3 rounded-xl transition {% if key == question.correct %}bg-green-50 border-2 border-green-300 font-bold text-green-700{% else %}bg-gray-50 border-2 border-gray-200{% endif %}"
+                    {% endfor %}
+                  </div>
+
+                  <div class="md:col-span-2">
+                    <div
+                      id="details-container-nivel3-{{ round_key }}"
+                      class="h-full"
+                    >
+                      <div
+                        class="placeholder-nivel3-{{ round_key }} flex flex-col items-center justify-center h-full text-gray-400"
                       >
-                        <i
-                          class="{% if key == question.correct %}fas fa-check-circle text-green-600{% else %}far fa-circle text-gray-400{% endif %} mr-3 text-xl"
-                        ></i>
-                        <span class="font-black mr-2 text-lg"
-                          >{{ key.upper() }})</span
+                        <div
+                          class="bg-gray-100 w-20 h-20 rounded-full flex items-center justify-center mb-3"
                         >
-                        {{ value }}
-                      </li>
+                          <i class="fas fa-eye text-4xl text-gray-400"></i>
+                        </div>
+                        <p class="text-lg font-semibold">
+                          Selecciona una pregunta
+                        </p>
+                      </div>
+
+                      {% for question in round_questions %}
+                      <div
+                        id="detail-{{ question.id }}"
+                        class="question-detail-nivel3-{{ round_key }} hidden"
+                      >
+                        <div
+                          class="w-full h-64 bg-white border-2 border-gray-200 rounded-xl flex items-center justify-center overflow-hidden mb-4 shadow-sm"
+                        >
+                          <img
+                            src="{{ question.question_image }}"
+                            class="max-w-full max-h-full object-contain"
+                          />
+                        </div>
+                        <ul class="space-y-2 mb-4">
+                          {% for key, value in question.options.items() %}
+                          <li
+                            class="flex items-center text-sm p-2 rounded-lg transition {% if key == question.correct %}bg-green-50 border-2 border-green-300 font-bold text-green-700{% else %}bg-white border border-gray-200{% endif %}"
+                          >
+                            <i
+                              class="{% if key == question.correct %}fas fa-check-circle text-green-600{% else %}far fa-circle text-gray-400{% endif %} mr-2"
+                            ></i>
+                            <span class="font-black mr-2"
+                              >{{ key.upper() }})</span
+                            >
+                            {{ value }}
+                          </li>
+                          {% endfor %}
+                        </ul>
+                        <div class="text-right">
+                          <form
+                            action="{{ url_for('question.delete_question', question_id=question.id) }}"
+                            method="POST"
+                            onsubmit="return confirm('¿Estás seguro de eliminar esta pregunta?');"
+                          >
+                            <button
+                              type="submit"
+                              class="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition transform hover:scale-105 text-sm"
+                            >
+                              <i class="fas fa-trash-alt mr-1"></i>Eliminar
+                            </button>
+                          </form>
+                        </div>
+                      </div>
                       {% endfor %}
-                    </ul>
-                    <div class="text-right mt-6">
-                      <form
-                        action="{{ url_for('question.delete_question', question_id=question.id) }}"
-                        method="POST"
-                        onsubmit="return confirm('¿Estás seguro de eliminar esta pregunta?');"
-                      >
-                        <button
-                          type="submit"
-                          class="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-bold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transition transform hover:scale-105"
-                        >
-                          <i class="fas fa-trash-alt mr-2"></i>Eliminar Pregunta
-                        </button>
-                      </form>
                     </div>
                   </div>
-                  {% endfor %}
                 </div>
+                {% else %}
+                <div class="text-center py-8 {{ colors.text }} opacity-60">
+                  <i class="fas fa-inbox text-3xl mb-2"></i>
+                  <p class="font-semibold">
+                    No hay preguntas para {{ round_name }}
+                  </p>
+                </div>
+                {% endif %}
               </div>
+              {% endfor %}
             </div>
           </div>
         </div>
@@ -449,12 +577,10 @@
     </div>
 
     <script>
-      // Toggle acordeón
       function toggleAccordion(header) {
         const content = header.nextElementSibling;
         const isOpen = content.classList.contains("open");
 
-        // Cerrar todos
         document
           .querySelectorAll(".accordion-content")
           .forEach((c) => c.classList.remove("open"));
@@ -462,32 +588,28 @@
           .querySelectorAll(".accordion-header")
           .forEach((h) => h.classList.remove("open"));
 
-        // Abrir el clickeado
         if (!isOpen) {
           content.classList.add("open");
           header.classList.add("open");
         }
       }
 
-      // Mostrar detalles de pregunta
-      function showDetails(nivel, questionId) {
-        const container = document.getElementById(`details-container-${nivel}`);
-        const placeholder = container.querySelector(`.placeholder-${nivel}`);
+      function showDetails(section, questionId) {
+        const container = document.getElementById(
+          `details-container-${section}`
+        );
+        const placeholder = container.querySelector(`.placeholder-${section}`);
         const allDetails = container.querySelectorAll(
-          `.question-detail-${nivel}`
+          `.question-detail-${section}`
         );
         const selectedDetail = document.getElementById(`detail-${questionId}`);
 
-        // Ocultar todo
         if (placeholder) placeholder.style.display = "none";
         allDetails.forEach((detail) => detail.classList.add("hidden"));
 
-        // Mostrar seleccionado
         if (selectedDetail) selectedDetail.classList.remove("hidden");
 
-        // Actualizar thumbnails activos
-        const accordionContent =
-          event.currentTarget.closest(".accordion-content");
+        const accordionContent = event.currentTarget.closest(".round-section");
         const thumbnails = accordionContent.querySelectorAll(".thumbnail");
         thumbnails.forEach((t) => t.classList.remove("active"));
         event.currentTarget.classList.add("active");
