@@ -68,7 +68,7 @@ def add_question():
             level, round_type, image_url, options, correct)
 
         flash(message, 'success' if success else 'error')
-        return redirect(url_for('question.manage_questions'))
+        return redirect(url_for('add_question.html'))
 
     return render_template('add_question.html')
 
