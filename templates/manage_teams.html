@@ -117,24 +117,6 @@
         </div>
       </header>
 
-      <!-- Flash Messages -->
-      {% with messages = get_flashed_messages(with_categories=true) %} {% if
-      messages %}
-      <div class="mb-6 space-y-3">
-        {% for category, message in messages %}
-        <div
-          class="p-4 rounded-xl text-sm animate-fade-in-up bg-white shadow-lg {% if category == 'success' %} border-l-4 border-green-500 {% elif category == 'error' %} border-l-4 border-red-500 {% else %} border-l-4 border-blue-500 {% endif %}"
-          role="alert"
-        >
-          <i
-            class="fas fa-{% if category == 'error' %}times-circle text-red-500{% else %}check-circle text-green-500{% endif %} mr-2"
-          ></i>
-          {{ message }}
-        </div>
-        {% endfor %}
-      </div>
-      {% endif %} {% endwith %}
-
       <!-- Contenido Principal -->
       <main class="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <!-- Columna Nivel I -->
