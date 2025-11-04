@@ -71,8 +71,12 @@ class QuestionService:
         """Obtener preguntas por nivel (sin filtro de ronda)"""
         try:
             questions_ref = self.db.collection('questions')
+            # SINTAXIS MODERNA - SIN WARNING
             questions_query = questions_ref.where(
-                'level', '==', level).stream()
+                field_path='level',
+                op_string='==',
+                value=level
+            ).stream()
 
             questions = []
             for doc in questions_query:
@@ -86,11 +90,17 @@ class QuestionService:
             return []
 
     def get_questions_by_level_and_round(self, level, round_type):
-        """Obtener preguntas de un nivel Y ronda específica"""
+        """Obtener preguntas de un nivel Y ronda específica - SIN WARNINGS"""
         try:
             questions_ref = self.db.collection('questions')
-            questions_query = questions_ref.where('level', '==', level).where(
-                'round', '==', round_type).stream()
+
+            # SINTAXIS MODERNA CON KEYWORD ARGUMENTS
+            questions_query = (
+                questions_ref
+                .where(field_path='level', op_string='==', value=level)
+                .where(field_path='round', op_string='==', value=round_type)
+                .stream()
+            )
 
             questions = []
             for doc in questions_query:
@@ -98,9 +108,13 @@ class QuestionService:
                 question['id'] = doc.id
                 questions.append(question)
 
+            # DEBUG: Mostrar cuántas preguntas se encontraron
+            print(
+                f"✅ Encontradas {len(questions)} preguntas para {level} - {round_type}")
+
             return questions
         except Exception as e:
-            print(f"Error al obtener preguntas: {e}")
+            print(f"❌ Error al obtener preguntas: {e}")
             return []
 
     def get_question_by_id(self, question_id):
