@@ -25,7 +25,7 @@
         cursor: pointer;
       }
       .option-label:hover {
-        transform: translateY(-3px);
+        transform: translateY(-2px);
         box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
         border-color: #3b82f6;
       }
@@ -34,18 +34,50 @@
         color: white;
         border-color: #1d4ed8;
         box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
-        transform: translateY(-3px);
+        transform: translateY(-2px);
       }
+
+      /* Animaciones del timer */
       .timer-warning {
-        animation: pulse 1s infinite;
+        animation: pulseRed 1s infinite;
       }
-      @keyframes pulse {
+      .timer-allowed {
+        animation: pulseGreen 1s infinite;
+      }
+      .timer-paused {
+        animation: pulseOrange 1s infinite;
+      }
+      @keyframes pulseRed {
         0%,
         100% {
-          opacity: 1;
+          transform: scale(1);
+          box-shadow: 0 4px 8px rgba(220, 38, 38, 0.4);
         }
         50% {
-          opacity: 0.5;
+          transform: scale(1.05);
+          box-shadow: 0 6px 20px rgba(220, 38, 38, 0.6);
+        }
+      }
+      @keyframes pulseGreen {
+        0%,
+        100% {
+          transform: scale(1);
+          box-shadow: 0 4px 8px rgba(34, 197, 94, 0.4);
+        }
+        50% {
+          transform: scale(1.05);
+          box-shadow: 0 6px 20px rgba(34, 197, 94, 0.6);
+        }
+      }
+      @keyframes pulseOrange {
+        0%,
+        100% {
+          transform: scale(1);
+          box-shadow: 0 4px 8px rgba(249, 115, 22, 0.4);
+        }
+        50% {
+          transform: scale(1.05);
+          box-shadow: 0 6px 20px rgba(249, 115, 22, 0.6);
         }
       }
       @keyframes fadeIn {
@@ -61,9 +93,51 @@
       .animate-fade-in {
         animation: fadeIn 0.5s ease-out;
       }
+
+      /* Timer elegante y compacto */
+      #timer {
+        font-size: 1.5rem;
+        letter-spacing: 0.1rem;
+        line-height: 1;
+        font-weight: 700;
+      }
+      #timer-status {
+        font-size: 0.6rem;
+        line-height: 1.2;
+      }
+      #timer-container {
+        transition: all 0.3s ease;
+      }
+
+      /* Alerta flotante */
+      .button-alert {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 100;
+        animation: slideInRight 0.5s ease-out;
+      }
+      @keyframes slideInRight {
+        from {
+          transform: translateX(400px);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+
+      /* Separador */
+      .timer-divider {
+        width: 1px;
+        height: 30px;
+        background: rgba(255, 255, 255, 0.2);
+      }
     </style>
   </head>
-  <body class="min-h-screen p-4 sm:p-6 md:p-8 flex items-center justify-center">
+  <body class="min-h-screen p-3 sm:p-4 flex items-start justify-center">
+    <!-- Modal de tiempo agotado -->
     <div
       id="time-up-modal"
       class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 hidden"
@@ -91,98 +165,177 @@
       </div>
     </div>
 
-    <div class="container mx-auto max-w-6xl w-full">
-      <header
-        class="bg-white rounded-2xl shadow-xl p-6 mb-6 flex flex-col sm:flex-row justify-between items-center"
+    <!-- Modal de penalización -->
+    <div
+      id="penalty-modal"
+      class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 hidden"
+    >
+      <div
+        class="bg-white rounded-3xl shadow-2xl p-8 text-center max-w-md mx-4 animate-fade-in"
       >
-        <div class="flex items-center space-x-4">
+        <div
+          class="bg-red-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4"
+        >
+          <i class="fas fa-exclamation-triangle text-4xl text-red-500"></i>
+        </div>
+        <h2 class="text-3xl font-bold text-red-600 mb-3">¡PENALIZACIÓN!</h2>
+        <p class="text-gray-600 mb-4 text-lg">
+          Presionaron el botón antes del tiempo permitido (3:00)
+        </p>
+        <p class="text-gray-700 font-bold mb-6">Turno para el otro equipo</p>
+        <button
+          onclick="closePenaltyModal()"
+          class="w-full bg-gradient-to-r from-red-600 to-red-700 text-white font-bold py-4 px-6 rounded-xl shadow-lg hover:shadow-xl transition transform hover:scale-105"
+        >
+          Entendido
+        </button>
+      </div>
+    </div>
+
+    <!-- Alerta flotante elegante -->
+    <div id="button-allowed-alert" class="hidden button-alert">
+      <div
+        class="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center space-x-3"
+      >
+        <div class="bg-white bg-opacity-20 p-2 rounded-full">
+          <i class="fas fa-hand-pointer text-2xl"></i>
+        </div>
+        <div class="text-left">
+          <h3 class="text-lg font-bold leading-tight">¡Pueden Presionar!</h3>
+          <p class="text-xs opacity-90">Botón físico habilitado</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Alerta de tiempo pausado -->
+    <div id="paused-alert" class="hidden button-alert" style="top: 100px">
+      <div
+        class="bg-gradient-to-r from-orange-500 to-orange-600 text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center space-x-3"
+      >
+        <div class="bg-white bg-opacity-20 p-2 rounded-full">
+          <i class="fas fa-pause-circle text-2xl"></i>
+        </div>
+        <div class="text-left">
+          <h3 class="text-lg font-bold leading-tight">Tiempo Pausado</h3>
+          <p class="text-xs opacity-90">Respuesta seleccionada</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="container mx-auto max-w-7xl w-full">
+      <!-- Header compacto optimizado -->
+      <header
+        class="bg-white rounded-2xl shadow-xl p-3 mb-3 flex flex-col sm:flex-row justify-between items-center gap-2"
+      >
+        <!-- Info de la pregunta -->
+        <div class="flex items-center space-x-3">
           <div
-            class="bg-gradient-to-br from-purple-500 to-indigo-600 text-white p-4 rounded-xl shadow-lg"
+            class="bg-gradient-to-br from-purple-500 to-indigo-600 text-white p-2.5 rounded-xl shadow-lg"
           >
-            <i class="fas fa-brain text-3xl"></i>
+            <i class="fas fa-brain text-xl"></i>
           </div>
           <div>
-            <h1 class="text-3xl font-bold text-gray-800">
+            <h1 class="text-xl sm:text-2xl font-bold text-gray-800">
               Pregunta {{ question_number }} de {{ total_questions }}
             </h1>
-            <p class="text-gray-500">Selecciona la respuesta correcta</p>
+            <p class="text-gray-500 text-xs">
+              Selecciona la respuesta correcta
+            </p>
           </div>
         </div>
+
+        <!-- Timer compacto -->
         <div
           id="timer-container"
-          class="flex items-center space-x-3 bg-gradient-to-r from-gray-800 to-gray-900 text-white rounded-full px-6 py-3 mt-4 sm:mt-0 shadow-lg"
+          class="flex items-center gap-2.5 bg-gradient-to-br from-gray-800 to-gray-900 text-white rounded-xl shadow-lg px-3.5 py-2"
         >
-          <i class="fas fa-stopwatch text-xl"></i>
-          <span id="timer" class="text-2xl font-mono font-bold tracking-wider"
-            >05:00</span
-          >
+          <i class="fas fa-stopwatch text-base opacity-90"></i>
+          <div class="timer-divider"></div>
+          <div class="flex flex-col items-center">
+            <div id="timer" class="font-mono">05:00</div>
+            <div id="timer-status" class="text-center opacity-75 mt-0.5">
+              <i class="fas fa-lock" style="font-size: 0.5rem"></i> Hasta 3:00
+            </div>
+          </div>
         </div>
       </header>
 
-      <main class="bg-white p-8 rounded-3xl shadow-2xl">
+      <!-- Contenido principal del quiz -->
+      <main class="bg-white p-4 rounded-3xl shadow-2xl">
         <form
           id="quiz-form"
           action="{{ url_for('quiz.submit_answer') }}"
           method="post"
         >
-          <section class="mb-8">
-            <div
-              class="w-full h-[35rem] bg-gradient-to-br from-gray-50 to-gray-100 border-4 border-gray-200 rounded-2xl flex items-center justify-center overflow-hidden mb-6 shadow-inner"
-            >
-              {% if 'question_image' in question %}
-              <img
-                src="{{ question.question_image }}"
-                alt="Imagen de la pregunta"
-                class="w-full h-full object-contain p-4"
-              />
-              {% else %}
-              <div class="text-center">
-                <i class="fas fa-image text-6xl text-gray-300 mb-4"></i>
-                <p class="text-gray-400 text-xl">
-                  No hay imagen para esta pregunta
-                </p>
-              </div>
-              {% endif %}
-            </div>
-          </section>
-
-          <section class="grid grid-cols-1 md:grid-cols-2 gap-5">
-            {% for key, value in question.options.items() %}
-            <div class="relative">
-              <input
-                type="radio"
-                id="option-{{ key }}"
-                name="answer"
-                value="{{ key }}"
-                class="hidden"
-                required
-              />
-              <label
-                for="option-{{ key }}"
-                class="option-label block p-5 bg-white border-3 border-gray-300 rounded-xl shadow-md text-gray-800 text-lg font-medium"
+          <!-- Layout de dos columnas: 75% imagen + 25% opciones -->
+          <div class="grid grid-cols-1 lg:grid-cols-[75%_25%] gap-4 mb-4">
+            <!-- Columna izquierda: Imagen (75%) -->
+            <section>
+              <div
+                class="w-full h-[calc(100vh-240px)] min-h-[500px] max-h-[780px] bg-gradient-to-br from-gray-50 to-gray-100 border-4 border-gray-200 rounded-2xl flex items-center justify-center overflow-hidden shadow-inner"
               >
-                <span
-                  class="inline-block bg-blue-100 text-blue-600 font-bold rounded-lg px-3 py-1 mr-3"
-                  >{{ key.upper() }}</span
-                >
-                <span>{{ value }}</span>
-              </label>
-            </div>
-            {% endfor %}
-          </section>
+                {% if 'question_image' in question %}
+                <img
+                  src="{{ question.question_image }}"
+                  alt="Imagen de la pregunta"
+                  class="w-full h-full object-contain p-2"
+                />
+                {% else %}
+                <div class="text-center">
+                  <i class="fas fa-image text-6xl text-gray-300 mb-4"></i>
+                  <p class="text-gray-400 text-xl">
+                    No hay imagen para esta pregunta
+                  </p>
+                </div>
+                {% endif %}
+              </div>
+            </section>
 
+            <!-- Columna derecha: Opciones organizadas A, B, C, D (25%) -->
+            <section class="flex flex-col justify-center">
+              <div class="grid grid-cols-1 gap-3.5">
+                <!-- Forzar orden A, B, C, D -->
+                {% set options_sorted = [('a', question.options.a), ('b',
+                question.options.b), ('c', question.options.c), ('d',
+                question.options.d)] %} {% for key, value in options_sorted %}
+                <div class="relative">
+                  <input
+                    type="radio"
+                    id="option-{{ key }}"
+                    name="answer"
+                    value="{{ key }}"
+                    class="hidden answer-radio"
+                    required
+                  />
+                  <label
+                    for="option-{{ key }}"
+                    class="option-label block p-3.5 bg-white border-3 border-gray-300 rounded-xl shadow-md text-gray-800 text-base font-medium cursor-pointer leading-snug"
+                  >
+                    <span
+                      class="inline-block bg-blue-100 text-blue-600 font-bold rounded-lg px-3 py-1.5 mr-2 text-lg"
+                      >{{ key.upper() }}</span
+                    >
+                    <span>{{ value }}</span>
+                  </label>
+                </div>
+                {% endfor %}
+              </div>
+            </section>
+          </div>
+
+          <!-- Botones al pie -->
           <footer
-            class="mt-8 pt-6 border-t-2 flex flex-col sm:flex-row-reverse justify-between items-center gap-4"
+            class="pt-4 border-t-2 flex flex-col sm:flex-row-reverse justify-between items-center gap-3"
           >
             <button
               type="submit"
-              class="w-full sm:w-auto bg-gradient-to-r from-green-500 to-green-600 text-white font-bold py-4 px-8 rounded-xl shadow-lg hover:shadow-xl transition transform hover:scale-105"
+              class="w-full sm:w-auto bg-gradient-to-r from-green-500 to-green-600 text-white font-bold py-3.5 px-8 rounded-xl shadow-lg hover:shadow-xl transition transform hover:scale-105"
             >
               <i class="fas fa-paper-plane mr-2"></i> Enviar Respuesta
             </button>
             <a
               href="{{ url_for('quiz.dashboard') }}"
-              class="w-full sm:w-auto text-center bg-gray-200 text-gray-700 font-bold py-4 px-8 rounded-xl hover:bg-gray-300 transition"
+              class="w-full sm:w-auto text-center bg-gray-200 text-gray-700 font-bold py-3.5 px-8 rounded-xl hover:bg-gray-300 transition"
             >
               <i class="fas fa-arrow-left mr-2"></i> Volver al Dashboard
             </a>
@@ -195,10 +348,18 @@
       document.addEventListener("DOMContentLoaded", () => {
         const timerDisplay = document.getElementById("timer");
         const timerContainer = document.getElementById("timer-container");
+        const timerStatus = document.getElementById("timer-status");
         const modal = document.getElementById("time-up-modal");
+        const penaltyModal = document.getElementById("penalty-modal");
+        const buttonAlert = document.getElementById("button-allowed-alert");
+        const pausedAlert = document.getElementById("paused-alert");
+        const answerRadios = document.querySelectorAll(".answer-radio");
         const totalTime = 5 * 60;
         let timeRemaining = totalTime;
         let timerInterval = null;
+        let buttonAllowed = false;
+        let alertShown = false;
+        let timerPaused = false;
 
         function formatTime(seconds) {
           const minutes = Math.floor(seconds / 60);
@@ -209,19 +370,80 @@
           )}`;
         }
 
+        function pauseTimer() {
+          if (!timerPaused) {
+            timerPaused = true;
+
+            // Cambiar color a naranja
+            timerContainer.classList.remove(
+              "timer-warning",
+              "timer-allowed",
+              "from-gray-800",
+              "to-gray-900",
+              "from-green-600",
+              "to-green-700",
+              "from-red-600",
+              "to-red-700"
+            );
+            timerContainer.classList.add(
+              "from-orange-500",
+              "to-orange-600",
+              "timer-paused"
+            );
+
+            // Actualizar estado
+            timerStatus.innerHTML =
+              '<i class="fas fa-pause-circle" style="font-size: 0.5rem;"></i> Pausado';
+
+            // Mostrar alerta de pausa
+            pausedAlert.classList.remove("hidden");
+
+            // Ocultar alerta después de 3 segundos
+            setTimeout(() => {
+              pausedAlert.classList.add("hidden");
+            }, 3000);
+          }
+        }
+
         function updateTimer() {
+          if (timerPaused) return; // No actualizar si está pausado
+
           timerDisplay.textContent = formatTime(timeRemaining);
 
-          if (
-            timeRemaining <= 60 &&
-            !timerContainer.classList.contains("timer-warning")
-          ) {
+          // A los 3:00 minutos - Habilitar botón
+          if (timeRemaining === 180 && !alertShown) {
+            buttonAllowed = true;
+            alertShown = true;
+
+            timerContainer.classList.remove("from-gray-800", "to-gray-900");
+            timerContainer.classList.add(
+              "from-green-600",
+              "to-green-700",
+              "timer-allowed"
+            );
+            timerStatus.innerHTML =
+              '<i class="fas fa-check-circle" style="font-size: 0.5rem;"></i> Habilitado';
+
+            buttonAlert.classList.remove("hidden");
+            setTimeout(() => {
+              buttonAlert.classList.add("hidden");
+            }, 5000);
+          }
+
+          // A 1:00 minuto - Advertencia crítica
+          if (timeRemaining === 60) {
+            timerContainer.classList.remove(
+              "timer-allowed",
+              "from-green-600",
+              "to-green-700"
+            );
             timerContainer.classList.add(
               "timer-warning",
               "from-red-600",
               "to-red-700"
             );
-            timerContainer.classList.remove("from-gray-800", "to-gray-900");
+            timerStatus.innerHTML =
+              '<i class="fas fa-exclamation-triangle" style="font-size: 0.5rem;"></i> Último min';
           }
 
           if (timeRemaining > 0) {
@@ -232,8 +454,30 @@
           }
         }
 
+        // Escuchar cambios en las opciones de respuesta
+        answerRadios.forEach((radio) => {
+          radio.addEventListener("change", () => {
+            pauseTimer();
+          });
+        });
+
+        // Función para botón físico
+        window.checkPhysicalButton = function () {
+          if (!buttonAllowed) {
+            penaltyModal.classList.remove("hidden");
+            clearInterval(timerInterval);
+            return false;
+          }
+          return true;
+        };
+
         timerInterval = setInterval(updateTimer, 1000);
       });
+
+      function closePenaltyModal() {
+        document.getElementById("penalty-modal").classList.add("hidden");
+        window.location.href = "{{ url_for('quiz.dashboard') }}";
+      }
     </script>
   </body>
 </html>
