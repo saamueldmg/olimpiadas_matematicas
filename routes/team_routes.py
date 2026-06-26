@@ -17,6 +17,14 @@ def get_team_service():
 @login_required
 @handle_errors
 def manage_teams():
+    """
+    Gestión de equipos:
+    - agregar
+    - actualizar
+    - eliminar
+    - resetear todos los puntajes
+    - resetear el puntaje de un solo equipo
+    """
     team_service = get_team_service()
 
     if request.method == 'POST':
@@ -58,7 +66,17 @@ def manage_teams():
         elif action == 'reset':
             success, message = team_service.reset_scores()
             flash(message, 'success' if success else 'error')
-            # ← REDIRIGIR AL SCOREBOARD
+            return redirect(url_for('quiz.scoreboard'))
+
+        elif action == 'reset_team_score':
+            team_id = request.form.get('team_id')
+
+            if not team_id:
+                flash('ID de equipo no válido', 'error')
+                return redirect(url_for('quiz.scoreboard'))
+
+            success, message = team_service.reset_team_score(team_id)
+            flash(message, 'success' if success else 'error')
             return redirect(url_for('quiz.scoreboard'))
 
         return redirect(url_for('team.manage_teams'))

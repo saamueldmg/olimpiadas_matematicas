@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Editar pregunta - Olimpiadas Matemáticas</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap"
+      rel="stylesheet"
+    />
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(24px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .animate-fade-in-up {
+        animation: fadeInUp 0.55s ease-out;
+      }
+
+      .option-wrapper {
+        transition: all 0.2s ease;
+      }
+
+      .option-wrapper:hover {
+        transform: translateX(5px);
+      }
+
+      input[type="radio"]:checked + .option-content {
+        background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+        color: white;
+        border-color: #3b82f6;
+      }
+
+      input[type="radio"]:checked + .option-content input {
+        color: white;
+      }
+
+      input[type="radio"]:checked + .option-content input::placeholder {
+        color: rgba(255, 255, 255, 0.75);
+      }
+
+      input[type="radio"]:checked + .option-content .option-letter {
+        background: rgba(255, 255, 255, 0.3);
+        color: white;
+      }
+
+      button,
+      a,
+      label,
+      input,
+      select,
+      textarea {
+        touch-action: manipulation;
+      }
+    </style>
+  </head>
+
+  <body class="min-h-screen p-4 sm:p-6 md:p-8">
+    <div class="container mx-auto max-w-5xl">
+      <!-- Header -->
+      <header
+        class="bg-white rounded-3xl shadow-2xl p-8 mb-8 animate-fade-in-up"
+      >
+        <div
+          class="flex flex-col md:flex-row md:items-center md:justify-between gap-5"
+        >
+          <div class="flex items-center gap-4">
+            <div
+              class="bg-gradient-to-br from-blue-500 to-indigo-700 text-white p-5 rounded-2xl shadow-lg"
+            >
+              <i class="fas fa-pen-to-square text-4xl"></i>
+            </div>
+
+            <div>
+              <h1 class="text-3xl md:text-4xl font-black text-gray-800">
+                Editar pregunta
+              </h1>
+              <p class="text-gray-500 mt-1">
+                ID: <span class="font-bold">{{ question.id }}</span>
+              </p>
+            </div>
+          </div>
+
+          <a
+            href="{{ url_for('question.manage_questions') }}"
+            class="inline-flex items-center gap-2 px-5 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-semibold shadow-md hover:shadow-lg transition"
+          >
+            <i class="fas fa-arrow-left"></i>
+            Volver
+          </a>
+        </div>
+      </header>
+
+      <!-- Mensajes -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <section class="mb-6 space-y-3">
+            {% for category, message in messages %}
+              <div
+                class="px-4 py-3 rounded-2xl border font-semibold
+                {% if category == 'error' %}
+                  bg-red-50 border-red-200 text-red-700
+                {% elif category == 'success' %}
+                  bg-green-50 border-green-200 text-green-700
+                {% else %}
+                  bg-blue-50 border-blue-200 text-blue-700
+                {% endif %}
+                "
+              >
+                {{ message }}
+              </div>
+            {% endfor %}
+          </section>
+        {% endif %}
+      {% endwith %}
+
+      <!-- Formulario -->
+      <main
+        class="bg-white rounded-3xl shadow-2xl overflow-hidden animate-fade-in-up"
+      >
+        <div class="bg-gradient-to-r from-blue-500 to-purple-600 p-6">
+          <div class="flex items-center space-x-3 text-white">
+            <i class="fas fa-file-pen text-3xl"></i>
+            <div>
+              <h2 class="text-2xl font-black">Formulario de edición</h2>
+              <p class="text-blue-100">
+                Modifica los datos de la pregunta seleccionada
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <form
+          action="{{ url_for('question.update_question', question_id=question.id) }}"
+          method="POST"
+          enctype="multipart/form-data"
+          class="p-8 space-y-8"
+        >
+          <!-- Nivel y ronda -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-sm font-bold text-gray-700 mb-2">
+                Nivel
+              </label>
+
+              <select
+                name="level"
+                required
+                class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-200 focus:border-blue-500 bg-white font-semibold"
+              >
+                <option
+                  value="nivel1"
+                  {% if question.level == 'nivel1' %}selected{% endif %}
+                >
+                  🥉 Nivel I
+                </option>
+                <option
+                  value="nivel2"
+                  {% if question.level == 'nivel2' %}selected{% endif %}
+                >
+                  🥈 Nivel II
+                </option>
+                <option
+                  value="nivel3"
+                  {% if question.level == 'nivel3' %}selected{% endif %}
+                >
+                  🥇 Nivel III
+                </option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-sm font-bold text-gray-700 mb-2">
+                Ronda
+              </label>
+
+              <select
+                name="round"
+                required
+                class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-200 focus:border-blue-500 bg-white font-semibold"
+              >
+                <option
+                  value="octavos"
+                  {% if question.round == 'octavos' %}selected{% endif %}
+                >
+                  Octavos
+                </option>
+                <option
+                  value="cuartos"
+                  {% if question.round == 'cuartos' %}selected{% endif %}
+                >
+                  Cuartos
+                </option>
+                <option
+                  value="semifinal"
+                  {% if question.round == 'semifinal' %}selected{% endif %}
+                >
+                  Semifinal
+                </option>
+                <option
+                  value="final"
+                  {% if question.round == 'final' %}selected{% endif %}
+                >
+                  Final
+                </option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Texto -->
+          <div>
+            <label class="block text-sm font-bold text-gray-700 mb-2">
+              Texto de la pregunta
+            </label>
+
+            <textarea
+              name="question_text"
+              rows="4"
+              class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-200 focus:border-blue-500"
+              placeholder="Opcional. Puedes dejarlo vacío si la pregunta está en la imagen."
+            >{{ question.question_text or '' }}</textarea>
+
+            <p class="text-xs text-gray-500 mt-2">
+              Si tu pregunta está completamente en la imagen, puedes dejar este
+              campo vacío.
+            </p>
+          </div>
+
+          <!-- Imagen -->
+          <div class="space-y-5">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label class="block text-sm font-bold text-gray-700 mb-2">
+                  Imagen actual / URL manual
+                </label>
+
+                <input
+                  type="text"
+                  name="question_image"
+                  value="{{ question.question_image or '' }}"
+                  class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-4 focus:ring-purple-200 focus:border-purple-500"
+                  placeholder="https://..."
+                />
+
+                <p class="text-xs text-gray-500 mt-2">
+                  Puedes mantener esta URL o escribir otra manualmente.
+                </p>
+              </div>
+
+              <div>
+                <label class="block text-sm font-bold text-gray-700 mb-2">
+                  Subir nueva imagen
+                </label>
+
+                <input
+                  id="question_image_file"
+                  type="file"
+                  name="question_image_file"
+                  accept=".png,.jpg,.jpeg,.webp,image/png,image/jpeg,image/webp"
+                  class="w-full text-gray-500 file:mr-4 file:py-3 file:px-5 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-gradient-to-r file:from-purple-500 file:to-purple-600 file:text-white hover:file:from-purple-600 hover:file:to-purple-700 file:transition file:shadow-md cursor-pointer border-2 border-dashed border-gray-300 rounded-xl p-3 hover:border-purple-400 transition"
+                />
+
+                <p class="text-xs text-gray-500 mt-2">
+                  Si subes una imagen, reemplazará la URL al guardar.
+                </p>
+              </div>
+            </div>
+
+            <!-- Previews -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <!-- Vista previa actual -->
+              <div class="bg-gray-50 border-2 border-gray-200 rounded-2xl p-4">
+                <p class="text-sm font-bold text-gray-700 mb-3">
+                  Vista previa actual
+                </p>
+
+                <div
+                  class="w-full min-h-[260px] flex items-center justify-center overflow-hidden rounded-xl bg-white p-4"
+                >
+                  {% if question.question_image %}
+                    {% set current_image_url = question.question_image %}
+                    {% if current_image_url.startswith('//') %}
+                      {% set current_image_url = 'https:' ~ current_image_url %}
+                    {% endif %}
+
+                    <img
+                      src="{{ current_image_url }}"
+                      alt="Imagen actual de la pregunta"
+                      class="max-w-full max-h-[240px] object-contain rounded-lg shadow-sm"
+                      onerror="this.classList.add('hidden'); this.nextElementSibling.classList.remove('hidden');"
+                    />
+
+                    <div class="hidden text-center text-red-400 px-4">
+                      <i class="fas fa-triangle-exclamation text-4xl mb-3"></i>
+                      <p class="font-semibold">
+                        No se pudo cargar la imagen actual
+                      </p>
+                      <p class="text-xs mt-1 break-all">
+                        {{ question.question_image }}
+                      </p>
+                    </div>
+                  {% else %}
+                    <div class="text-center text-gray-400">
+                      <i class="fas fa-image text-5xl mb-3"></i>
+                      <p class="font-semibold">Sin imagen actual</p>
+                    </div>
+                  {% endif %}
+                </div>
+              </div>
+
+              <!-- Vista previa nueva -->
+              <div class="bg-gray-50 border-2 border-gray-200 rounded-2xl p-4">
+                <p class="text-sm font-bold text-gray-700 mb-3">
+                  Vista previa nueva
+                </p>
+
+                <div
+                  class="w-full min-h-[260px] flex items-center justify-center overflow-hidden rounded-xl bg-white p-4"
+                >
+                  <img
+                    id="new-image-preview"
+                    src=""
+                    alt="Vista previa nueva"
+                    class="hidden max-w-full max-h-[240px] object-contain rounded-lg shadow-sm"
+                  />
+
+                  <div id="new-image-placeholder" class="text-center text-gray-400">
+                    <i class="fas fa-upload text-5xl mb-3"></i>
+                    <p class="font-semibold">
+                      Selecciona una imagen para previsualizar
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Opciones -->
+          <div>
+            <label class="block text-sm font-bold text-gray-700 mb-4">
+              Opciones de respuesta
+            </label>
+
+            <div
+              class="bg-gradient-to-br from-gray-50 to-gray-100 p-6 rounded-2xl border-2 border-gray-200"
+            >
+              <div
+                class="flex items-center space-x-2 mb-4 bg-blue-50 p-3 rounded-xl border border-blue-200"
+              >
+                <i class="fas fa-info-circle text-blue-500"></i>
+                <p class="text-sm text-blue-700 font-medium">
+                  Marca la opción correcta y edita las cuatro alternativas.
+                </p>
+              </div>
+
+              <div class="grid grid-cols-1 gap-4">
+                <!-- Opción A -->
+                <div class="option-wrapper">
+                  <label class="flex items-center space-x-3 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="correct"
+                      value="a"
+                      required
+                      class="hidden"
+                      {% if question.correct == 'a' %}checked{% endif %}
+                    />
+                    <div
+                      class="option-content flex items-center space-x-3 flex-grow p-4 bg-white border-2 border-gray-300 rounded-xl transition shadow-sm hover:shadow-md"
+                    >
+                      <div
+                        class="option-letter flex-shrink-0 w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-lg"
+                      >
+                        A
+                      </div>
+                      <input
+                        type="text"
+                        name="option_a"
+                        value="{{ question.options.a if question.options else '' }}"
+                        placeholder="Escribe la opción A"
+                        required
+                        class="flex-grow p-2 bg-transparent border-none focus:outline-none font-medium text-gray-800"
+                      />
+                    </div>
+                  </label>
+                </div>
+
+                <!-- Opción B -->
+                <div class="option-wrapper">
+                  <label class="flex items-center space-x-3 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="correct"
+                      value="b"
+                      class="hidden"
+                      {% if question.correct == 'b' %}checked{% endif %}
+                    />
+                    <div
+                      class="option-content flex items-center space-x-3 flex-grow p-4 bg-white border-2 border-gray-300 rounded-xl transition shadow-sm hover:shadow-md"
+                    >
+                      <div
+                        class="option-letter flex-shrink-0 w-10 h-10 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center font-bold text-lg"
+                      >
+                        B
+                      </div>
+                      <input
+                        type="text"
+                        name="option_b"
+                        value="{{ question.options.b if question.options else '' }}"
+                        placeholder="Escribe la opción B"
+                        required
+                        class="flex-grow p-2 bg-transparent border-none focus:outline-none font-medium text-gray-800"
+                      />
+                    </div>
+                  </label>
+                </div>
+
+                <!-- Opción C -->
+                <div class="option-wrapper">
+                  <label class="flex items-center space-x-3 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="correct"
+                      value="c"
+                      class="hidden"
+                      {% if question.correct == 'c' %}checked{% endif %}
+                    />
+                    <div
+                      class="option-content flex items-center space-x-3 flex-grow p-4 bg-white border-2 border-gray-300 rounded-xl transition shadow-sm hover:shadow-md"
+                    >
+                      <div
+                        class="option-letter flex-shrink-0 w-10 h-10 rounded-full bg-green-100 text-green-600 flex items-center justify-center font-bold text-lg"
+                      >
+                        C
+                      </div>
+                      <input
+                        type="text"
+                        name="option_c"
+                        value="{{ question.options.c if question.options else '' }}"
+                        placeholder="Escribe la opción C"
+                        required
+                        class="flex-grow p-2 bg-transparent border-none focus:outline-none font-medium text-gray-800"
+                      />
+                    </div>
+                  </label>
+                </div>
+
+                <!-- Opción D -->
+                <div class="option-wrapper">
+                  <label class="flex items-center space-x-3 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="correct"
+                      value="d"
+                      class="hidden"
+                      {% if question.correct == 'd' %}checked{% endif %}
+                    />
+                    <div
+                      class="option-content flex items-center space-x-3 flex-grow p-4 bg-white border-2 border-gray-300 rounded-xl transition shadow-sm hover:shadow-md"
+                    >
+                      <div
+                        class="option-letter flex-shrink-0 w-10 h-10 rounded-full bg-red-100 text-red-600 flex items-center justify-center font-bold text-lg"
+                      >
+                        D
+                      </div>
+                      <input
+                        type="text"
+                        name="option_d"
+                        value="{{ question.options.d if question.options else '' }}"
+                        placeholder="Escribe la opción D"
+                        required
+                        class="flex-grow p-2 bg-transparent border-none focus:outline-none font-medium text-gray-800"
+                      />
+                    </div>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Botones -->
+          <div class="flex flex-col md:flex-row justify-end gap-3 pt-6">
+            <a
+              href="{{ url_for('question.manage_questions') }}"
+              class="text-center bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-4 px-8 rounded-2xl shadow transition"
+            >
+              Cancelar
+            </a>
+
+            <button
+              type="submit"
+              class="bg-gradient-to-r from-blue-500 to-purple-600 text-white font-bold py-4 px-10 rounded-2xl shadow-lg hover:shadow-2xl hover:from-blue-600 hover:to-purple-700 transition transform hover:scale-105"
+            >
+              <i class="fas fa-save mr-2"></i>
+              Guardar cambios
+            </button>
+          </div>
+        </form>
+      </main>
+    </div>
+
+    <script>
+      const imageInput = document.getElementById("question_image_file");
+      const preview = document.getElementById("new-image-preview");
+      const placeholder = document.getElementById("new-image-placeholder");
+
+      if (imageInput && preview && placeholder) {
+        imageInput.addEventListener("change", function () {
+          const file = this.files && this.files[0];
+
+          if (!file) {
+            preview.src = "";
+            preview.classList.add("hidden");
+            placeholder.classList.remove("hidden");
+            return;
+          }
+
+          const allowedTypes = ["image/png", "image/jpeg", "image/webp"];
+
+          if (!allowedTypes.includes(file.type)) {
+            alert("Formato no permitido. Usa PNG, JPG, JPEG o WEBP.");
+            this.value = "";
+            preview.src = "";
+            preview.classList.add("hidden");
+            placeholder.classList.remove("hidden");
+            return;
+          }
+
+          const reader = new FileReader();
+
+          reader.onload = function (e) {
+            preview.src = e.target.result;
+            preview.classList.remove("hidden");
+            placeholder.classList.add("hidden");
+          };
+
+          reader.readAsDataURL(file);
+        });
+      }
+    </script>
+  </body>
+</html>

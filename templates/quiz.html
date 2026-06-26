@@ -3,481 +3,515 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Olimpiadas Matemáticas - Concurso</title>
+    <title>Panel de Validación - Olimpiadas Matemáticas</title>
+
     <script src="https://cdn.tailwindcss.com"></script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap"
       rel="stylesheet"
     />
+
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
+
     <style>
       body {
         font-family: "Inter", sans-serif;
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       }
-      .option-label {
-        transition: all 0.3s ease;
-        cursor: pointer;
-      }
-      .option-label:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-        border-color: #3b82f6;
-      }
-      input[type="radio"]:checked + .option-label {
-        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-        color: white;
-        border-color: #1d4ed8;
-        box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
-        transform: translateY(-2px);
+
+      .option-card {
+        transition: all 0.22s ease;
       }
 
-      /* Animaciones del timer */
-      .timer-warning {
-        animation: pulseRed 1s infinite;
-      }
-      .timer-allowed {
-        animation: pulseGreen 1s infinite;
-      }
-      .timer-paused {
-        animation: pulseOrange 1s infinite;
-      }
-      @keyframes pulseRed {
-        0%,
-        100% {
-          transform: scale(1);
-          box-shadow: 0 4px 8px rgba(220, 38, 38, 0.4);
-        }
-        50% {
-          transform: scale(1.05);
-          box-shadow: 0 6px 20px rgba(220, 38, 38, 0.6);
-        }
-      }
-      @keyframes pulseGreen {
-        0%,
-        100% {
-          transform: scale(1);
-          box-shadow: 0 4px 8px rgba(34, 197, 94, 0.4);
-        }
-        50% {
-          transform: scale(1.05);
-          box-shadow: 0 6px 20px rgba(34, 197, 94, 0.6);
-        }
-      }
-      @keyframes pulseOrange {
-        0%,
-        100% {
-          transform: scale(1);
-          box-shadow: 0 4px 8px rgba(249, 115, 22, 0.4);
-        }
-        50% {
-          transform: scale(1.05);
-          box-shadow: 0 6px 20px rgba(249, 115, 22, 0.6);
-        }
-      }
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-          transform: translateY(20px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-      .animate-fade-in {
-        animation: fadeIn 0.5s ease-out;
+      .option-card.option-correct {
+        background: linear-gradient(to right, #dcfce7, #bbf7d0);
+        border: 2px solid #22c55e;
       }
 
-      /* Timer elegante y compacto */
-      #timer {
-        font-size: 1.5rem;
-        letter-spacing: 0.1rem;
-        line-height: 1;
-        font-weight: 700;
-      }
-      #timer-status {
-        font-size: 0.6rem;
-        line-height: 1.2;
-      }
-      #timer-container {
-        transition: all 0.3s ease;
+      .option-card.option-selected {
+        background: linear-gradient(to right, #fef3c7, #fde68a);
+        border: 2px solid #f59e0b;
       }
 
-      /* Alerta flotante */
-      .button-alert {
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        z-index: 100;
-        animation: slideInRight 0.5s ease-out;
-      }
-      @keyframes slideInRight {
-        from {
-          transform: translateX(400px);
-          opacity: 0;
-        }
-        to {
-          transform: translateX(0);
-          opacity: 1;
-        }
+      .option-card.option-both {
+        background: linear-gradient(to right, #dcfce7, #bbf7d0);
+        border: 2px solid #16a34a;
+        box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.16);
       }
 
-      /* Separador */
-      .timer-divider {
-        width: 1px;
-        height: 30px;
-        background: rgba(255, 255, 255, 0.2);
+      .correct-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 9999px;
+        background: #16a34a;
+        box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.16);
+        display: inline-block;
+      }
+
+      .selected-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 9999px;
+        background: #f59e0b;
+        box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.16);
+        display: inline-block;
+      }
+
+      .hidden-soft {
+        display: none;
       }
     </style>
   </head>
-  <body class="min-h-screen p-3 sm:p-4 flex items-start justify-center">
-    <!-- Modal de tiempo agotado -->
-    <div
-      id="time-up-modal"
-      class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 hidden"
-    >
-      <div
-        class="bg-white rounded-3xl shadow-2xl p-8 text-center max-w-md mx-4 animate-fade-in"
-      >
-        <div
-          class="bg-red-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4"
-        >
-          <i class="fas fa-clock text-4xl text-red-500"></i>
-        </div>
-        <h2 class="text-3xl font-bold text-gray-800 mb-3">¡Tiempo Agotado!</h2>
-        <p class="text-gray-600 mb-6">
-          El tiempo para esta pregunta ha terminado.
-        </p>
-        <form action="{{ url_for('quiz.skip_question') }}" method="POST">
-          <button
-            type="submit"
-            class="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white font-bold py-4 px-6 rounded-xl shadow-lg hover:shadow-xl transition transform hover:scale-105"
-          >
-            Continuar a la Siguiente
-          </button>
-        </form>
-      </div>
-    </div>
 
-    <!-- Modal de penalización -->
-    <div
-      id="penalty-modal"
-      class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 hidden"
-    >
-      <div
-        class="bg-white rounded-3xl shadow-2xl p-8 text-center max-w-md mx-4 animate-fade-in"
-      >
-        <div
-          class="bg-red-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4"
-        >
-          <i class="fas fa-exclamation-triangle text-4xl text-red-500"></i>
-        </div>
-        <h2 class="text-3xl font-bold text-red-600 mb-3">¡PENALIZACIÓN!</h2>
-        <p class="text-gray-600 mb-4 text-lg">
-          Presionaron el botón antes del tiempo permitido (3:00)
-        </p>
-        <p class="text-gray-700 font-bold mb-6">Turno para el otro equipo</p>
-        <button
-          onclick="closePenaltyModal()"
-          class="w-full bg-gradient-to-r from-red-600 to-red-700 text-white font-bold py-4 px-6 rounded-xl shadow-lg hover:shadow-xl transition transform hover:scale-105"
-        >
-          Entendido
-        </button>
-      </div>
-    </div>
-
-    <!-- Alerta flotante elegante -->
-    <div id="button-allowed-alert" class="hidden button-alert">
-      <div
-        class="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center space-x-3"
-      >
-        <div class="bg-white bg-opacity-20 p-2 rounded-full">
-          <i class="fas fa-hand-pointer text-2xl"></i>
-        </div>
-        <div class="text-left">
-          <h3 class="text-lg font-bold leading-tight">¡Pueden Presionar!</h3>
-          <p class="text-xs opacity-90">Botón físico habilitado</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Alerta de tiempo pausado -->
-    <div id="paused-alert" class="hidden button-alert" style="top: 100px">
-      <div
-        class="bg-gradient-to-r from-orange-500 to-orange-600 text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center space-x-3"
-      >
-        <div class="bg-white bg-opacity-20 p-2 rounded-full">
-          <i class="fas fa-pause-circle text-2xl"></i>
-        </div>
-        <div class="text-left">
-          <h3 class="text-lg font-bold leading-tight">Tiempo Pausado</h3>
-          <p class="text-xs opacity-90">Respuesta seleccionada</p>
-        </div>
-      </div>
-    </div>
-
-    <div class="container mx-auto max-w-7xl w-full">
-      <!-- Header compacto optimizado -->
-      <header
-        class="bg-white rounded-2xl shadow-xl p-3 mb-3 flex flex-col sm:flex-row justify-between items-center gap-2"
-      >
-        <!-- Info de la pregunta -->
-        <div class="flex items-center space-x-3">
-          <div
-            class="bg-gradient-to-br from-purple-500 to-indigo-600 text-white p-2.5 rounded-xl shadow-lg"
-          >
-            <i class="fas fa-brain text-xl"></i>
-          </div>
-          <div>
-            <h1 class="text-xl sm:text-2xl font-bold text-gray-800">
-              Pregunta {{ question_number }} de {{ total_questions }}
-            </h1>
-            <p class="text-gray-500 text-xs">
-              Selecciona la respuesta correcta
-            </p>
-          </div>
-        </div>
-
-        <!-- Timer compacto -->
-        <div
-          id="timer-container"
-          class="flex items-center gap-2.5 bg-gradient-to-br from-gray-800 to-gray-900 text-white rounded-xl shadow-lg px-3.5 py-2"
-        >
-          <i class="fas fa-stopwatch text-base opacity-90"></i>
-          <div class="timer-divider"></div>
-          <div class="flex flex-col items-center">
-            <div id="timer" class="font-mono">05:00</div>
-            <div id="timer-status" class="text-center opacity-75 mt-0.5">
-              <i class="fas fa-lock" style="font-size: 0.5rem"></i> Hasta 3:00
+  <body class="min-h-screen p-4 sm:p-6 md:p-8">
+    <div class="container mx-auto max-w-7xl">
+      <!-- Header -->
+      <header class="bg-white rounded-3xl shadow-2xl p-8 mb-8">
+        <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-6">
+          <div class="flex items-center space-x-5">
+            <div
+              class="bg-gradient-to-br from-purple-500 to-indigo-700 text-white p-5 rounded-2xl shadow-lg"
+            >
+              <i class="fas fa-user-shield text-4xl"></i>
             </div>
+            <div>
+              <h1 class="text-4xl font-black text-gray-800">
+                Panel de Validación
+              </h1>
+              <p class="text-gray-500 mt-1 text-lg">
+                Pregunta {{ question_number }} de {{ total_questions }}
+              </p>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap gap-3">
+            <a
+              href="{{ url_for('quiz.versus') }}"
+              class="flex items-center space-x-2 px-5 py-3 bg-indigo-50 text-indigo-700 rounded-xl hover:bg-indigo-100 transition-all font-semibold shadow-md hover:shadow-lg"
+            >
+              <i class="fas fa-tv"></i>
+              <span>Pantalla pública</span>
+            </a>
+
+            <form action="{{ url_for('quiz.finish_match') }}" method="post">
+              <button
+                type="submit"
+                class="flex items-center space-x-2 px-5 py-3 bg-red-50 text-red-700 rounded-xl hover:bg-red-100 transition-all font-semibold shadow-md hover:shadow-lg"
+              >
+                <i class="fas fa-flag-checkered"></i>
+                <span>Finalizar</span>
+              </button>
+            </form>
+
+            <a
+              href="{{ url_for('quiz.dashboard') }}"
+              class="flex items-center space-x-2 px-5 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-all font-semibold shadow-md hover:shadow-lg"
+            >
+              <i class="fas fa-arrow-left"></i>
+              <span>Dashboard</span>
+            </a>
           </div>
         </div>
       </header>
 
-      <!-- Contenido principal del quiz -->
-      <main class="bg-white p-4 rounded-3xl shadow-2xl">
-        <form
-          id="quiz-form"
-          action="{{ url_for('quiz.submit_answer') }}"
-          method="post"
-        >
-          <!-- Layout de dos columnas: 75% imagen + 25% opciones -->
-          <div class="grid grid-cols-1 lg:grid-cols-[75%_25%] gap-4 mb-4">
-            <!-- Columna izquierda: Imagen (75%) -->
-            <section>
-              <div
-                class="w-full h-[calc(100vh-240px)] min-h-[500px] max-h-[780px] bg-gradient-to-br from-gray-50 to-gray-100 border-4 border-gray-200 rounded-2xl flex items-center justify-center overflow-hidden shadow-inner"
-              >
-                {% if 'question_image' in question %}
-                <img
-                  src="{{ question.question_image }}"
-                  alt="Imagen de la pregunta"
-                  class="w-full h-full object-contain p-2"
-                />
+      <!-- Equipos -->
+      {% if teams and scores %}
+      <section class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        {% for team in teams %}
+        <div class="bg-white rounded-3xl shadow-xl p-6 border border-gray-100">
+          <p class="text-sm text-gray-500 mb-1">Equipo</p>
+          <h2 class="text-2xl font-black text-gray-800">{{ team }}</h2>
+          <p class="text-sm text-gray-500 mt-3 mb-1">Puntaje actual</p>
+          <p class="text-4xl font-black text-blue-600">
+            {{ scores.get(team, 0) }}
+          </p>
+        </div>
+        {% endfor %}
+      </section>
+      {% endif %}
+
+      <!-- Flash Messages -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <section class="mb-8 space-y-3">
+            {% for category, message in messages %}
+              {% if category == 'error' %}
+                <div class="bg-red-100 border border-red-300 text-red-700 px-4 py-3 rounded-2xl shadow">
+                  <div class="flex items-center gap-3">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span class="font-semibold">{{ message }}</span>
+                  </div>
+                </div>
+              {% elif category == 'success' %}
+                <div class="bg-green-100 border border-green-300 text-green-700 px-4 py-3 rounded-2xl shadow">
+                  <div class="flex items-center gap-3">
+                    <i class="fas fa-check-circle"></i>
+                    <span class="font-semibold">{{ message }}</span>
+                  </div>
+                </div>
+              {% else %}
+                <div class="bg-blue-100 border border-blue-300 text-blue-700 px-4 py-3 rounded-2xl shadow">
+                  <div class="flex items-center gap-3">
+                    <i class="fas fa-info-circle"></i>
+                    <span class="font-semibold">{{ message }}</span>
+                  </div>
+                </div>
+              {% endif %}
+            {% endfor %}
+          </section>
+        {% endif %}
+      {% endwith %}
+
+      <!-- Pregunta -->
+      <section class="bg-white rounded-3xl shadow-2xl p-8 mb-8">
+        <div class="grid grid-cols-1 xl:grid-cols-[68%_32%] gap-8">
+          <!-- Imagen -->
+          <div>
+            <div
+              class="w-full min-h-[480px] max-h-[760px] bg-gradient-to-br from-gray-50 to-gray-100 border-4 border-gray-200 rounded-3xl flex items-center justify-center overflow-hidden shadow-inner"
+            >
+              {% set qimg = question.get('question_image') %}
+              {% if qimg %}
+                {% if qimg is string and (qimg.startswith('http://') or qimg.startswith('https://') or qimg.startswith('/')) %}
+                  <img
+                    src="{{ qimg }}"
+                    alt="Imagen de la pregunta"
+                    class="max-h-[720px] max-w-full object-contain"
+                  />
                 {% else %}
-                <div class="text-center">
+                  {{ qimg|safe }}
+                {% endif %}
+              {% else %}
+                <div class="text-center p-8">
                   <i class="fas fa-image text-6xl text-gray-300 mb-4"></i>
                   <p class="text-gray-400 text-xl">
                     No hay imagen para esta pregunta
                   </p>
                 </div>
-                {% endif %}
-              </div>
-            </section>
-
-            <!-- Columna derecha: Opciones organizadas A, B, C, D (25%) -->
-            <section class="flex flex-col justify-center">
-              <div class="grid grid-cols-1 gap-3.5">
-                <!-- Forzar orden A, B, C, D -->
-                {% set options_sorted = [('a', question.options.a), ('b',
-                question.options.b), ('c', question.options.c), ('d',
-                question.options.d)] %} {% for key, value in options_sorted %}
-                <div class="relative">
-                  <input
-                    type="radio"
-                    id="option-{{ key }}"
-                    name="answer"
-                    value="{{ key }}"
-                    class="hidden answer-radio"
-                    required
-                  />
-                  <label
-                    for="option-{{ key }}"
-                    class="option-label block p-3.5 bg-white border-3 border-gray-300 rounded-xl shadow-md text-gray-800 text-base font-medium cursor-pointer leading-snug"
-                  >
-                    <span
-                      class="inline-block bg-blue-100 text-blue-600 font-bold rounded-lg px-3 py-1.5 mr-2 text-lg"
-                      >{{ key.upper() }}</span
-                    >
-                    <span>{{ value }}</span>
-                  </label>
-                </div>
-                {% endfor %}
-              </div>
-            </section>
+              {% endif %}
+            </div>
           </div>
 
-          <!-- Botones al pie -->
-          <footer
-            class="pt-4 border-t-2 flex flex-col sm:flex-row-reverse justify-between items-center gap-3"
-          >
-            <button
-              type="submit"
-              class="w-full sm:w-auto bg-gradient-to-r from-green-500 to-green-600 text-white font-bold py-3.5 px-8 rounded-xl shadow-lg hover:shadow-xl transition transform hover:scale-105"
-            >
-              <i class="fas fa-paper-plane mr-2"></i> Enviar Respuesta
-            </button>
-            <a
-              href="{{ url_for('quiz.dashboard') }}"
-              class="w-full sm:w-auto text-center bg-gray-200 text-gray-700 font-bold py-3.5 px-8 rounded-xl hover:bg-gray-300 transition"
-            >
-              <i class="fas fa-arrow-left mr-2"></i> Volver al Dashboard
-            </a>
-          </footer>
-        </form>
-      </main>
+          <!-- Respuesta pública -->
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <h2 class="text-2xl font-black text-gray-800">
+                Respuesta seleccionada por el público
+              </h2>
+
+              <div class="text-xs text-gray-500 space-y-1">
+                <div class="flex items-center gap-2">
+                  <span class="correct-dot"></span>
+                  <span>Correcta</span>
+                </div>
+                {% if public_selected_answer %}
+                <div class="flex items-center gap-2">
+                  <span class="selected-dot"></span>
+                  <span>Seleccionada por el público</span>
+                </div>
+                {% endif %}
+              </div>
+            </div>
+
+            {% set options = question.options if question and question.options else {'a':'', 'b':'', 'c':'', 'd':''} %}
+            {% set options_sorted = [
+              ('a', options.get('a', '')),
+              ('b', options.get('b', '')),
+              ('c', options.get('c', '')),
+              ('d', options.get('d', ''))
+            ] %}
+
+            <div class="space-y-4 mb-6">
+              {% for key, value in options_sorted %}
+                {% set is_selected = (public_selected_answer == key) %}
+                {% set is_correct = (question.correct == key) %}
+                {% set show_revealed_correct = (show_correct_answer and question.correct == key) %}
+                {% set card_class = 'option-card bg-gray-50 border-2 border-gray-200 rounded-2xl p-4' %}
+
+                {% if is_selected and is_correct %}
+                  {% set card_class = 'option-card option-both rounded-2xl p-4' %}
+                {% elif show_revealed_correct %}
+                  {% set card_class = 'option-card option-correct rounded-2xl p-4' %}
+                {% elif is_selected %}
+                  {% set card_class = 'option-card option-selected rounded-2xl p-4' %}
+                {% endif %}
+
+                <div class="{{ card_class }}">
+                  <div class="flex items-start gap-4">
+                    <div
+                      class="bg-white shadow-sm border border-gray-200 text-gray-800 font-black rounded-xl px-4 py-2 text-lg"
+                    >
+                      {{ key.upper() }}
+                    </div>
+
+                    <div class="flex-1">
+                      <div class="flex flex-wrap items-center gap-3 mb-1">
+                        <p class="text-base font-semibold text-gray-800">
+                          {{ value }}
+                        </p>
+
+                        {% if is_correct %}
+                          <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-50 text-green-700 text-xs font-bold border border-green-200">
+                            <span class="correct-dot"></span>
+                            Correcta
+                          </span>
+                        {% endif %}
+
+                        {% if is_selected %}
+                          <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-50 text-amber-700 text-xs font-bold border border-amber-200">
+                            <span class="selected-dot"></span>
+                            Seleccionada
+                          </span>
+                        {% endif %}
+                      </div>
+
+                      {% if public_selected_answer == key %}
+                        <p class="text-sm text-amber-700 font-bold mt-2">
+                          <i class="fas fa-hand-pointer mr-1"></i>
+                          Seleccionada por el público
+                        </p>
+                      {% endif %}
+
+                      {% if show_correct_answer and question.correct == key %}
+                        <p class="text-sm text-green-700 font-bold mt-2">
+                          <i class="fas fa-check-circle mr-1"></i>
+                          Respuesta correcta revelada
+                        </p>
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+
+            {% if not public_selected_answer %}
+              <div id="waiting-public-card" class="bg-yellow-50 border border-yellow-200 text-yellow-800 rounded-2xl p-4 mb-6">
+                <div class="flex items-center gap-3">
+                  <i class="fas fa-hourglass-half"></i>
+                  <div>
+                    <p class="font-black">Esperando respuesta del público</p>
+                    <p class="text-sm">
+                      Aún no se ha seleccionado una opción en la pantalla pública.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            {% endif %}
+
+            {% if public_selected_answer and admin_validation_result == 'correct' %}
+              <div class="bg-violet-50 border border-violet-200 text-violet-700 rounded-2xl p-4 mb-6">
+                <div class="flex items-center gap-3">
+                  <i class="fas fa-check-circle"></i>
+                  <div>
+                    <p class="font-black">Respuesta correcta detectada</p>
+                    <p class="text-sm">
+                      Pasando a la pantalla de asignación de puntos...
+                    </p>
+                  </div>
+                </div>
+              </div>
+            {% elif public_selected_answer and admin_validation_result == 'incorrect' %}
+              <div class="bg-red-50 border border-red-200 text-red-700 rounded-2xl p-4 mb-6">
+                <div class="flex items-center gap-3">
+                  <i class="fas fa-circle-xmark"></i>
+                  <div>
+                    <p class="font-black">Respuesta incorrecta</p>
+                    <p class="text-sm">
+                      La respuesta correcta ya fue revelada.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            {% endif %}
+
+            <!-- Tiempo agotado -->
+            <div id="timeout-next-box" class="hidden-soft bg-red-50 border border-red-200 text-red-700 rounded-2xl p-4 mb-6">
+              <div class="flex items-start gap-3">
+                <i class="fas fa-clock mt-1"></i>
+                <div class="flex-1">
+                  <p class="font-black">Tiempo agotado</p>
+                  <p class="text-sm mt-1">
+                    El público no respondió dentro del tiempo permitido. Puedes pasar a la siguiente pregunta.
+                  </p>
+
+                  <form action="{{ url_for('quiz.next_question') }}" method="post" class="mt-4">
+                    <button
+                      type="submit"
+                      class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-5 rounded-2xl shadow-lg transition"
+                    >
+                      <i class="fas fa-forward mr-2"></i>
+                      Continuar a la siguiente pregunta
+                    </button>
+                  </form>
+                </div>
+              </div>
+            </div>
+
+            {% if show_correct_answer %}
+              <form action="{{ url_for('quiz.next_question') }}" method="post">
+                <button
+                  type="submit"
+                  class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-6 rounded-2xl shadow-lg transition"
+                >
+                  <i class="fas fa-forward mr-2"></i>
+                  Continuar a la siguiente pregunta
+                </button>
+              </form>
+            {% endif %}
+          </div>
+        </div>
+      </section>
     </div>
 
     <script>
-      document.addEventListener("DOMContentLoaded", () => {
-        const timerDisplay = document.getElementById("timer");
-        const timerContainer = document.getElementById("timer-container");
-        const timerStatus = document.getElementById("timer-status");
-        const modal = document.getElementById("time-up-modal");
-        const penaltyModal = document.getElementById("penalty-modal");
-        const buttonAlert = document.getElementById("button-allowed-alert");
-        const pausedAlert = document.getElementById("paused-alert");
-        const answerRadios = document.querySelectorAll(".answer-radio");
-        const totalTime = 5 * 60;
-        let timeRemaining = totalTime;
-        let timerInterval = null;
-        let buttonAllowed = false;
-        let alertShown = false;
-        let timerPaused = false;
-
-        function formatTime(seconds) {
-          const minutes = Math.floor(seconds / 60);
-          const secs = seconds % 60;
-          return `${String(minutes).padStart(2, "0")}:${String(secs).padStart(
-            2,
-            "0"
-          )}`;
-        }
-
-        function pauseTimer() {
-          if (!timerPaused) {
-            timerPaused = true;
-
-            // Cambiar color a naranja
-            timerContainer.classList.remove(
-              "timer-warning",
-              "timer-allowed",
-              "from-gray-800",
-              "to-gray-900",
-              "from-green-600",
-              "to-green-700",
-              "from-red-600",
-              "to-red-700"
-            );
-            timerContainer.classList.add(
-              "from-orange-500",
-              "to-orange-600",
-              "timer-paused"
-            );
-
-            // Actualizar estado
-            timerStatus.innerHTML =
-              '<i class="fas fa-pause-circle" style="font-size: 0.5rem;"></i> Pausado';
-
-            // Mostrar alerta de pausa
-            pausedAlert.classList.remove("hidden");
-
-            // Ocultar alerta después de 3 segundos
-            setTimeout(() => {
-              pausedAlert.classList.add("hidden");
-            }, 3000);
-          }
-        }
-
-        function updateTimer() {
-          if (timerPaused) return; // No actualizar si está pausado
-
-          timerDisplay.textContent = formatTime(timeRemaining);
-
-          // A los 3:00 minutos - Habilitar botón
-          if (timeRemaining === 180 && !alertShown) {
-            buttonAllowed = true;
-            alertShown = true;
-
-            timerContainer.classList.remove("from-gray-800", "to-gray-900");
-            timerContainer.classList.add(
-              "from-green-600",
-              "to-green-700",
-              "timer-allowed"
-            );
-            timerStatus.innerHTML =
-              '<i class="fas fa-check-circle" style="font-size: 0.5rem;"></i> Habilitado';
-
-            buttonAlert.classList.remove("hidden");
-            setTimeout(() => {
-              buttonAlert.classList.add("hidden");
-            }, 5000);
-          }
-
-          // A 1:00 minuto - Advertencia crítica
-          if (timeRemaining === 60) {
-            timerContainer.classList.remove(
-              "timer-allowed",
-              "from-green-600",
-              "to-green-700"
-            );
-            timerContainer.classList.add(
-              "timer-warning",
-              "from-red-600",
-              "to-red-700"
-            );
-            timerStatus.innerHTML =
-              '<i class="fas fa-exclamation-triangle" style="font-size: 0.5rem;"></i> Último min';
-          }
-
-          if (timeRemaining > 0) {
-            timeRemaining--;
-          } else {
-            clearInterval(timerInterval);
-            modal.classList.remove("hidden");
-          }
-        }
-
-        // Escuchar cambios en las opciones de respuesta
-        answerRadios.forEach((radio) => {
-          radio.addEventListener("change", () => {
-            pauseTimer();
-          });
-        });
-
-        // Función para botón físico
-        window.checkPhysicalButton = function () {
-          if (!buttonAllowed) {
-            penaltyModal.classList.remove("hidden");
-            clearInterval(timerInterval);
-            return false;
-          }
-          return true;
+      (function () {
+        let lastSnapshot = {
+          question_id: "{{ question.id if question else '' }}",
+          selected_answer: "{{ public_selected_answer or '' }}",
+          admin_validation_result: "{{ admin_validation_result or '' }}",
+          argument_validation_required: "{{ '1' if argument_validation_required else '0' }}",
+          show_correct_answer: "{{ '1' if show_correct_answer else '0' }}",
+          validated_team_name: "{{ validated_team_name or '' }}",
+          status: ""
         };
 
-        timerInterval = setInterval(updateTimer, 1000);
-      });
+        let latestPublicState = {
+          status: "{{ 'answer_revealed' if show_correct_answer else 'in_progress' }}",
+          question_timer: {{ question_timer | tojson }},
+          question: {
+            selected_answer: "{{ public_selected_answer or '' }}",
+            show_correct_answer: {{ 'true' if show_correct_answer else 'false' }},
+            admin_validation_result: "{{ admin_validation_result or '' }}"
+          }
+        };
 
-      function closePenaltyModal() {
-        document.getElementById("penalty-modal").classList.add("hidden");
-        window.location.href = "{{ url_for('quiz.dashboard') }}";
-      }
+        function getStartedSeconds(value) {
+          if (value === null || value === undefined) return null;
+
+          if (typeof value === "number") return value;
+
+          if (typeof value === "string") {
+            const asNumber = Number(value);
+            if (!Number.isNaN(asNumber)) return asNumber;
+
+            const parsed = Date.parse(value);
+            if (!Number.isNaN(parsed)) return parsed / 1000;
+          }
+
+          if (typeof value === "object") {
+            if ("_seconds" in value) return Number(value._seconds);
+            if ("seconds" in value) return Number(value.seconds);
+          }
+
+          return null;
+        }
+
+        function isTimedOutFromState(state) {
+          if (!state || !state.question_timer) return false;
+
+          const started = getStartedSeconds(state.question_timer.started_at);
+          const duration = parseInt(state.question_timer.duration || 300, 10);
+
+          if (!started || Number.isNaN(duration)) return false;
+
+          const now = Date.now() / 1000;
+          const elapsed = now - started;
+
+          return elapsed >= duration;
+        }
+
+        function updateTimeoutUI(state) {
+          const timeoutBox = document.getElementById("timeout-next-box");
+          const waitingCard = document.getElementById("waiting-public-card");
+
+          if (!timeoutBox) return;
+
+          const selectedAnswer = state && state.question ? state.question.selected_answer : null;
+          const answerRevealed = state && state.question ? !!state.question.show_correct_answer : false;
+          const adminResult = state && state.question ? state.question.admin_validation_result : null;
+          const status = state ? state.status : null;
+
+          const shouldShowTimeout =
+            status === "in_progress" &&
+            isTimedOutFromState(state) &&
+            !selectedAnswer &&
+            !answerRevealed &&
+            !adminResult;
+
+          if (shouldShowTimeout) {
+            timeoutBox.classList.remove("hidden-soft");
+            if (waitingCard) waitingCard.classList.add("hidden-soft");
+          } else {
+            timeoutBox.classList.add("hidden-soft");
+            if (waitingCard) waitingCard.classList.remove("hidden-soft");
+          }
+        }
+
+        async function fetchPublicState() {
+          try {
+            const response = await fetch("{{ url_for('quiz.versus_state') }}", {
+              headers: { "X-Requested-With": "XMLHttpRequest" },
+              cache: "no-store"
+            });
+
+            if (!response.ok) return null;
+            return await response.json();
+          } catch (e) {
+            console.error("Error auto-actualizando admin:", e);
+            return null;
+          }
+        }
+
+        async function pollAdminState() {
+          const data = await fetchPublicState();
+          if (!data) return;
+
+          latestPublicState = data;
+
+          const q = data.question || {};
+
+          const currentSnapshot = {
+            question_id: q.id || "",
+            selected_answer: q.selected_answer || "",
+            admin_validation_result: q.admin_validation_result || "",
+            argument_validation_required: q.argument_validation_required ? "1" : "0",
+            show_correct_answer: q.show_correct_answer ? "1" : "0",
+            validated_team_name: q.validated_team_name || "",
+            status: data.status || ""
+          };
+
+          updateTimeoutUI(data);
+
+          if (
+            currentSnapshot.question_id !== lastSnapshot.question_id ||
+            currentSnapshot.selected_answer !== lastSnapshot.selected_answer ||
+            currentSnapshot.admin_validation_result !== lastSnapshot.admin_validation_result ||
+            currentSnapshot.argument_validation_required !== lastSnapshot.argument_validation_required ||
+            currentSnapshot.show_correct_answer !== lastSnapshot.show_correct_answer ||
+            currentSnapshot.validated_team_name !== lastSnapshot.validated_team_name ||
+            currentSnapshot.status !== lastSnapshot.status
+          ) {
+            window.location.reload();
+          }
+        }
+
+        // Poll moderado
+        setInterval(pollAdminState, 5000);
+
+        // Revisión local por timeout sin refrescar la página
+        setInterval(() => {
+          updateTimeoutUI(latestPublicState);
+        }, 1000);
+
+        // Estado inicial
+        updateTimeoutUI(latestPublicState);
+      })();
     </script>
   </body>
 </html>

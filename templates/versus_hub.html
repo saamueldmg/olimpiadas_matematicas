@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Enfrentamientos Públicos - Olimpiadas Matemáticas</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        overflow-x: hidden;
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(24px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .animate-fade-in-up {
+        animation: fadeInUp 0.55s ease-out;
+      }
+
+      .glass-card {
+        background: rgba(255, 255, 255, 0.94);
+        backdrop-filter: blur(10px);
+      }
+
+      .level-card {
+        transition: all 0.25s ease;
+      }
+
+      .level-card:hover {
+        transform: translateY(-4px);
+      }
+
+      .status-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 0.9rem;
+        border-radius: 9999px;
+        font-size: 0.8rem;
+        font-weight: 800;
+      }
+
+      .status-idle {
+        background: #f3f4f6;
+        color: #4b5563;
+      }
+
+      .status-countdown {
+        background: #fef3c7;
+        color: #92400e;
+      }
+
+      .status-in-progress {
+        background: #dbeafe;
+        color: #1d4ed8;
+      }
+
+      .status-awaiting-argument-validation {
+        background: #ede9fe;
+        color: #6d28d9;
+      }
+
+      .status-answer-revealed {
+        background: #dcfce7;
+        color: #15803d;
+      }
+
+      .status-finished {
+        background: #fee2e2;
+        color: #991b1b;
+      }
+
+      .level-badge-n1 {
+        background: linear-gradient(135deg, #3b82f6, #2563eb);
+      }
+
+      .level-badge-n2 {
+        background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+      }
+
+      .level-badge-n3 {
+        background: linear-gradient(135deg, #10b981, #059669);
+      }
+
+      .match-button {
+        transition: all 0.2s ease;
+      }
+
+      .match-button:hover {
+        transform: scale(1.02);
+      }
+
+      button,
+      a,
+      label {
+        touch-action: manipulation;
+      }
+    </style>
+  </head>
+
+  <body class="min-h-screen p-4 sm:p-6 md:p-8">
+    <div class="container mx-auto max-w-7xl">
+      <header class="glass-card rounded-3xl shadow-2xl p-6 md:p-8 mb-8 animate-fade-in-up">
+        <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-6">
+          <div class="flex items-center space-x-4">
+            <div class="bg-gradient-to-br from-indigo-500 to-purple-700 text-white p-4 rounded-2xl shadow-lg">
+              <i class="fas fa-tv text-3xl"></i>
+            </div>
+
+            <div>
+              <h1 class="text-3xl md:text-4xl font-black text-gray-800">
+                Enfrentamientos Públicos
+              </h1>
+              <p class="text-gray-500 mt-1 text-base md:text-lg">
+                Selecciona el nivel para ver el duelo activo correspondiente
+              </p>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap gap-3 items-center">
+            <a
+              href="{{ url_for('quiz.scoreboard') }}"
+              class="flex items-center space-x-2 px-5 py-3 bg-indigo-50 text-indigo-700 rounded-xl hover:bg-indigo-100 transition-all font-semibold shadow-sm hover:shadow-md"
+            >
+              <i class="fas fa-chart-line"></i>
+              <span>Scoreboard</span>
+            </a>
+
+            {% if current_user.is_authenticated %}
+            <a
+              href="{{ url_for('quiz.dashboard') }}"
+              class="flex items-center space-x-2 px-5 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-all font-semibold shadow-sm hover:shadow-md"
+            >
+              <i class="fas fa-arrow-left"></i>
+              <span>Dashboard</span>
+            </a>
+            {% else %}
+            <a
+              href="{{ url_for('auth.login') }}"
+              class="flex items-center space-x-2 px-5 py-3 bg-blue-50 text-blue-700 rounded-xl hover:bg-blue-100 transition-all font-semibold shadow-sm hover:shadow-md"
+            >
+              <i class="fas fa-right-to-bracket"></i>
+              <span>Ingreso admin</span>
+            </a>
+            {% endif %}
+          </div>
+        </div>
+      </header>
+
+      <main class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {% for card in cards %}
+        <section
+          id="card-{{ card.level_key }}"
+          class="level-card glass-card rounded-3xl shadow-2xl p-6 animate-fade-in-up"
+          style="animation-delay: {{ loop.index * 0.08 }}s"
+        >
+          <div class="flex items-start justify-between gap-4 mb-5">
+            <div class="flex items-center gap-4">
+              <div
+                class="text-white w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg
+                {% if card.level_key == 'nivel1' %}
+                  level-badge-n1
+                {% elif card.level_key == 'nivel2' %}
+                  level-badge-n2
+                {% else %}
+                  level-badge-n3
+                {% endif %}
+                "
+              >
+                <i class="fas fa-trophy text-xl"></i>
+              </div>
+
+              <div>
+                <h2 class="text-2xl font-black text-gray-800">
+                  {{ card.level_label }}
+                </h2>
+                <p class="text-sm text-gray-500">
+                  Estado del enfrentamiento público
+                </p>
+              </div>
+            </div>
+
+            <div
+              id="status-pill-{{ card.level_key }}"
+              class="status-pill
+              {% if card.status == 'countdown' %}
+                status-countdown
+              {% elif card.status == 'in_progress' %}
+                status-in-progress
+              {% elif card.status == 'awaiting_argument_validation' %}
+                status-awaiting-argument-validation
+              {% elif card.status == 'answer_revealed' %}
+                status-answer-revealed
+              {% elif card.status == 'finished' %}
+                status-finished
+              {% else %}
+                status-idle
+              {% endif %}
+              "
+            >
+              <i class="fas fa-circle text-[10px]"></i>
+              <span id="status-text-{{ card.level_key }}">
+                {% if card.status == 'countdown' %}
+                  Preparando duelo
+                {% elif card.status == 'in_progress' %}
+                  En curso
+                {% elif card.status == 'awaiting_argument_validation' %}
+                  Esperando asignación
+                {% elif card.status == 'answer_revealed' %}
+                  Respuesta revelada
+                {% elif card.status == 'finished' %}
+                  Finalizado
+                {% else %}
+                  Sin enfrentamiento
+                {% endif %}
+              </span>
+            </div>
+          </div>
+
+          <div class="mb-5">
+            <div class="bg-gray-50 border border-gray-200 rounded-2xl p-4 min-h-[110px] flex items-center">
+              <div class="w-full">
+                <p class="text-xs uppercase tracking-wide text-gray-500 font-bold mb-2">
+                  Encuentro actual
+                </p>
+
+                {% if card.has_active_match and card.teams and card.teams|length >= 2 %}
+                <p
+                  id="match-text-{{ card.level_key }}"
+                  class="text-xl font-black text-gray-800 leading-tight"
+                >
+                  {{ card.teams[0] }} <span class="text-gray-400">VS</span> {{ card.teams[1] }}
+                </p>
+                {% else %}
+                <p
+                  id="match-text-{{ card.level_key }}"
+                  class="text-lg font-bold text-gray-400 leading-tight"
+                >
+                  Sin enfrentamiento activo en este nivel
+                </p>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+
+          <div class="space-y-3">
+            <a
+              id="match-button-{{ card.level_key }}"
+              href="{{ card.url }}"
+              class="match-button w-full inline-flex items-center justify-center gap-3 px-5 py-4 rounded-2xl font-black shadow-lg
+              {% if card.has_active_match %}
+                bg-gradient-to-r from-blue-600 to-indigo-700 text-white hover:from-blue-700 hover:to-indigo-800
+              {% else %}
+                bg-gray-200 text-gray-500 cursor-not-allowed pointer-events-none
+              {% endif %}
+              "
+            >
+              <i class="fas fa-tv"></i>
+              <span id="match-button-text-{{ card.level_key }}">
+                {% if card.has_active_match %}
+                  Ver enfrentamiento
+                {% else %}
+                  Esperando duelo
+                {% endif %}
+              </span>
+            </a>
+
+            <p
+              id="helper-text-{{ card.level_key }}"
+              class="text-sm text-gray-500 text-center"
+            >
+              {% if card.has_active_match %}
+                Pulsa para abrir la pantalla pública de {{ card.level_label }}
+              {% else %}
+                Cuando se active un duelo en este nivel, aparecerá aquí
+              {% endif %}
+            </p>
+          </div>
+        </section>
+        {% endfor %}
+      </main>
+    </div>
+
+    <script>
+      const stateEndpoint = "{{ url_for('quiz.versus_state') }}";
+
+      const levelLabels = {
+        nivel1: "Nivel I",
+        nivel2: "Nivel II",
+        nivel3: "Nivel III",
+      };
+
+      function getStatusLabel(status) {
+        const labels = {
+          idle: "Sin enfrentamiento",
+          countdown: "Preparando duelo",
+          in_progress: "En curso",
+          awaiting_argument_validation: "Esperando asignación",
+          answer_revealed: "Respuesta revelada",
+          finished: "Finalizado",
+        };
+
+        return labels[status] || "Sin enfrentamiento";
+      }
+
+      function getStatusClass(status) {
+        const classes = {
+          idle: "status-pill status-idle",
+          countdown: "status-pill status-countdown",
+          in_progress: "status-pill status-in-progress",
+          awaiting_argument_validation: "status-pill status-awaiting-argument-validation",
+          answer_revealed: "status-pill status-answer-revealed",
+          finished: "status-pill status-finished",
+        };
+
+        return classes[status] || "status-pill status-idle";
+      }
+
+      function updateLevelCard(levelKey, state) {
+        const status = state && state.status ? state.status : "idle";
+        const teams = state && state.teams ? state.teams : [];
+        const hasActiveMatch = !!status && status !== "idle";
+
+        const statusPill = document.getElementById(`status-pill-${levelKey}`);
+        const statusText = document.getElementById(`status-text-${levelKey}`);
+        const matchText = document.getElementById(`match-text-${levelKey}`);
+        const matchButton = document.getElementById(`match-button-${levelKey}`);
+        const matchButtonText = document.getElementById(`match-button-text-${levelKey}`);
+        const helperText = document.getElementById(`helper-text-${levelKey}`);
+
+        if (statusPill) {
+          statusPill.className = getStatusClass(status);
+        }
+
+        if (statusText) {
+          statusText.textContent = getStatusLabel(status);
+        }
+
+        if (matchText) {
+          if (hasActiveMatch && teams.length >= 2) {
+            matchText.innerHTML = `${teams[0]} <span class="text-gray-400">VS</span> ${teams[1]}`;
+            matchText.className = "text-xl font-black text-gray-800 leading-tight";
+          } else {
+            matchText.textContent = "Sin enfrentamiento activo en este nivel";
+            matchText.className = "text-lg font-bold text-gray-400 leading-tight";
+          }
+        }
+
+        if (matchButton && matchButtonText) {
+          if (hasActiveMatch) {
+            matchButton.className =
+              "match-button w-full inline-flex items-center justify-center gap-3 px-5 py-4 rounded-2xl font-black shadow-lg bg-gradient-to-r from-blue-600 to-indigo-700 text-white hover:from-blue-700 hover:to-indigo-800";
+            matchButton.style.pointerEvents = "auto";
+            matchButtonText.textContent = "Ver enfrentamiento";
+          } else {
+            matchButton.className =
+              "match-button w-full inline-flex items-center justify-center gap-3 px-5 py-4 rounded-2xl font-black shadow-lg bg-gray-200 text-gray-500 cursor-not-allowed pointer-events-none";
+            matchButton.style.pointerEvents = "none";
+            matchButtonText.textContent = "Esperando duelo";
+          }
+        }
+
+        if (helperText) {
+          if (hasActiveMatch) {
+            helperText.textContent = `Pulsa para abrir la pantalla pública de ${levelLabels[levelKey] || levelKey}`;
+          } else {
+            helperText.textContent = "Cuando se active un duelo en este nivel, aparecerá aquí";
+          }
+        }
+      }
+
+      async function fetchHubState() {
+        try {
+          const response = await fetch(stateEndpoint, {
+            method: "GET",
+            headers: {
+              "X-Requested-With": "XMLHttpRequest"
+            },
+            cache: "no-store"
+          });
+
+          if (!response.ok) {
+            console.error("No se pudo obtener el estado general de los niveles.");
+            return;
+          }
+
+          const data = await response.json();
+
+          updateLevelCard("nivel1", data.nivel1 || {});
+          updateLevelCard("nivel2", data.nivel2 || {});
+          updateLevelCard("nivel3", data.nivel3 || {});
+        } catch (error) {
+          console.error("Error actualizando el hub público:", error);
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        setTimeout(fetchHubState, 300);
+        setInterval(fetchHubState, 2500);
+      });
+    </script>
+  </body>
+</html>

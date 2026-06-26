@@ -1,8 +1,8 @@
 from flask import Flask, render_template, redirect, url_for
-from flask_login import LoginManager, current_user, logout_user
+from flask_login import LoginManager, current_user
 from whitenoise import WhiteNoise
 import firebase_admin
-from firebase_admin import credentials, firestore
+from firebase_admin import credentials
 import os
 import json
 
@@ -21,11 +21,14 @@ def create_app(config_name=None):
 
     if config_name is None:
         config_name = os.environ.get('FLASK_ENV', 'development')
+
     app.config.from_object(config[config_name])
 
-    STATIC_ROOT = os.path.join(os.path.dirname(
-        os.path.abspath(__file__)), 'static')
-    app.wsgi_app = WhiteNoise(app.wsgi_app, root=STATIC_ROOT, prefix="static/")
+    static_root = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)),
+        'static'
+    )
+    app.wsgi_app = WhiteNoise(app.wsgi_app, root=static_root, prefix="static/")
 
     initialize_firebase(app)
     setup_login_manager(app)
@@ -35,56 +38,61 @@ def create_app(config_name=None):
 
     @app.route('/')
     def index():
+        """
+        Ruta principal:
+        - si el admin ya inició sesión, ir al dashboard
+        - si no, mostrar el scoreboard público
+        """
         if current_user.is_authenticated:
-            logout_user()
-        return redirect(url_for('auth.login'))
+            return redirect(url_for('quiz.dashboard'))
+
+        return redirect(url_for('quiz.scoreboard'))
 
     return app
 
 
 def initialize_firebase(app):
     """
-    Inicializa Firebase Admin SDK
+    Inicializa Firebase Admin SDK.
+
     Soporta:
-    - Variable de entorno FIREBASE_CREDENTIALS (JSON string) para producción (Render.com)
+    - Variable de entorno FIREBASE_CREDENTIALS (JSON string) para producción
     - Archivo local firebase_credentials.json para desarrollo local
     """
     try:
-        # Verificar si ya está inicializado
         if firebase_admin._apps:
             app.logger.info("Firebase ya estaba inicializado")
             return
 
-        # OPCIÓN 1: Variable de entorno (PRODUCCIÓN - Render.com)
         firebase_creds_json = os.getenv('FIREBASE_CREDENTIALS')
 
         if firebase_creds_json:
-            app.logger.info(
-                "Usando credenciales de Firebase desde variable de entorno")
+            app.logger.info("Usando credenciales de Firebase desde variable de entorno")
+
             try:
                 cred_dict = json.loads(firebase_creds_json)
                 cred = credentials.Certificate(cred_dict)
 
-                # Inicializar con bucket
                 firebase_admin.initialize_app(cred, {
                     'storageBucket': 'olympic-math.firebasestorage.app'
                 })
 
                 print("=" * 60)
                 print("Firebase inicializado desde VARIABLE DE ENTORNO")
-                print(f"Bucket: olympic-math.firebasestorage.app")
+                print("Bucket: olympic-math.firebasestorage.app")
                 print("=" * 60)
 
             except json.JSONDecodeError as e:
-                app.logger.error(
-                    f"Error al parsear JSON de credenciales: {e}")
+                app.logger.error(f"Error al parsear JSON de credenciales: {e}")
                 raise
+
         else:
-            # OPCIÓN 2: Archivo local (DESARROLLO)
-            app.logger.info(
-                "Usando credenciales de Firebase desde archivo local")
-            cred_path = app.config.get('FIREBASE_CREDENTIALS',
-                                       os.path.join(os.path.dirname(__file__), 'firebase_credentials.json'))
+            app.logger.info("Usando credenciales de Firebase desde archivo local")
+
+            cred_path = app.config.get(
+                'FIREBASE_CREDENTIALS',
+                os.path.join(os.path.dirname(__file__), 'firebase_credentials.json')
+            )
 
             if not os.path.exists(cred_path):
                 raise FileNotFoundError(
@@ -94,7 +102,6 @@ def initialize_firebase(app):
 
             cred = credentials.Certificate(cred_path)
 
-            # Inicializar con bucket
             firebase_admin.initialize_app(cred, {
                 'storageBucket': 'olympic-math.firebasestorage.app'
             })
@@ -102,7 +109,7 @@ def initialize_firebase(app):
             print("=" * 60)
             print("Firebase inicializado desde ARCHIVO LOCAL")
             print(f"Archivo: {cred_path}")
-            print(f"Bucket: olympic-math.firebasestorage.app")
+            print("Bucket: olympic-math.firebasestorage.app")
             print("=" * 60)
 
         app.logger.info("Firebase inicializado correctamente")
@@ -113,6 +120,10 @@ def initialize_firebase(app):
 
 
 def setup_login_manager(app):
+    """
+    Configuración de Flask-Login.
+    Login solo para admin.
+    """
     login_manager = LoginManager()
     login_manager.init_app(app)
     login_manager.login_view = 'auth.login'
@@ -121,12 +132,18 @@ def setup_login_manager(app):
 
     @login_manager.user_loader
     def load_user(user_id):
-        if user_id == app.config['ADMIN_USERNAME']:
+        from flask import current_app
+
+        if user_id == current_app.config['ADMIN_USERNAME']:
             return User(user_id)
+
         return None
 
 
 def register_blueprints(app):
+    """
+    Registrar blueprints de la aplicación.
+    """
     app.register_blueprint(auth_bp)
     app.register_blueprint(quiz_bp)
     app.register_blueprint(team_bp)
@@ -137,8 +154,9 @@ def register_blueprints(app):
 
 
 def setup_context_processors(app):
-    """Registrar funciones helper para templates"""
-    # Importar aquí después de que Firebase esté inicializado
+    """
+    Registrar funciones helper para templates.
+    """
     from services.bracket_service import get_team_name
 
     @app.context_processor
@@ -151,6 +169,9 @@ def setup_context_processors(app):
 
 
 def setup_error_handlers(app):
+    """
+    Registrar manejo de errores HTTP comunes.
+    """
 
     @app.errorhandler(404)
     def not_found(error):
@@ -164,6 +185,7 @@ def setup_error_handlers(app):
     @app.errorhandler(413)
     def too_large(error):
         from flask import flash, redirect
+
         flash('El archivo es demasiado grande. Máximo 5MB.', 'error')
         return redirect(url_for('question.add_question'))
 
@@ -172,20 +194,19 @@ app = create_app()
 
 
 if __name__ == '__main__':
-    is_production = os.environ.get(
-        'RENDER', False) or os.environ.get('DYNO', False)
+    is_production = bool(os.environ.get('RENDER') or os.environ.get('DYNO'))
     port = int(os.environ.get('PORT', 5000))
     debug = not is_production
 
     if os.environ.get('WERKZEUG_RUN_MAIN') == 'true' or not debug:
         print("=" * 60)
-        print("OLIMPIADAS MATEMATICAS - BOSCOTECHLAB")
+        print("OLIMPIADAS MATEMÁTICAS - BOSCOTECHLAB")
         print("=" * 60)
         print(f"Puerto: {port}")
         print(f"Modo: {'Producción' if is_production else 'Desarrollo'}")
         print(f"Debug: {'Activado' if debug else 'Desactivado'}")
         print("=" * 60)
-        print(f"Desarrollador: Ing. Samuel David Moreno")
+        print("Desarrollador: Ing. Samuel David Moreno")
         print("=" * 60)
 
     app.run(

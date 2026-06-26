@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>¡El Duelo Comienza! - Olimpiadas Matemáticas</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+
+    <style>
+      body {
+        font-family: "Poppins", sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .fade-in {
+        animation: fadeIn 1s ease-out forwards;
+        opacity: 0;
+      }
+
+      @keyframes fadeIn {
+        to {
+          opacity: 1;
+        }
+      }
+
+      .scale-in {
+        animation: scaleIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        transform: scale(0);
+      }
+
+      @keyframes scaleIn {
+        to {
+          transform: scale(1);
+        }
+      }
+
+      .countdown-number {
+        font-size: clamp(7rem, 22vw, 20rem);
+        line-height: 1;
+        font-weight: 900;
+        text-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        animation: popNumber 0.5s ease-out;
+      }
+
+      @keyframes popNumber {
+        0% {
+          transform: scale(0.5);
+          opacity: 0;
+        }
+        50% {
+          transform: scale(1.1);
+        }
+        100% {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+
+      .final-text {
+        animation: slideUp 0.6s ease-out;
+      }
+
+      @keyframes slideUp {
+        from {
+          transform: translateY(30px);
+          opacity: 0;
+        }
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+
+      .team-card {
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(12px);
+        border: 2px solid rgba(255, 255, 255, 0.4);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      }
+
+      .vs-badge {
+        background: linear-gradient(135deg, #fde047, #facc15, #f59e0b);
+        box-shadow: 0 0 40px rgba(253, 224, 71, 0.6),
+          0 8px 24px rgba(0, 0, 0, 0.3);
+      }
+
+      .team-name {
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        line-height: 1.2;
+      }
+
+      .info-pill {
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(12px);
+        border: 1.5px solid rgba(255, 255, 255, 0.35);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+      }
+    </style>
+  </head>
+
+  <body class="flex items-center justify-center min-h-screen text-white p-6">
+    <div id="container" class="text-center w-full max-w-7xl relative z-10">
+      <div id="teams-display" class="transition-opacity duration-1000">
+        <div class="mb-8 fade-in">
+          <div class="inline-block">
+            <div class="flex items-center justify-center space-x-4 mb-3">
+              <div class="w-16 h-1 bg-gradient-to-r from-transparent via-yellow-300 to-yellow-300 rounded-full"></div>
+              <i class="fas fa-trophy text-yellow-300 text-4xl drop-shadow-lg"></i>
+              <div class="w-16 h-1 bg-gradient-to-l from-transparent via-yellow-300 to-yellow-300 rounded-full"></div>
+            </div>
+
+            <h1 class="text-4xl md:text-5xl font-black text-white tracking-wide uppercase mb-2 drop-shadow-lg">
+              Olimpiadas Matemáticas
+            </h1>
+
+            <p class="text-xl text-yellow-200 font-semibold drop-shadow-md">
+              Duelo de Conocimiento
+            </p>
+          </div>
+        </div>
+
+        <div class="fade-in mb-10" style="animation-delay: 0.15s">
+          <div class="flex flex-wrap justify-center gap-4">
+            <div class="info-pill px-6 py-3 rounded-2xl">
+              <p class="text-xs uppercase tracking-widest text-yellow-100 font-bold">
+                Nivel
+              </p>
+              <p class="text-xl font-black text-white">{{ match_state.level }}</p>
+            </div>
+
+            <div class="info-pill px-6 py-3 rounded-2xl">
+              <p class="text-xs uppercase tracking-widest text-yellow-100 font-bold">
+                Ronda
+              </p>
+              <p class="text-xl font-black text-white">{{ match_state.round|capitalize }}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch mb-12">
+          <div class="fade-in flex" style="animation-delay: 0.2s">
+            <div class="team-card p-8 rounded-3xl w-full flex flex-col justify-between min-h-[260px]">
+              <div class="flex-grow flex items-center justify-center mb-4 px-4">
+                <h2 class="team-name text-2xl sm:text-3xl md:text-4xl font-black text-white drop-shadow-lg text-center">
+                  {{ match_state.teams[0] if match_state.teams and match_state.teams|length > 0 else 'Equipo 1' }}
+                </h2>
+              </div>
+              <div class="inline-block bg-green-400/40 backdrop-blur-sm px-5 py-2 rounded-full border-2 border-green-300 mx-auto">
+                <p class="text-green-50 font-bold text-sm uppercase tracking-wider">
+                  Equipo 1
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="scale-in flex items-center justify-center" style="animation-delay: 0.4s">
+            <div class="vs-badge w-32 h-32 mx-auto rounded-3xl flex items-center justify-center border-4 border-yellow-200 transform rotate-12">
+              <span class="text-6xl font-black text-gray-900 transform -rotate-12 drop-shadow-md">
+                VS
+              </span>
+            </div>
+          </div>
+
+          <div class="fade-in flex" style="animation-delay: 0.6s">
+            <div class="team-card p-8 rounded-3xl w-full flex flex-col justify-between min-h-[260px]">
+              <div class="flex-grow flex items-center justify-center mb-4 px-4">
+                <h2 class="team-name text-2xl sm:text-3xl md:text-4xl font-black text-white drop-shadow-lg text-center">
+                  {{ match_state.teams[1] if match_state.teams and match_state.teams|length > 1 else 'Equipo 2' }}
+                </h2>
+              </div>
+              <div class="inline-block bg-red-400/40 backdrop-blur-sm px-5 py-2 rounded-full border-2 border-red-300 mx-auto">
+                <p class="text-red-50 font-bold text-sm uppercase tracking-wider">
+                  Equipo 2
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="fade-in" style="animation-delay: 0.8s">
+          <div class="inline-block bg-white/25 backdrop-blur-md px-8 py-4 rounded-2xl border-2 border-white/50 shadow-xl">
+            <p class="text-xl md:text-2xl font-bold text-white drop-shadow-lg">
+              ¡Que comience la batalla de las mentes!
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div id="countdown-display" class="fixed inset-0 flex items-center justify-center"></div>
+    </div>
+
+    <script>
+      const versusStateUrl = "{{ url_for('quiz.versus_level_state', level_slug=level_slug) }}";
+      const publicVersusUrl = "{{ url_for('quiz.versus_level', level_slug=level_slug) }}";
+
+      const teamsDisplay = document.getElementById("teams-display");
+      const countdownDisplay = document.getElementById("countdown-display");
+
+      const steps = [
+        { text: "3", type: "number", color: "text-cyan-200" },
+        { text: "2", type: "number", color: "text-pink-200" },
+        { text: "1", type: "number", color: "text-yellow-200" },
+        { text: "¡QUE GANE EL MEJOR!", type: "final" },
+        { text: "¡COMIENZA EL DUELO!", type: "launch" },
+      ];
+
+      let currentStep = 0;
+      let animationFinished = false;
+
+      function startCountdownAnimation() {
+        if (currentStep < steps.length) {
+          countdownDisplay.innerHTML = "";
+          const step = steps[currentStep];
+          const textEl = document.createElement("h1");
+
+          if (step.type === "number") {
+            textEl.textContent = step.text;
+            textEl.className = `countdown-number font-black ${step.color}`;
+            textEl.style.filter = "drop-shadow(0 0 30px rgba(255, 255, 255, 0.5))";
+          } else {
+            textEl.className = "final-text text-4xl md:text-7xl font-black text-white py-6";
+            textEl.style.filter = "drop-shadow(0 10px 20px rgba(0, 0, 0, 0.3))";
+            textEl.textContent = step.text;
+          }
+
+          countdownDisplay.appendChild(textEl);
+          currentStep++;
+
+          const nextDelay = step.type === "launch" ? 1500 : step.type === "final" ? 1800 : 1200;
+          setTimeout(startCountdownAnimation, nextDelay);
+        } else {
+          animationFinished = true;
+        }
+      }
+
+      async function checkPublicState() {
+        try {
+          const response = await fetch(versusStateUrl, {
+            headers: { "X-Requested-With": "XMLHttpRequest" },
+            cache: "no-store",
+          });
+
+          if (!response.ok) return;
+
+          const data = await response.json();
+
+          if (data.status && data.status !== "countdown") {
+            window.location.href = publicVersusUrl;
+          }
+        } catch (e) {
+          console.error("Error verificando estado público:", e);
+        }
+      }
+
+      setTimeout(() => {
+        teamsDisplay.style.opacity = "0";
+        setTimeout(startCountdownAnimation, 1000);
+      }, 5000);
+
+      setInterval(checkPublicState, 1000);
+
+      setInterval(() => {
+        if (animationFinished) {
+          window.location.href = publicVersusUrl;
+        }
+      }, 1500);
+    </script>
+  </body>
+</html>

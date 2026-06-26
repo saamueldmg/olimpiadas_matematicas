@@ -26,6 +26,10 @@ class Config:
     ADMIN_USERNAME = os.environ.get('ADMIN_USERNAME', 'admin')
     ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'bosco@tech%')
 
+    #Player
+    PLAYER_USERNAME = os.environ.get('PLAYER_USERNAME', 'player')
+    PLAYER_PASSWORD = os.environ.get('PLAYER_PASSWORD', 'juego123')
+
     # Upload settings
     MAX_CONTENT_LENGTH = 5 * 1024 * 1024  # 5MB máximo
     ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}

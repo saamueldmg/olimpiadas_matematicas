@@ -1,8 +1,8 @@
 """
 Modelo de Usuario para el sistema
 """
+
 from flask_login import UserMixin
-from werkzeug.security import check_password_hash
 
 
 class User(UserMixin):
@@ -17,4 +17,4 @@ class User(UserMixin):
         return str(self.id)
 
     def __repr__(self):
-        return f'<User {self.username}>'
+        return f"<User {self.username}>"

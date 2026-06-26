@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Iniciar Concurso - Olimpiadas Matemáticas</title>
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -15,6 +16,7 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
+
     <style>
       :root {
         --brand-700: #1f3a8a;
@@ -40,7 +42,6 @@
         min-height: 100vh;
       }
 
-      /* Animaciones unificadas del dashboard */
       @keyframes fadeInUp {
         from {
           opacity: 0;
@@ -56,7 +57,6 @@
         animation: fadeInUp 0.6s ease-out;
       }
 
-      /* Botones de nivel con animaciones del dashboard */
       .level-button {
         position: relative;
         overflow: hidden;
@@ -81,7 +81,6 @@
         box-shadow: var(--shadow-lg);
       }
 
-      /* Efecto de brillo del dashboard */
       .level-button::after {
         content: "";
         position: absolute;
@@ -103,7 +102,6 @@
         opacity: 1;
       }
 
-      /* Botones de ronda con animaciones del dashboard */
       .round-button {
         position: relative;
         overflow: hidden;
@@ -151,7 +149,6 @@
         opacity: 1;
       }
 
-      /* Selectores personalizados */
       .custom-select {
         appearance: none;
         background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
@@ -169,38 +166,17 @@
         opacity: 0.6;
       }
 
-      /* Fondo con créditos */
-      .background-credits {
-        position: fixed;
-        inset: 0;
-        z-index: 0;
-        opacity: 0.4;
-        pointer-events: none;
+      .danger-btn {
+        transition: all 0.2s ease;
       }
 
-      .credits-card {
-        position: absolute;
-        bottom: 2rem;
-        left: 2rem;
-        right: 2rem;
-        background: rgba(255, 255, 255, 0.08);
-        backdrop-filter: blur(15px);
-        border: 1.5px solid rgba(255, 255, 255, 0.15);
-        border-radius: 2rem;
-        padding: 2.5rem;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-      }
-
-      .logo-item {
-        transition: transform 0.16s ease;
-      }
-
-      .logo-item:hover {
-        transform: scale(1.1);
+      .danger-btn:hover {
+        transform: scale(1.02);
       }
     </style>
   </head>
-    <!-- CONTENIDO PRINCIPAL (FRENTE) -->
+
+  <body class="min-h-screen p-4 sm:p-6 md:p-8">
     <div class="container mx-auto max-w-5xl animate-fade-in-up relative z-10">
       <header
         class="bg-white rounded-2xl shadow-md p-6 mb-8 flex flex-col sm:flex-row justify-between items-center"
@@ -218,6 +194,7 @@
             </p>
           </div>
         </div>
+
         <a
           href="{{ url_for('quiz.dashboard') }}"
           class="mt-4 sm:mt-0 flex items-center space-x-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium"
@@ -227,22 +204,58 @@
         </a>
       </header>
 
-      <main class="bg-white p-8 rounded-3xl shadow-md">
-        {% if error %}
-        <div
-          class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-lg mb-6 animate-fade-in-up"
-          role="alert"
-        >
-          <div class="flex items-center">
-            <i class="fas fa-exclamation-triangle text-2xl mr-3"></i>
-            <div>
-              <p class="font-bold">¡Atención!</p>
-              <p>{{ error }}</p>
-            </div>
-          </div>
-        </div>
+      <!-- Flash messages -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <section class="mb-6 space-y-3">
+            {% for category, message in messages %}
+              {% if category == 'error' %}
+                <div
+                  class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-lg shadow"
+                  role="alert"
+                >
+                  <div class="flex items-center">
+                    <i class="fas fa-exclamation-triangle text-2xl mr-3"></i>
+                    <div>
+                      <p class="font-bold">¡Atención!</p>
+                      <p>{{ message }}</p>
+                    </div>
+                  </div>
+                </div>
+              {% elif category == 'success' %}
+                <div
+                  class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded-lg shadow"
+                  role="alert"
+                >
+                  <div class="flex items-center">
+                    <i class="fas fa-check-circle text-2xl mr-3"></i>
+                    <div>
+                      <p class="font-bold">Correcto</p>
+                      <p>{{ message }}</p>
+                    </div>
+                  </div>
+                </div>
+              {% else %}
+                <div
+                  class="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 rounded-lg shadow"
+                  role="alert"
+                >
+                  <div class="flex items-center">
+                    <i class="fas fa-info-circle text-2xl mr-3"></i>
+                    <div>
+                      <p class="font-bold">Información</p>
+                      <p>{{ message }}</p>
+                    </div>
+                  </div>
+                </div>
+              {% endif %}
+            {% endfor %}
+          </section>
         {% endif %}
+      {% endwith %}
 
+      <main class="bg-white p-8 rounded-3xl shadow-md">
+        <!-- FORM PRINCIPAL -->
         <form
           id="quiz-form"
           action="{{ url_for('quiz.select_level') }}"
@@ -264,6 +277,7 @@
                 Elige el Nivel del Desafío
               </h2>
             </div>
+
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div
                 id="btn-nivel1"
@@ -275,6 +289,7 @@
                 <span class="text-2xl block">Nivel I</span>
                 <span class="block text-sm opacity-90 mt-2">6° - 7°</span>
               </div>
+
               <div
                 id="btn-nivel2"
                 data-level="Nivel II"
@@ -285,6 +300,7 @@
                 <span class="text-2xl block">Nivel II</span>
                 <span class="block text-sm opacity-90 mt-2">8° - 9°</span>
               </div>
+
               <div
                 id="btn-nivel3"
                 data-level="Nivel III"
@@ -384,6 +400,7 @@
                 Selecciona los Contendientes
               </h2>
             </div>
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
               <!-- Equipo 1 -->
               <div
@@ -435,8 +452,8 @@
             </div>
           </section>
 
-          <!-- BOTONES DE CONTROL -->
-          <div class="pt-6 flex gap-4 justify-center">
+          <!-- BOTÓN PRINCIPAL -->
+          <div class="pt-6 flex justify-center">
             <button
               id="submit-button"
               type="submit"
@@ -448,6 +465,34 @@
             </button>
           </div>
         </form>
+
+        <!-- RESET TRACKING SEPARADO -->
+        <div class="pt-6 border-t mt-8">
+          <div class="flex flex-col items-center gap-3">
+            <p class="text-sm text-gray-500 text-center max-w-2xl">
+              Si ya se agotaron preguntas de una ronda o quieres permitir que vuelvan a salir,
+              puedes reiniciar el tracking de preguntas usadas.
+            </p>
+
+            <form
+              id="reset-tracking-form"
+              action="{{ url_for('quiz.reset_question_tracking') }}"
+              method="post"
+            >
+              <input type="hidden" name="level" id="reset-level" value="" />
+              <input type="hidden" name="round" id="reset-round" value="" />
+
+              <button
+                id="reset-tracking-button"
+                type="submit"
+                class="danger-btn bg-red-50 text-red-700 hover:bg-red-100 font-bold py-3 px-6 rounded-2xl shadow-md hover:shadow-lg transition-all"
+              >
+                <i class="fas fa-rotate-left mr-2"></i>
+                Reiniciar tracking global
+              </button>
+            </form>
+          </div>
+        </div>
       </main>
     </div>
 
@@ -459,6 +504,10 @@
         const selectedRoundInput = document.getElementById("selected-round");
         const submitButton = document.getElementById("submit-button");
         const form = document.getElementById("quiz-form");
+
+        const resetLevelInput = document.getElementById("reset-level");
+        const resetRoundInput = document.getElementById("reset-round");
+        const resetTrackingButton = document.getElementById("reset-tracking-button");
 
         const levelButtons = [
           document.getElementById("btn-nivel1"),
@@ -484,15 +533,18 @@
 
         function populateSelect(selectElement, teams) {
           selectElement.innerHTML = "";
+
           if (!teams || teams.length === 0) {
             selectElement.disabled = true;
             selectElement.innerHTML =
               '<option value="">No hay equipos para este nivel</option>';
             return;
           }
+
           selectElement.disabled = false;
           selectElement.innerHTML =
             '<option value="" disabled selected>Selecciona un equipo...</option>';
+
           teams.forEach((team) => {
             const option = document.createElement("option");
             option.value = team;
@@ -519,11 +571,14 @@
             );
           } else {
             submitButton.disabled = true;
+
             let missing = [];
             if (!selectedLevel) missing.push("Nivel");
             if (!selectedRound) missing.push("Ronda");
+
             submitButton.innerHTML =
               '<i class="fas fa-lock mr-2"></i> Selecciona ' + missing.join(" y ");
+
             submitButton.classList.add("bg-gray-400", "cursor-not-allowed");
             submitButton.classList.remove(
               "bg-gradient-to-r",
@@ -538,31 +593,55 @@
           }
         }
 
+        function updateResetTrackingForm() {
+          resetLevelInput.value = selectedLevel || "";
+          resetRoundInput.value = selectedRound || "";
+
+          if (selectedLevel && selectedRound) {
+            resetTrackingButton.innerHTML =
+              '<i class="fas fa-rotate-left mr-2"></i> Reiniciar tracking de ' +
+              selectedLevel + ' - ' + selectedRound;
+          } else {
+            resetTrackingButton.innerHTML =
+              '<i class="fas fa-rotate-left mr-2"></i> Reiniciar tracking global';
+          }
+        }
+
         levelButtons.forEach((button) => {
           button.addEventListener("click", (e) => {
             e.preventDefault();
+
             levelButtons.forEach((btn) => btn.classList.remove("active"));
             button.classList.add("active");
+
             const levelName = button.dataset.level;
             const levelKey = button.dataset.key;
+
             selectedLevel = levelName;
             selectedLevelInput.value = levelName;
+
             const teamsForLevel = teamsData[levelKey] || [];
             populateSelect(team1Select, teamsForLevel);
             populateSelect(team2Select, teamsForLevel);
+
             updateSubmitButton();
+            updateResetTrackingForm();
           });
         });
 
         roundButtons.forEach((button) => {
           button.addEventListener("click", (e) => {
             e.preventDefault();
+
             roundButtons.forEach((btn) => btn.classList.remove("active"));
             button.classList.add("active");
+
             const roundValue = button.dataset.round;
             selectedRound = roundValue;
             selectedRoundInput.value = roundValue;
+
             updateSubmitButton();
+            updateResetTrackingForm();
           });
         });
 
@@ -578,6 +657,7 @@
         team1Select.addEventListener("change", () =>
           syncSelectors(team1Select, team2Select)
         );
+
         team2Select.addEventListener("change", () =>
           syncSelectors(team2Select, team1Select)
         );
@@ -585,11 +665,24 @@
         form.addEventListener("submit", (e) => {
           if (!selectedLevelInput.value || !selectedRoundInput.value) {
             e.preventDefault();
-            alert(
-              "Por favor, selecciona un nivel y una ronda antes de continuar."
-            );
+            alert("Por favor, selecciona un nivel y una ronda antes de continuar.");
+            return;
+          }
+
+          if (!team1Select.value || !team2Select.value) {
+            e.preventDefault();
+            alert("Debes seleccionar dos equipos para iniciar el duelo.");
+            return;
+          }
+
+          if (team1Select.value === team2Select.value) {
+            e.preventDefault();
+            alert("No puedes seleccionar el mismo equipo dos veces.");
           }
         });
+
+        updateSubmitButton();
+        updateResetTrackingForm();
       });
     </script>
   </body>

@@ -4,22 +4,27 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Iniciar Sesión - Olimpiadas Matemáticas</title>
+
     <script src="https://cdn.tailwindcss.com"></script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap"
       rel="stylesheet"
     />
+
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
+
     <style>
       body {
         font-family: "Inter", sans-serif;
         background-color: #ffffff;
       }
+
       @keyframes fadeInUp {
         from {
           opacity: 0;
@@ -30,9 +35,11 @@
           transform: translateY(0);
         }
       }
+
       .animate-fade-in-up {
         animation: fadeInUp 0.6s ease-out;
       }
+
       @keyframes float {
         0%,
         100% {
@@ -42,11 +49,13 @@
           transform: translateY(-10px);
         }
       }
+
       .float-animation {
         animation: float 3s ease-in-out infinite;
       }
     </style>
   </head>
+
   <body class="min-h-screen flex items-center justify-center p-4 bg-gray-50">
     <div class="w-full max-w-md animate-fade-in-up">
       <!-- Logo Card -->
@@ -66,7 +75,7 @@
       <div
         class="bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100"
       >
-        <!-- Header con gradiente -->
+        <!-- Header -->
         <div
           class="bg-gradient-to-r from-blue-500 to-purple-600 p-8 text-center"
         >
@@ -77,19 +86,37 @@
           <p class="text-blue-100">Panel de Administración</p>
         </div>
 
-        <!-- Error Alert -->
-        {% if error %}
-        <div class="mx-8 mt-6">
-          <div class="bg-red-50 border-l-4 border-red-500 rounded-xl p-4">
-            <div class="flex items-center">
-              <i
-                class="fas fa-exclamation-circle text-red-500 text-xl mr-3"
-              ></i>
-              <p class="text-red-700 font-semibold">{{ error }}</p>
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <div class="mx-8 mt-6 space-y-3">
+              {% for category, message in messages %}
+                {% if category == 'error' %}
+                  <div class="bg-red-50 border-l-4 border-red-500 rounded-xl p-4">
+                    <div class="flex items-center">
+                      <i class="fas fa-exclamation-circle text-red-500 text-xl mr-3"></i>
+                      <p class="text-red-700 font-semibold">{{ message }}</p>
+                    </div>
+                  </div>
+                {% elif category == 'success' %}
+                  <div class="bg-green-50 border-l-4 border-green-500 rounded-xl p-4">
+                    <div class="flex items-center">
+                      <i class="fas fa-check-circle text-green-500 text-xl mr-3"></i>
+                      <p class="text-green-700 font-semibold">{{ message }}</p>
+                    </div>
+                  </div>
+                {% else %}
+                  <div class="bg-blue-50 border-l-4 border-blue-500 rounded-xl p-4">
+                    <div class="flex items-center">
+                      <i class="fas fa-info-circle text-blue-500 text-xl mr-3"></i>
+                      <p class="text-blue-700 font-semibold">{{ message }}</p>
+                    </div>
+                  </div>
+                {% endif %}
+              {% endfor %}
             </div>
-          </div>
-        </div>
-        {% endif %}
+          {% endif %}
+        {% endwith %}
 
         <!-- Form -->
         <form
@@ -111,6 +138,7 @@
               name="username"
               type="text"
               required
+              autocomplete="username"
               class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition text-gray-900 placeholder-gray-400"
               placeholder="Ingresa tu usuario"
             />
@@ -130,6 +158,7 @@
               name="password"
               type="password"
               required
+              autocomplete="current-password"
               class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-4 focus:ring-purple-200 focus:border-purple-500 transition text-gray-900 placeholder-gray-400"
               placeholder="Ingresa tu contraseña"
             />
